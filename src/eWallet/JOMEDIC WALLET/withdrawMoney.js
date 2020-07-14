@@ -66,8 +66,63 @@ export default class withdrawMoney extends Component {
         .then((responseJson) => {
             console.log(responseJson)
             if (responseJson.status == "SUCCESS") {
-                this.props.navigation.goBack();
-                alert('Withdrawal Success');
+                let data = {
+                    txn_cd: 'MEDEWALL04',
+                    tstamp: getTodayDate(),
+                    data: {
+                        userID: this.props.route.params.userId
+                    }
+                }
+
+                fetch(URL + '/EWALL', {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+
+                }).then((response) => response.json())
+                    .then((responseJson) => {
+                        data = {
+                            txn_cd: 'MEDEWALL03',
+                            tstamp: getTodayDate(),
+                            data: {
+                                userID: this.props.route.params.userId,
+                                ewalletAccNo: responseJson.status.ewallet_acc_no,
+                                banAccNo: responseJson.status.bank_acc_no,
+                                creditCardNo: responseJson.status.credit_card_no,
+                                availableAmt: responseJson.status.available_amt-this.state.amount,
+                                freezeAmt: responseJson.status.freeze_amt,
+                                floatAmt: responseJson.status.float_amt,
+                                currencyCd: responseJson.status.currency_cd,
+                                status: responseJson.status.status,
+                            }
+                        }
+
+
+                        fetch(URL + '/EWALL', {
+                            method: 'POST',
+                            headers: {
+                                Accept: 'application/json',
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(data)
+
+                        }).then((response) => response.json())
+                            .then((responseJson) => {
+                                if (responseJson.status == "SUCCESS") {
+                                    this.props.navigation.goBack();
+                                    alert('Withdrawal Success');
+                                }
+
+                            }).catch((error) => {
+                                alert(error)
+                            });
+
+                    }).catch((error) => {
+                        alert(error)
+                    });
 
             }
 

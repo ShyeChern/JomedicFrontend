@@ -37,8 +37,6 @@ export default class onlineBanking extends Component {
     }
 
     reload = () => {
-        console.log(this.props.route.params.userId);
-        console.log(this.props.route.params.walletNo);
 
         const datas = {
             txn_cd: 'MEDEWALL09',
@@ -52,7 +50,6 @@ export default class onlineBanking extends Component {
             }
         }
 
-        console.log(datas);
 
         fetch(URL + '/EWALL', {
             method: 'POST',
@@ -64,124 +61,158 @@ export default class onlineBanking extends Component {
 
         }).then((response) => response.json())
             .then((responseJson) => {
-                console.log(responseJson)
-                if(responseJson.status=="SUCCESS"){
-                    this.props.navigation.goBack();
-                    alert('Reload Success');
-                }
-                // if (responseJson.status === "NOTFOUND") {
-                //     setActivate(true);
-                // } else {
+                if (responseJson.status == "SUCCESS") {
 
-                // }
+                    let data = {
+                        txn_cd: 'MEDEWALL04',
+                        tstamp: getTodayDate(),
+                        data: {
+                            userID: this.props.route.params.userId
+                        }
+                    }
 
-                // if (responseJson.status === 'fail' || responseJson.status === 'duplicate' || responseJson.status === 'emptyValue' || responseJson.status === 'incompleteDataReceived' || responseJson.status === 'ERROR901') {
-                //     console.log('Something Error')
-                // } else if (responseJson.status === 'WRONGDATA') {
-                //     Alert.alert(
-                //         'Failed',
-                //         "Sorry, you enter invalid tac. Please make sure you put the valid tac."
-                //     );
+                    fetch(URL + '/EWALL', {
+                        method: 'POST',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
 
-                // } else if (responseJson.status === 'SUCCESS') {
-                //     signIn(email)
+                    }).then((response) => response.json())
+                        .then((responseJson) => {
+                            data = {
+                                txn_cd: 'MEDEWALL03',
+                                tstamp: getTodayDate(),
+                                data: {
+                                    userID: this.props.route.params.userId,
+                                    ewalletAccNo: responseJson.status.ewallet_acc_no,
+                                    banAccNo: responseJson.status.bank_acc_no,
+                                    creditCardNo: responseJson.status.credit_card_no,
+                                    availableAmt: responseJson.status.available_amt+100,
+                                    freezeAmt: responseJson.status.freeze_amt,
+                                    floatAmt: responseJson.status.float_amt,
+                                    currencyCd: responseJson.status.currency_cd,
+                                    status: responseJson.status.status,
+                                }
+                            }
 
 
-                // }
+                            fetch(URL + '/EWALL', {
+                                method: 'POST',
+                                headers: {
+                                    Accept: 'application/json',
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(data)
 
+                            }).then((response) => response.json())
+                                .then((responseJson) => {
+                                    if (responseJson.status == "SUCCESS") {
+                                        this.props.navigation.goBack();
+                                        alert('Reload Success');
+                                    }
 
-            }).catch((error) => {
-                alert(error)
-            });
+                                }).catch((error) => {
+                                    alert(error)
+                                });
+
+                        }).catch((error) => {
+                            alert(error)
+                        });
+                    }
+                }).catch((error) => {
+                    alert(error)
+                });
     }
 
     render() {
         return (
             <View>
                 <View>
-                     
-                <View style={styles.Method}>
-                    <Text style={{ fontSize: 23, color: 'grey' }}> Top Up Methods</Text>
-                </View>
-                <View style={{ paddingTop:40}}>
-                    <Collapse>
-                        <CollapseHeader>
-                            <View style={{ backgroundColor: '#ccdfff', height: 30, justifyContent: 'center', borderWidth: .5 }}>
 
-                                <Text style={styles.CreditOnline}> Your Credit/ Debit Card         </Text>
+                    <View style={styles.Method}>
+                        <Text style={{ fontSize: 23, color: 'grey' }}> Top Up Methods</Text>
+                    </View>
+                    <View style={{ paddingTop: 40 }}>
+                        <Collapse>
+                            <CollapseHeader>
+                                <View style={{ backgroundColor: '#ccdfff', height: 30, justifyContent: 'center', borderWidth: .5 }}>
 
-                            </View>
-                        </CollapseHeader>
-                        <CollapseBody>
-                            <View>
-                                <TextInput
-                                    style={styles.InputCardNumber}
-                                    onChangeText={(cardNumber) => this.setState({ cardNumber })}
-                                    placeholder={'Card Number'}
-                                    value={this.state.cardNumber}
-                                />
+                                    <Text style={styles.CreditOnline}> Your Credit/ Debit Card         </Text>
 
-                            </View>
-                            <View>
-                                <TextInput
-                                    style={styles.InputCVV}
-                                    onChangeText={(cvv) => this.setState({ cvv })}
-                                    placeholder={'CVV'}
-                                    value={this.state.cvv} />
-                            </View>
+                                </View>
+                            </CollapseHeader>
+                            <CollapseBody>
+                                <View>
+                                    <TextInput
+                                        style={styles.InputCardNumber}
+                                        onChangeText={(cardNumber) => this.setState({ cardNumber })}
+                                        placeholder={'Card Number'}
+                                        value={this.state.cardNumber}
+                                    />
 
-                            <Text style={styles.Acknowledge}> I acknowledge that my card information is saved in my jomedic
+                                </View>
+                                <View>
+                                    <TextInput
+                                        style={styles.InputCVV}
+                                        onChangeText={(cvv) => this.setState({ cvv })}
+                                        placeholder={'CVV'}
+                                        value={this.state.cvv} />
+                                </View>
+
+                                <Text style={styles.Acknowledge}> I acknowledge that my card information is saved in my jomedic
                             account and one time password might not be required for transaction in Jomedic.</Text>
-                        </CollapseBody>
-                    </Collapse>
-                    <Collapse>
-                        <CollapseHeader>
-                            <View style={{ backgroundColor: '#ccdfff', height: 30, justifyContent: 'center', borderWidth: .5 }}>
-                                <Text style={styles.CreditOnline}> Online Banking         </Text>
+                            </CollapseBody>
+                        </Collapse>
+                        <Collapse>
+                            <CollapseHeader>
+                                <View style={{ backgroundColor: '#ccdfff', height: 30, justifyContent: 'center', borderWidth: .5 }}>
+                                    <Text style={styles.CreditOnline}> Online Banking         </Text>
 
-                            </View>
-                        </CollapseHeader>
-                        <CollapseBody>
-                            <View>
-                                <RadioForm style={styles.Radio}
-                                    radio_props={radio_props}
-                                    initial={0}
-                                    onPress={(value) => { this.setState({ value: value }) }}
-                                />
-                            </View>
+                                </View>
+                            </CollapseHeader>
+                            <CollapseBody>
+                                <View>
+                                    <RadioForm style={styles.Radio}
+                                        radio_props={radio_props}
+                                        initial={0}
+                                        onPress={(value) => { this.setState({ value: value }) }}
+                                    />
+                                </View>
 
-                        </CollapseBody>
-                    </Collapse>
-                    <Collapse>
-                        <CollapseHeader>
-                            <View style={{ backgroundColor: '#ccdfff', height: 30, justifyContent: 'center', borderWidth: .5 }}>
-                                <Text style={styles.CreditOnline}>   Pin Reload    </Text>
+                            </CollapseBody>
+                        </Collapse>
+                        <Collapse>
+                            <CollapseHeader>
+                                <View style={{ backgroundColor: '#ccdfff', height: 30, justifyContent: 'center', borderWidth: .5 }}>
+                                    <Text style={styles.CreditOnline}>   Pin Reload    </Text>
 
-                            </View>
-                        </CollapseHeader>
-                        <CollapseBody>
-                            <View style={{ padding: 10, }}>
+                                </View>
+                            </CollapseHeader>
+                            <CollapseBody>
+                                <View style={{ padding: 10, }}>
 
-                                <TextInput
-                                    value={this.state.pinNumber}
-                                    onChangeText={(pinNumber) => this.setState({ pinNumber })}
-                                    placeholder={' Enter Reload Pin'}
-                                    style={styles.input}
-                                />
-                            </View>
-                            <View style={{ padding: 9 }}>
-                                <TouchableOpacity onPress={() => this.reload()} style={styles.reload}>
-                                    <Text style={{ textAlign: 'center' }}> Reload </Text>
-                                </TouchableOpacity>
-                            </View>
+                                    <TextInput
+                                        value={this.state.pinNumber}
+                                        onChangeText={(pinNumber) => this.setState({ pinNumber })}
+                                        placeholder={' Enter Reload Pin'}
+                                        style={styles.input}
+                                    />
+                                </View>
+                                <View style={{ padding: 9 }}>
+                                    <TouchableOpacity onPress={() => this.reload()} style={styles.reload}>
+                                        <Text style={{ textAlign: 'center' }}> Reload </Text>
+                                    </TouchableOpacity>
+                                </View>
 
-                        </CollapseBody>
-                    </Collapse>
+                            </CollapseBody>
+                        </Collapse>
+                    </View>
                 </View>
-                </View>
-               
 
-               
+
+
 
 
 
@@ -205,7 +236,7 @@ const styles = StyleSheet.create({
     },
 
     Method: {
-        
+
         alignItems: 'center',
         justifyContent: 'space-between',
         marginLeft: 20,
