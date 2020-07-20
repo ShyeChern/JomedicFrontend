@@ -22,7 +22,6 @@ export default class BodyTemperature extends Component {
 
             // Variables for LHS
             temperature_reading: '', // decimal(5,2)
-            test: '123'
         }
     }
 
@@ -174,7 +173,7 @@ export default class BodyTemperature extends Component {
 
             // Check is it numeric input
             if (isNaN(temperature2dp)) {
-                Alert.alert("Invalid Body Temperature", "Body temperature only accepts number input with decimal points.")
+                Alert.alert("Invalid Body Temperature", "Body temperature only accepts number input with 2 decimal points.")
                 return
             }
 

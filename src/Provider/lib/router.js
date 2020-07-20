@@ -687,7 +687,7 @@ const VitalSignTopTabNavigator = ({ navigation, route }) => {
                     }
                 }
             />
-            {/* <VitalSignTab.Screen name='BloodGlucose' component={BloodGlucoseScreen}
+            <VitalSignTab.Screen name='BloodGlucose' component={BloodGlucoseScreen}
                 options={{ title: 'Blood Glucose' }}
                 initialParams={
                     {
@@ -699,7 +699,7 @@ const VitalSignTopTabNavigator = ({ navigation, route }) => {
                         id_number: id_number
                     }
                 }
-            /> */}
+            />
             <VitalSignTab.Screen name='BodyTemperature' component={BodyTemperatureScreen}
                 options={{ title: 'Body Temperature' }}
                 initialParams={
@@ -713,7 +713,7 @@ const VitalSignTopTabNavigator = ({ navigation, route }) => {
                     }
                 }
             />
-            {/*  <VitalSignTab.Screen name='Cholesterol' component={CholesterolScreen}
+             <VitalSignTab.Screen name='Cholesterol' component={CholesterolScreen}
                 options={{ title: 'Cholesterol' }}
                 initialParams={
                     {
@@ -764,7 +764,7 @@ const VitalSignTopTabNavigator = ({ navigation, route }) => {
                         id_number: id_number
                     }
                 }
-            /> */}
+            />
         </VitalSignTab.Navigator>
     )
 }

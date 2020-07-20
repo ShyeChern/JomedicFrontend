@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, ScrollView, TouchableOpacity, TextInput } from 'react-native'
+import { Text, StyleSheet, View, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native'
 import { Divider } from 'react-native-elements'
 
 import { getTodayDate } from '../util/getDate'
@@ -10,36 +10,179 @@ import Loader from '../screen/Loader'
 export default class BloodGlucose extends Component {
     constructor(props) {
         super(props)
+
+        var params = this.props.route.params;
+
         this.state = {
-            order_no: '',
-            user_id: '',
-            tenant_id: '',
-            episode_date: '',
-            encounter_date: '',
-            id_number: '',
+            isLoading: false, 
+
+            order_no: params.order_no || '',
+            user_id: params.user_id || '',
+            tenant_id: params.tenant_id || '',
+            episode_date: params.episode_date || '',
+            encounter_date: params.encounter_date || '',
+            id_number: params.id_number || '',
 
             blood_glucose_level: '',    // decimal(3,1)
         }
     }
 
-    componentDidMount() {
-        this.initializeData();
+    async componentDidMount() {
+        await this.loadBloodGlucose();
     }
 
-    initializeData = () => {
-        var params = this.props.route.params;
-
+    // Get blood glucose data from database
+    loadBloodGlucose = async () => {
         this.setState({
-            order_no: params.order_no,
-            user_id: params.user_id,
-            tenant_id: params.tenant_id,
-            episode_date: params.episode_date,
-            encounter_date: params.encounter_date,
-            id_number: params.id_number,
+            isLoading: true
         })
+
+        let datas = {
+            txn_cd: 'MEDORDER068',
+            tstamp: getTodayDate(),
+            data: {
+                pmi_no: this.state.id_number,
+                hfc_cd: this.state.tenant_id,
+                episode_date: this.state.episode_date,
+                encounter_date: this.state.encounter_date
+            }
+        }
+
+        try {
+            const response = await fetch(URL_Provider, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datas)
+            });
+
+            const json = await response.json();
+
+            if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
+                console.log('Load Blood Glucose Error');
+                console.log(json.status);
+            }
+            else {
+                var data = json.status[0]
+                if (data) {
+                    this.setState({
+                        blood_glucose_level: data.blood_glucose_level.toString(),
+                    })
+                }
+            };
+
+            this.setState({
+                isLoading: false
+            })
+
+        } catch (error) {
+            console.log("Load Blood Glucose Error: " + error)
+            handleNoInternet()
+            this.setState({
+                isLoading: false
+            })
+        }
+
+    }
+
+    // Save blood glucose data into database
+    saveBloodGlucose = async (blood_glucose_level) => {
+        this.setState({
+            isLoading: true
+        })
+
+        let datas = {
+            txn_cd: 'MEDORDER067',
+            tstamp: getTodayDate(),
+            data: {
+                pmi_no: this.state.id_number,
+                hfc_cd: this.state.tenant_id,
+                episode_date: this.state.episode_date,
+                encounter_date: this.state.encounter_date,
+                blood_glucose_level: blood_glucose_level
+            }
+        }
+
+        try {
+            const response = await fetch(URL_Provider, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datas)
+            });
+
+            const json = await response.json();
+
+            if (json.status == 'success' || json.status == "SUCCESS") {
+                console.log("Blood Glucose Saved.")
+                Alert.alert("Blood Glucose Saved.")
+            } else {
+                console.log("Save Blood Glucose Error: " + json.status)
+            };
+
+            this.setState({
+                isLoading: false
+            })
+
+        } catch (error) {
+            console.log("Save Blood Glucose Error: " + error)
+            handleNoInternet()
+            this.setState({
+                isLoading: false
+            })
+        }
+    }
+
+    // Function to round numbers to specified decimal places
+    round = (value, decimals) => {
+        return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+    }
+
+    // Event handler for Save button
+    handleSave = async () => {
+        // Ingore the operation if it is empty value
+        if (this.state.blood_glucose_level === '') {
+            console.log("Empty String")
+            return;
+        }
+
+        // Validate the input is float
+        try {
+            var blood_glucose_level = parseFloat(this.state.blood_glucose_level)
+
+            // Parse Blood Glucose to 1 decimal places
+            var blood_glucose_level_1dp = this.round(blood_glucose_level, 1)
+
+            // Check is it numeric input
+            if (isNaN(blood_glucose_level_1dp)) {
+                Alert.alert("Invalid Blood Glucose", "Blood Glucose only accepts number input with 1 decimal point.")
+                return
+            }
+
+            // Check is temperature within boundaries 0~999.99
+            if (blood_glucose_level_1dp < 0 || blood_glucose_level_1dp >= 100) {
+                Alert.alert("Invalid Blood Glucose", "Blood Glucose has a minimum value of 0 and a maximum value of 99.9.")
+                return
+            }
+
+            await this.saveBloodGlucose(blood_glucose_level_1dp);
+
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     render() {
+        if (this.state.isLoading) {
+            return (
+                <Loader isLoading={this.state.isLoading} />
+            )
+        }
+
         return (
             <View style={{ backgroundColor: 'white', flex: 1 }}>
                 <Text style={styles.title}>Blood Glucose</Text>
@@ -61,6 +204,7 @@ export default class BloodGlucose extends Component {
                 <View>
                     <TouchableOpacity
                         style={styles.saveButton}
+                        onPress={this.handleSave}
                     >
                         <Text style={{ fontSize: 20, color: 'white', alignSelf: 'center', textAlign: "center" }}>Save</Text>
                     </TouchableOpacity>

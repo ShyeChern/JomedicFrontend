@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, ScrollView, TouchableOpacity, TextInput } from 'react-native'
+import { Text, StyleSheet, View, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native'
 import { Divider } from 'react-native-elements'
 
 import { getTodayDate } from '../util/getDate'
@@ -10,36 +10,164 @@ import Loader from '../screen/Loader'
 export default class OxygenSaturation extends Component {
     constructor(props) {
         super(props)
+
+        var params = this.props.route.params;
+
         this.state = {
-            order_no: '',
-            user_id: '',
-            tenant_id: '',
-            episode_date: '',
-            encounter_date: '',
-            id_number: '',
+            isLoading: false,
+
+            order_no: params.order_no || '',
+            user_id: params.user_id || '',
+            tenant_id: params.tenant_id || '',
+            episode_date: params.episode_date || '',
+            encounter_date: params.encounter_date || '',
+            id_number: params.id_number || '',
 
             spo2_reading: "",   // decimal(3,1)
         }
     }
 
-    componentDidMount() {
-        this.initializeData();
+    async componentDidMount() {
+        // Load the oxygen saturation from database
+        await this.loadOxygenSaturation()
     }
 
-    initializeData = () => {
-        var params = this.props.route.params;
-
+    loadOxygenSaturation = async () => {
         this.setState({
-            order_no: params.order_no,
-            user_id: params.user_id,
-            tenant_id: params.tenant_id,
-            episode_date: params.episode_date,
-            encounter_date: params.encounter_date,
-            id_number: params.id_number,
+            isLoading: true
         })
+
+        let datas = {
+            txn_cd: 'MEDORDER064',
+            tstamp: getTodayDate(),
+            data: {
+                pmi_no: this.state.id_number,
+                hfc_cd: this.state.tenant_id,
+                episode_date: this.state.episode_date,
+                encounter_date: this.state.encounter_date
+            }
+        }
+
+        try {
+            const response = await fetch(URL_Provider, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datas)
+            });
+
+            const json = await response.json();
+
+            if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
+                console.log('Load Oxygen Saturation Error');
+                console.log(json.status);
+            }
+            else {
+                var data = json.status[0]
+                if (data) {
+                    this.setState({
+                        spo2_reading: data.spo2_reading.toString(),
+                    })
+                }
+            };
+
+            this.setState({
+                isLoading: false
+            })
+
+        } catch (error) {
+            console.log("Load Oxygen Saturation Error: " + error)
+            handleNoInternet()
+            this.setState({
+                isLoading: false
+            })
+        }
+
+    }
+
+    saveOxygenSaturation = async (spo2_reading) => {
+        this.setState({
+            isLoading: true
+        })
+
+        let datas = {
+            txn_cd: 'MEDORDER063',
+            tstamp: getTodayDate(),
+            data: {
+                pmi_no: this.state.id_number,
+                hfc_cd: this.state.tenant_id,
+                episode_date: this.state.episode_date,
+                encounter_date: this.state.encounter_date,
+                spo2_reading: spo2_reading
+            }
+        }
+
+        try {
+            const response = await fetch(URL_Provider, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datas)
+            });
+
+            const json = await response.json();
+
+            if (json.status == 'success' || json.status == "SUCCESS") {
+                console.log("Oxygen Saturation Saved.")
+                Alert.alert("Oxygen Saturation Saved.")
+            } else {
+                console.log("Save Oxygen Saturation Error: " + json.status)
+            };
+
+            this.setState({
+                isLoading: false
+            })
+
+        } catch (error) {
+            console.log("Save Oxygen Saturation Error: " + error)
+            handleNoInternet()
+            this.setState({
+                isLoading: false
+            })
+        }
+
+    }
+
+    // Function to round numbers to specified decimal places
+    round = (value, decimals) => {
+        return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+    }
+
+    handleSave = async () => {
+        // Parse spo2 to 1 decimal places
+        var spo2_in_1dp = this.round(this.state.spo2_reading, 1)
+
+        // Check is it numeric input
+        if (isNaN(spo2_in_1dp)) {
+            Alert.alert("Invalid Oxygen Saturation", "Oxygen Saturation only accepts number input with 1 decimal point.")
+            return
+        }
+
+        // Check is temperature within boundaries 0~99.9
+        if (spo2_in_1dp < 0 || spo2_in_1dp >= 100) {
+            Alert.alert("Invalid Oxygen Saturation", "Oxygen Saturation has a minimum value of 0% and a maximum value of 99.9%.")
+            return
+        }
+
+        await this.saveOxygenSaturation(spo2_in_1dp);
     }
 
     render() {
+        if (this.state.isLoading) {
+            return (
+                <Loader isLoading={this.state.isLoading} />
+            )
+        }
+
         return (
             <View style={{ backgroundColor: 'white', flex: 1 }}>
                 <Text style={styles.title}>Oxygen Saturation</Text>
@@ -61,6 +189,7 @@ export default class OxygenSaturation extends Component {
                 <View>
                     <TouchableOpacity
                         style={styles.saveButton}
+                        onPress={this.handleSave}
                     >
                         <Text style={{ fontSize: 20, color: 'white', alignSelf: 'center', textAlign: "center" }}>Save</Text>
                     </TouchableOpacity>

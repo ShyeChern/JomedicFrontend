@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, ScrollView, TouchableOpacity, TextInput } from 'react-native'
+import { Text, StyleSheet, View, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native'
 import { Divider } from 'react-native-elements'
 
 import { getTodayDate } from '../util/getDate'
@@ -8,38 +8,182 @@ import { URL_Provider, URL_AuditTrail } from '../util/provider'
 import Loader from '../screen/Loader'
 
 export default class RespiratoryRate extends Component {
-    constructor(props){
+    constructor(props) {
         super(props)
-        this.state={
-            order_no: '',
-            user_id: '',
-            tenant_id: '',
-            episode_date: '',
-            encounter_date: '',
-            id_number: '',
+
+        var params = this.props.route.params;
+
+        this.state = {
+            isLoading: false,
+
+            order_no: params.order_no || '',
+            user_id: params.user_id || '',
+            tenant_id: params.tenant_id || '',
+            episode_date: params.episode_date || '',
+            encounter_date: params.encounter_date || '',
+            id_number: params.id_number || '',
 
             rate: '',   // decimal(3,0)
         }
     }
 
-    componentDidMount(){
-        this.initializeData();
+    async componentDidMount() {
+        await this.loadRespiratoryRate();
     }
 
-    initializeData = () => {
-        var params = this.props.route.params;
-    
+    // Get respiratory rate data from database
+    loadRespiratoryRate = async () => {
         this.setState({
-          order_no: params.order_no,
-          user_id: params.user_id,
-          tenant_id: params.tenant_id,
-          episode_date: params.episode_date,
-          encounter_date: params.encounter_date,
-          id_number: params.id_number,
+            isLoading: true
         })
-      }
-    
-      render() {
+
+        let datas = {
+            txn_cd: 'MEDORDER066',
+            tstamp: getTodayDate(),
+            data: {
+                pmi_no: this.state.id_number,
+                hfc_cd: this.state.tenant_id,
+                episode_date: this.state.episode_date,
+                encounter_date: this.state.encounter_date
+            }
+        }
+
+        try {
+            const response = await fetch(URL_Provider, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datas)
+            });
+
+            const json = await response.json();
+
+            if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
+                console.log('Load Respiratory Rate Error');
+                console.log(json.status);
+            }
+            else {
+                var data = json.status[0]
+                if (data) {
+                    this.setState({
+                        rate: data.rate.toString(),
+                    })
+                }
+            };
+
+            this.setState({
+                isLoading: false
+            })
+
+        } catch (error) {
+            console.log("Load Respiratory Rate Error: " + error)
+            handleNoInternet()
+            this.setState({
+                isLoading: false
+            })
+        }
+
+    }
+
+    // Save respiratory rate data into database
+    saveRespiratoryRate = async (rate) => {
+        this.setState({
+            isLoading: true
+        })
+
+        let datas = {
+            txn_cd: 'MEDORDER065',
+            tstamp: getTodayDate(),
+            data: {
+                pmi_no: this.state.id_number,
+                hfc_cd: this.state.tenant_id,
+                episode_date: this.state.episode_date,
+                encounter_date: this.state.encounter_date,
+                rate: rate
+            }
+        }
+
+        try {
+            const response = await fetch(URL_Provider, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datas)
+            });
+
+            const json = await response.json();
+
+            if (json.status == 'success' || json.status == "SUCCESS") {
+                console.log("Respiratory Rate Saved.")
+                Alert.alert("Respiratory Rate Saved.")
+            } else {
+                console.log("Save Respiratory Rate Error: " + json.status)
+            };
+
+            this.setState({
+                isLoading: false
+            })
+
+        } catch (error) {
+            console.log("Save Respiratory Rate Error: " + error)
+            handleNoInternet()
+            this.setState({
+                isLoading: false
+            })
+        }
+    }
+
+    // Function to round numbers to specified decimal places
+    round = (value, decimals) => {
+        return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+    }
+
+    // Event handler for Save button
+    handleSave = async () => {
+        // Ingore the operation if it is empty value
+        if (this.state.rate === '') {
+            console.log("Empty String")
+            return;
+        }
+
+        // Validate the input is float
+        try {
+            var rate = parseFloat(this.state.rate)
+
+            // Parse respiratory rate to 0 decimal places
+            var rateInt = this.round(rate, 0)
+
+            // Check is it numeric input
+            if (isNaN(rateInt)) {
+                Alert.alert("Invalid Respiratory Rate", "Respiratory rate only accepts number input with no decimal points.")
+                return
+            }
+
+            // Check is temperature within boundaries 0~999.99
+            if (rateInt < 0 || rateInt >= 1000) {
+                Alert.alert("Invalid Respiratory Rate", "Respiratory Rate has a minimum value of 0 and a maximum value of 999.")
+                return
+            }
+
+            await this.saveRespiratoryRate(rateInt);
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+
+    render() {
+        if (this.state.isLoading) {
+            return (
+                <Loader isLoading={this.state.isLoading} />
+            )
+        }
+
         return (
             <View style={{ backgroundColor: 'white', flex: 1 }}>
                 <Text style={styles.title}>Respiratory Rate</Text>
@@ -62,6 +206,7 @@ export default class RespiratoryRate extends Component {
                 <View>
                     <TouchableOpacity
                         style={styles.saveButton}
+                        onPress={this.handleSave}
                     >
                         <Text style={{ fontSize: 20, color: 'white', alignSelf: 'center', textAlign: "center" }}>Save</Text>
                     </TouchableOpacity>
