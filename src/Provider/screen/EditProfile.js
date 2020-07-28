@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Text, TextInput, StyleSheet, View, ScrollView, TouchableOpacity, Image, Alert } from 'react-native'
 import { Avatar } from 'react-native-elements'
+import { Picker } from '@react-native-community/picker';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import moment from 'moment';
 import Modal from "react-native-modal";
@@ -11,6 +12,7 @@ import { handleNoInternet } from '../util/CheckConn'
 import Loader from './Loader'
 import defaultAvatar from '../img/defaultAvatar.png'
 import ImagePicker from 'react-native-image-crop-picker';
+
 
 export default class EditProfile extends Component {
 
@@ -52,6 +54,13 @@ export default class EditProfile extends Component {
         this.loadProfileData()
     }
 
+    // Function to validate phone number syntax with RegEx 
+    validatePhone = (phone) => {
+        const regexp = /[^0-9]/;    // RegEx to Find any non numeric characters
+        return !(regexp.test(phone));   // If there is non numeric characters, return false; else true
+    }
+
+
     /*
      *  Data Processing Segments  
      */
@@ -83,6 +92,56 @@ export default class EditProfile extends Component {
 
         })
 
+    }
+
+    // handle Save Profile Data
+    handleSave = async () => {
+        // Validate the fields
+        // Check for empty or white spaces
+        if (!this.state.name || this.state.name.trim() === "") {
+            Alert.alert("Empty Name", "Empty name. Please enter your name.");
+            return;
+        }
+        if (!this.state.icPassport || this.state.icPassport.trim() === "") {
+            Alert.alert("Empty Ic or Passport Number", "Empty Ic or Passport Number. Please enter your ic or passport number.");
+            return;
+        }
+
+        if (!this.state.phoneNo || this.state.phoneNo.trim() === "") {
+            Alert.alert("Empty Phone Number", "Empty Phone Number. Please enter your phone number.");
+            return;
+        }
+
+        let dobString = this.state.birthYear + "-" + this.state.birthMonth + '-' + this.state.birthDay
+        if (dobString === "YYYY-MM-DD") {
+            Alert.alert("Empty Date Of Birth", "Empty Date Of Birth. Please enter your date of birth.");
+            return;
+        }
+
+        if (!this.state.address || this.state.address.trim() === "") {
+            Alert.alert("Empty Address", "Empty Address. Please enter your address.");
+            return;
+        }
+
+        if (!this.state.city || this.state.city.trim() === "") {
+            Alert.alert("Empty City", "Empty City. Please enter your district.");
+            return;
+        }
+
+        if (!this.state.state || this.state.state.trim() === "") {
+            Alert.alert("Empty State", "Empty State. Please enter your state.");
+            return;
+        }
+
+        // Check IC & phone no format
+        // Check Invalid Phone No Input (Number characters Only)
+        if (!this.validatePhone(this.state.phoneNo)) {
+            Alert.alert("Invalid Phone Number", "Invalid phone number. Please ensure your phone number only contains number characters.");
+            return;
+        }
+
+        // Update the user profile after all validation passed
+        this.updateProfileData();
     }
 
     updateProfileData = async () => {
@@ -187,7 +246,7 @@ export default class EditProfile extends Component {
     formatTime = (time) => {
         return new Date(
             parseInt(moment(time).format("YYYY")),
-            parseInt(moment(time).format("MM")),
+            parseInt(moment(time).format("MM")) - 1,
             parseInt(moment(time).format("DD")),
         )
     }
@@ -288,6 +347,7 @@ export default class EditProfile extends Component {
     }
 
 
+
     render() {
         // View Loading if it is loading
         if (this.state.isLoading) {
@@ -379,13 +439,36 @@ export default class EditProfile extends Component {
                         onChangeText={(city) => this.setState({ city: city })} />
 
                     <Text style={styles.labelText}>State</Text>
-                    <TextInput style={styles.inputStyle}
-                        value={this.state.state}
-                        maxLength={30}
-                        onChangeText={(state) => this.setState({ state: state })} />
+                    <View style={styles.pickerContainer}>
+                        <Picker
+                            style={styles.pickerStyle}
+                            mode="dropdown"
+                            selectedValue={this.state.state || "Johor"}
+                            onValueChange={(itemValue, itemIndex) => {
+                                this.setState({ state: itemValue })
+                            }
+                            }>
+                            <Picker.Item label="Johor" value={"Johor"} />
+                            <Picker.Item label="Kedah" value={"Kedah"} />
+                            <Picker.Item label="Kelantan" value={"Kelantan"} />
+                            <Picker.Item label="Melaka" value={"Melaka"} />
+                            <Picker.Item label="Negeri Sembilan" value={"Negeri Sembilan"} />
+                            <Picker.Item label="Pahang" value={"Pahang"} />
+                            <Picker.Item label="Pulau Pinang" value={"Pulau Pinang"} />
+                            <Picker.Item label="Perak" value={"Perak"} />
+                            <Picker.Item label="Perlis" value={"Perlis"} />
+                            <Picker.Item label="Sabah" value={"Sabah"} />
+                            <Picker.Item label="Sarawak" value={"Sarawak"} />
+                            <Picker.Item label="Selangor" value={"Selangor"} />
+                            <Picker.Item label="Terengganu" value={"Terengganu"} />
+                            <Picker.Item label="W.P Kuala Lumpur" value={"W.P Kuala Lumpur"} />
+                            <Picker.Item label="W.P Labuan" value={"W.P Labuan"} />
+                            <Picker.Item label="W.P Putrajaya" value={"W.P Putrajaya"} />
+                        </Picker>
+                    </View>
 
                     <TouchableOpacity style={styles.buttonSave}
-                        onPress={() => this.updateProfileData()}>
+                        onPress={() => this.handleSave()}>
                         <Text style={styles.buttonSaveText}>Save</Text>
                     </TouchableOpacity>
 
@@ -532,6 +615,30 @@ const styles = StyleSheet.create({
         textAlignVertical: 'center',
         color: '#00A8F0',
         padding: 10,
+    },
+
+    pickerContainer: {
+        borderBottomWidth: 1,
+        marginBottom: 20,
+    },
+
+    pickerStyle: {
+        width: '75%',
+        borderStyle: "solid",
+        borderColor: "#ABABAB",
+        // alignSelf: "center",
+        // alignItems: 'center',
+        // alignContent: 'center',
+        // justifyContent: 'center',
+        // textAlign: "center",
+        // textAlignVertical: "center",
+
+        color: '#000000',
+        fontFamily: 'Roboto',
+        fontStyle: 'normal',
+        fontWeight: 'normal',
+        fontSize: 12,
+        alignItems: 'center',
     },
 
 })

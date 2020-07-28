@@ -587,7 +587,7 @@ export default class PatientLiveChat extends Component {
         }
     }
 
-    endChat = () => {
+    endChat = async () => {
 
         // Get the today date for consistency, as txn_date for Order Detail (PK) is linked to Order Master
         var todayDate = getTodayDate()
@@ -601,7 +601,12 @@ export default class PatientLiveChat extends Component {
         // Save Order Detail
         var isOrderDetailSave = this.saveOrderDetail(todayDate)
 
-        if (isMessageQueueUpdate && isOrderMasterSave && isOrderDetailSave) {
+        // Send the prescription slip
+        // Get the health_facility_code from medicationmaster
+        var medicationMaster = await this.loadMedicationMaster()
+        var isPrescriptionSlipSent = await this.sendPrescriptionSlip(this.state.tenant_id, this.state.id_number, this.state.order_no, medicationMaster.HEALTH_FACILITY_CODE);
+
+        if (isMessageQueueUpdate && isOrderMasterSave && isOrderDetailSave && isPrescriptionSlipSent) {
             this.props.navigation.navigate("RateCustomerModal", {
                 tenant_id: this.state.tenant_id,
                 tenant_type: this.state.tenant_type,
@@ -683,6 +688,112 @@ export default class PatientLiveChat extends Component {
         })
     }
 
+    sendPrescriptionSlip = (tenant_id, pmi_no, order_no, health_facility_code) => {
+        let datas = {
+            txn_cd: "MEDORDER073",
+            tstamp: getTodayDate(),
+            data: {
+                order_no: order_no,
+                pmi_no: pmi_no,
+                hfc_cd: tenant_id,
+                health_facility_code: health_facility_code
+            }
+        }
+
+        try {
+            this.setState({ isLoading: true })
+
+            const response = await fetch(URL_Provider, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datas)
+            });
+
+            const json = await response.json();
+
+            if (json.result === 'true') {
+                this.setState({
+                    isLoading: false
+                });
+
+                return true;
+            } else {
+                console.log('Send Prescription Error: ');
+                console.log(json.status);
+                this.setState({
+                    isLoading: false
+                });
+
+                return false;
+            };
+
+        } catch (error) {
+            console.log("Send Prescription Error: " + error)
+            this.setState({
+                isLoading: false
+            });
+            handleNoInternet()
+            return false;
+        }
+
+    }
+
+    // Load Medication Master from database
+    loadMedicationMaster = async () => {
+        let datas = {
+            txn_cd: "MEDORDER056",
+            tstamp: getTodayDate(),
+            data: {
+                order_no: this.state.order_no,
+                pmi_no: this.state.id_number,
+            }
+        }
+
+        try {
+            this.setState({ isLoading: true })
+
+            const response = await fetch(URL_Provider, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datas)
+            });
+
+            const json = await response.json();
+
+            if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
+                console.log('Load Medications Error');
+                console.log(json.status);
+            }
+            else {
+                var data = json.status[0]
+                if (data) {
+                    this.setState({
+                        medicationMaster: data,
+                    })
+
+                    this.loadMedications()
+                }
+            };
+
+            this.setState({
+                isLoading: false
+            });
+
+        } catch (error) {
+            console.log("Load Medications Error: " + error)
+            this.setState({
+                isLoading: false
+            });
+            handleNoInternet()
+        }
+    }
+
     Message = (props) => {
         return (
             <View style={[styles.messageContainer,
@@ -701,6 +812,7 @@ export default class PatientLiveChat extends Component {
             </View >
         )
     }
+
 
     render() {
         return (

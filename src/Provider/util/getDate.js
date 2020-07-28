@@ -47,5 +47,19 @@ export const getDatesFor7DayFromToday = () => {
     }
 
     return days;
+}
 
+export const getDatesFor7DayFromGivenDate = (date) => {
+    var today = moment(date)
+    var after7Day = moment(date).add(6,'d')
+
+    var days = []
+    var day = today
+
+    while (day <= after7Day){
+        days.push(moment(day).format("YYYY-MM-DD"));
+        day = day.clone().add(1,'d');
+    }
+
+    return days;
 }

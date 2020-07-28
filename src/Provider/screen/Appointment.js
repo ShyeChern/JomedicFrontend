@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
 import { StyleSheet, Text, View, SafeAreaView, SectionList, TouchableOpacity, Alert, RefreshControl } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import moment from 'moment'
+import moment from 'moment';
+import DateTimePicker from 'react-native-modal-datetime-picker';
+import { Divider } from 'react-native-elements';
 
 import { getTenantId, getTenantType, getUserId } from '../util/Auth'
-import { getTodayDate, getDatesFor7DayFromToday } from '../util/getDate'
+import { getTodayDate, getDatesFor7DayFromToday, getDatesFor7DayFromGivenDate } from '../util/getDate'
 import { handleNoInternet } from '../util/CheckConn'
 import { URL_AuditTrail, URL_Provider } from '../util/provider'
 import Loader from './Loader'
@@ -81,6 +83,8 @@ export default class Appointment extends Component {
             user_id: '',
             tenant_id: '',
             tenant_type: '',
+            fromDate: moment(),
+            untilDate: moment().add(6, 'd'),
 
             appointmentList: [],
             appointmentDays: [],
@@ -91,18 +95,17 @@ export default class Appointment extends Component {
     async componentDidMount() {
         await this.initializeData();
 
-        this.refreshAppointmentList();
+        this.refreshAppointmentList(this.state.fromDate);
         // Set Notifications for all today appointment
 
         // Add hook to refresh profile data when screen is Focus, and if reload is true
         this.props.navigation.addListener('focus',
             event => {
-                this.refreshAppointmentList();
+                this.refreshAppointmentList(this.state.fromDate);
             }
         )
 
     }
-
 
     initializeData = async () => {
         await getUserId().then(response => {
@@ -118,16 +121,17 @@ export default class Appointment extends Component {
         });
     }
 
-    loadAppointments = async () => {
-        var appointmentDates = this.getAppointmentDates();
-        var appointments = await this.getAppointments();
+    loadAppointments = async (date) => {
+        var appointmentDates = this.getAppointmentDates(date);
+        var appointments = await this.getAppointments(date);
 
         this.createAppointmentList(appointmentDates, appointments);
     }
 
-    getAppointmentDates = () => {
+    getAppointmentDates = (date) => {
         // Get the date range
-        var days = getDatesFor7DayFromToday();
+        // var days = getDatesFor7DayFromToday();
+        var days = getDatesFor7DayFromGivenDate(date);
 
         // Insert the dates into an array
         var formatDates = []
@@ -139,11 +143,12 @@ export default class Appointment extends Component {
         return formatDates
     }
 
-    getAppointments = async () => {
+    getAppointments = async (date) => {
         var appointments = [];
         var tenant_id = this.state.tenant_id;
 
-        var days = getDatesFor7DayFromToday();
+        // var days = getDatesFor7DayFromToday();
+        var days = getDatesFor7DayFromGivenDate(date);
         var startDay = days[0]
         var endDay = days[days.length - 1]
 
@@ -222,11 +227,11 @@ export default class Appointment extends Component {
         return appointments
     }
 
-    refreshAppointmentList = (refresh) => {
+    refreshAppointmentList = (date, refresh) => {
         this.setState({
             onRefresh: refresh
         })
-        this.loadAppointments()
+        this.loadAppointments(date)
     }
 
     createAppointmentList = (appointmentDates, appointments) => {
@@ -245,6 +250,39 @@ export default class Appointment extends Component {
         })
     }
 
+    /*
+     *  Date Time Picker Handler  
+     */
+    handlePicker = (datetime) => {
+        this.setState({
+            isVisible: false,
+            fromDate: moment(datetime),
+            untilDate: moment(datetime).add(6, 'd')
+        })
+
+        this.refreshAppointmentList(this.state.fromDate)
+    }
+
+    hidePicker = () => {
+        this.setState({
+            isVisible: false,
+        })
+    }
+
+    showPicker = () => {
+        this.setState({
+            isVisible: true,
+        })
+    }
+
+    formatTime = (time) => {
+        return new Date(
+            parseInt(moment(time).format("YYYY")),
+            parseInt(moment(time).format("MM")) - 1,
+            parseInt(moment(time).format("DD")),
+        )
+    }
+
     render() {
 
         // if (this.state.isLoading) {
@@ -257,7 +295,7 @@ export default class Appointment extends Component {
             <View>
                 {/* Appointment List Header View */}
                 <View style={styles.flexRow}>
-                    <Text style={[styles.headerText, styles.headerContainer]}>Today</Text>
+                    <Text style={[styles.headerText, styles.headerContainer, { marginVertical: 5 }]}>Today</Text>
                     <View style={[styles.flexRow, styles.calendarContainer]}>
                         <Text style={styles.headerText}>{moment().format("DD MMM YYYY")}</Text>
                         <TouchableOpacity
@@ -272,6 +310,25 @@ export default class Appointment extends Component {
                     </View>
                 </View>
 
+                <Divider style={{ backgroundColor: 'black' }} />
+
+                <View>
+                    <Text style={[styles.headerText, { marginLeft: '3%', }]}>View Appointments</Text>
+                    <View style={[styles.flexRow, styles.dateSelectContainer, { margin: '2%' }]}>
+                        <Text style={[styles.fromUntilText, styles.headerContainer]}>From</Text>
+                        <TouchableOpacity style={styles.dateSelect}
+                            onPress={this.showPicker}>
+                            <Text style={styles.dateSelectText}>{this.state.fromDate.format("DD MMM YYYY")}</Text>
+                        </TouchableOpacity>
+                        <Text style={[styles.fromUntilText, styles.headerContainer]}>Until</Text>
+                        <TouchableOpacity style={[styles.dateSelect, { backgroundColor: '#D6D6D6' }]} disabled={true}>
+                            <Text style={styles.dateSelectText}>{this.state.untilDate.format("DD MMM YYYY")}</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                <Divider style={{ backgroundColor: 'black' }} />
+
                 {/* Appointment List View */}
                 <SafeAreaView style={styles.container}>
                     <SectionList
@@ -284,11 +341,23 @@ export default class Appointment extends Component {
                         refreshControl={
                             <RefreshControl
                                 refreshing={this.state.onRefresh}
-                                onRefresh={() => this.refreshAppointmentList(true)}
+                                onRefresh={() => this.refreshAppointmentList(this.state.fromDate, true)}
                             />
                         }
                     />
                 </SafeAreaView>
+
+                {/* From Date Picker */}
+                <DateTimePicker
+                    isVisible={this.state.isVisible}
+                    onConfirm={this.handlePicker}
+                    onCancel={this.hidePicker}
+                    mode={'date'}
+                    date={this.formatTime(this.state.fromDate)}
+                    is24Hour={true}
+                    minimumDate={this.formatTime(moment())}
+                />
+
             </View>
         )
     }
@@ -307,11 +376,16 @@ const styles = StyleSheet.create({
     },
 
     calendarContainer: {
-
+        alignItems: 'center'
     },
 
     headerText: {
         fontSize: 16,
+        color: '#FDAA26',
+    },
+
+    fromUntilText: {
+        fontSize: 14,
         color: '#FDAA26',
     },
 
@@ -330,5 +404,18 @@ const styles = StyleSheet.create({
         paddingHorizontal: '5%',
         flexDirection: 'row',
         justifyContent: 'space-between'
+    },
+
+    dateSelect: {
+        borderWidth: 1,
+        padding: 5
+    },
+
+    dateSelectText: {
+        fontSize: 14,
+    },
+
+    dateSelectContainer: {
+        alignItems: 'center',
     },
 })

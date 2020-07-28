@@ -68,8 +68,7 @@ export default class Medication extends Component {
             // Load the data from list
             await this.loadMedicationMaster(this.props.route.params.medicationMaster)
             this.loadMedication(this.props.route.params.medication)
-        }
-
+        } 
     }
 
     initializeData = () => {
@@ -593,13 +592,13 @@ export default class Medication extends Component {
                 <ScrollView style={styles.scrollViewStyle}>
                     <View style={styles.dataDisplayArea}>
                         {/* Search Drug Provider */}
-                        <Text style={styles.labelText}>Provider</Text>
+                        <Text style={styles.labelText}>Medication Provider</Text>
                         <View style={styles.rowDisplayContainer}>
                             <TextInput
                                 style={[styles.textInputField, { width: '75%', color: "#000000", backgroundColor: (this.state.isEdit) ? '#F0F0F0' : '#FFFFFF' }]}
                                 value={this.state.provider}
                                 onChangeText={(value) => this.setState({ provider: value })}
-                                placeholder={"Provider"}
+                                placeholder={"Medication Provider"}
                                 editable={!this.state.isEdit}
                             />
                             <TouchableOpacity style={[styles.searchButton, { backgroundColor: (this.state.isEdit) ? '#EFEFEF' : '#fdaa26' }]}
