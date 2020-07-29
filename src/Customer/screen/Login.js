@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Text, StyleSheet, View, ActivityIndicator, Alert, TouchableOpacity, Keyboard, TouchableWithoutFeedback, TextInput } from 'react-native';
 import { TextField } from 'react-native-material-textfield';
 import AsyncStorage from '@react-native-community/async-storage';
-import CheckBox from '@react-native-community/checkbox';
 import { URL } from '../util/FetchURL';
 import { URL_SignIn, URL_Provider } from '../../Provider/util/provider'
 import { getTodayDate } from "../../Provider/util/getDate"
@@ -19,7 +18,6 @@ export default class Login extends Component {
             password: '',
             errors: { email: '', password: '' },
             submitError: '',
-            tenant: false,
             isLoading: false,
         };
 
@@ -41,18 +39,16 @@ export default class Login extends Component {
             inputValid = false;
         }
 
-        if (inputValid && this.state.tenant === false) {
-
+        if (inputValid) {
             this.setState({
                 isLoading: true
             });
 
             let bodyData = {
-                transactionCode: 'LOGIN',
+                transactionCode: 'USERTYPE',
                 timestamp: new Date(),
                 data: {
                     Email: this.state.email,
-                    Password: this.state.password,
                 }
             };
 
@@ -64,15 +60,129 @@ export default class Login extends Component {
                 },
                 body: JSON.stringify(bodyData),
             }).then((response) => response.json())
-                .then((responseJson) => {
-                    this.setState({
-                        isLoading: false
-                    });
-
+                .then(async (responseJson) => {
+                   
                     if (responseJson.result === true) {
-                        if (responseJson.data[0].user_type === '6') {
-                            this.storeLoginDetail(responseJson.data[0].customer_id, responseJson.data[0].user_type);
-                            this.props.navigation.navigate('Jomedic');
+                        if (responseJson.data[0].user_type == '6') {
+
+                            let bodyData = {
+                                transactionCode: 'LOGIN',
+                                timestamp: new Date(),
+                                data: {
+                                    Email: this.state.email,
+                                    Password: this.state.password,
+                                }
+                            };
+
+                            fetch(URL, {
+                                method: 'POST',
+                                headers: {
+                                    Accept: 'application/json',
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(bodyData),
+                            }).then((response) => response.json())
+                                .then((responseJson) => {
+                                    this.setState({
+                                        isLoading: false
+                                    });
+
+                                    if (responseJson.result === true) {
+                                        if (responseJson.data[0].user_type === '6') {
+                                            this.storeLoginDetail(responseJson.data[0].customer_id, responseJson.data[0].user_type);
+                                            this.props.navigation.navigate('Jomedic');
+                                        }
+
+                                    }
+                                    else {
+                                        this.setState({ submitError: responseJson.value });
+                                    }
+
+                                })
+                                .catch((error) => {
+
+                                    this.setState({
+                                        isLoading: false
+                                    });
+
+                                    alert(error);
+                                });
+                        }
+                        else {
+                            let datas = {
+                                txn_cd: 'MEDAUTH01',
+                                tstamp: getTodayDate(),
+                                data: {
+                                    userID: this.state.email,
+                                    password: this.state.password,
+                                }
+                            }
+
+                            try {
+                                const response = await fetch(URL_SignIn, {
+                                    method: 'POST',
+                                    headers: {
+                                        Accept: 'application/json',
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(datas)
+                                });
+
+                                const json = await response.json();
+
+                                if (json.status == 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
+                                    console.log('Login Error');
+                                    console.log(json.status);
+                                }
+                                else if (json.status === 'IDXDE') {
+                                    Alert.alert(
+                                        'Sign-in failed',
+                                        "Sorry, we can't find an account with this user id. Please make sure you put the correct user id."
+                                    );
+                                } else if (json.status === 'EMAILXDE') {
+                                    Alert.alert(
+                                        'Sign-in failed',
+                                        "Sorry, we can't find an account with this email. Please make sure you put the correct email."
+                                    );
+                                } else if (json.status === 'PASSWORDWRONG') {
+                                    Alert.alert(
+                                        'Sign-in failed',
+                                        "Sorry, you enter wrong password. Please make sure you put the correct password."
+                                    );
+                                }
+                                else {
+                                    // Get the tenant Data
+                                    const tenantData = await this.loadTenantData(this.state.UserEmail)
+
+                                    if (typeof (tenantData) == 'string' || typeof (tenantData) == 'undefined') {
+                                        throw "Unable to get Tenant Data: " + tenantData
+                                    }
+
+                                    // Set Tenant Status to Online
+                                    if (this.setTenantOnline(tenantData.tenant_id)) {
+
+                                        this.storeProviderDetail(this.state.email, tenantData.tenant_id, tenantData.tenant_type);
+                                        this.props.navigation.navigate("Home", {
+                                            user_id: this.state.email,
+                                            tenant_id: tenantData.tenant_id,
+                                            tenant_type: tenantData.tenant_type
+                                        })
+
+                                    } else {
+                                        throw "Unable to login"
+                                    }
+                                };
+
+                                this.setState({
+                                    isLoading: false
+                                });
+                            } catch (error) {
+                                console.log(error)
+                                this.setState({
+                                    isLoading: false
+                                });
+                                handleNoInternetSignin()
+                            }
                         }
 
                     }
@@ -90,87 +200,10 @@ export default class Login extends Component {
                     alert(error);
                 });
         }
-        else if (inputValid && this.state.tenant === true) {
-            // add your tenant login
-            let datas = {
-                txn_cd: 'MEDAUTH01',
-                tstamp: getTodayDate(),
-                data: {
-                    userID: this.state.email,
-                    password: this.state.password,
-                }
-            }
-
-            try {
-                const response = await fetch(URL_SignIn, {
-                    method: 'POST',
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(datas)
-                });
-
-                const json = await response.json();
-
-                if (json.status == 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
-                    console.log('Login Error');
-                    console.log(json.status);
-                }
-                else if (json.status === 'IDXDE') {
-                    Alert.alert(
-                        'Sign-in failed',
-                        "Sorry, we can't find an account with this user id. Please make sure you put the correct user id."
-                    );
-                } else if (json.status === 'EMAILXDE') {
-                    Alert.alert(
-                        'Sign-in failed',
-                        "Sorry, we can't find an account with this email. Please make sure you put the correct email."
-                    );
-                } else if (json.status === 'PASSWORDWRONG') {
-                    Alert.alert(
-                        'Sign-in failed',
-                        "Sorry, you enter wrong password. Please make sure you put the correct password."
-                    );
-                }
-                else {
-                    // Get the tenant Data
-                    const tenantData = await this.loadTenantData(this.state.UserEmail)
-
-                    if (typeof (tenantData) == 'string' || typeof (tenantData) == 'undefined') {
-                        throw "Unable to get Tenant Data: " + tenantData
-                    }
-
-                    // Set Tenant Status to Online
-                    if (this.setTenantOnline(tenantData.tenant_id)) {
-                        
-                        this.storeProviderDetail(this.state.email, tenantData.tenant_id, tenantData.tenant_type);
-                        this.props.navigation.navigate("Home", {
-                            user_id: this.state.email,
-                            tenant_id: tenantData.tenant_id,
-                            tenant_type: tenantData.tenant_type
-                        })
-
-                    } else {
-                        throw "Unable to login"
-                    }
-                };
-
-                this.setState({
-                    isLoading: false
-                });
-            } catch (error) {
-                console.log(error)
-                this.setState({
-                    isLoading: false
-                });
-                handleNoInternetSignin()
-            }
-
-        }
         else {
             this.setState({ errors: errors });
         }
+
     }
 
     loadTenantData = async (user_id) => {
@@ -265,7 +298,7 @@ export default class Login extends Component {
 
     // for provider
     storeProviderDetail = async (userId, tenantId, tenantType) => {
-        
+
         try {
             await AsyncStorage.setItem('loginStatus', 'true');
             await AsyncStorage.setItem('userId', userId);
@@ -337,15 +370,6 @@ export default class Login extends Component {
                             onFocus={this.onFocus}
                             error={this.state.errors.password}
                         />
-
-                        <View style={[styles.signInInput, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}>
-                            <CheckBox value={this.state.tenant}
-                                onValueChange={() => this.setState({ tenant: !this.state.tenant })}
-                                tintColors={{ true: '#FFD44E', false: '#808080' }}
-                            />
-
-                            <Text style={[styles.text]}>I am tenant</Text>
-                        </View>
 
                         <TouchableOpacity style={[styles.signInBtn]}
                             onPress={() => this.login()}>
