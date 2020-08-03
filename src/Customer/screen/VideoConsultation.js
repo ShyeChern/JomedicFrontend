@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, NativeModules, Text, TouchableOpacity, BackHandler } from 'react-native';
+import { View, StyleSheet, NativeModules, Text, TouchableOpacity, BackHandler, Platform } from 'react-native';
 import { RtcEngine, AgoraView } from 'react-native-agora';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import BackgroundTimer from 'react-native-background-timer';
@@ -55,8 +55,6 @@ export default class VideoConsultation extends Component {
 
     componentDidMount() {
         this.checkPermission();
-
-        alert('Channel Name(doctorId): ' + this.state.channelName);
 
         this.state.interval = BackgroundTimer.setInterval(() => {
             this.checkReject();

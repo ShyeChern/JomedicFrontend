@@ -172,7 +172,8 @@ export default class Doctor extends Component {
                         this.setState({
                             requestChatFeedback: responseJson.data,
                             action: "detail",
-                            waitingDoctorAcceptModal: true
+                            waitingDoctorAcceptModal: true,
+                            walletBalance: this.state.walletBalance - 1
                         });
 
                     }

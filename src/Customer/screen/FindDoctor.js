@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { Text, StyleSheet, View, TouchableOpacity, TextInput, FlatList, Image, SafeAreaView, Alert, RefreshControl } from 'react-native';
+import { Text, StyleSheet, View, TouchableOpacity, TextInput, FlatList, Image, SafeAreaView, Alert, RefreshControl, Platform } from 'react-native';
 import Modal from "react-native-modal";
 import StatePickerModal from '../component/modal/StatePickerModal';
 import SpecialtyPickerModal from '../component/modal/SpecialtyPickerModal';
+import DistrictPickerModal from '../component/modal/DistrictPickerModal';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import FeatherIcon from 'react-native-vector-icons/Feather';
@@ -11,14 +12,22 @@ import { requestLocationPermission } from '../util/permission/Permission';
 import { getPreciseDistance } from 'geolib';
 import Geolocation from '@react-native-community/geolocation';
 import RNFetchBlob from 'rn-fetch-blob';
+import FastImage from 'react-native-fast-image';
+import { DISTRICT } from '../util/District';
 import { URL } from '../util/FetchURL';
-
 
 // receive as object base on the declared variable
 Doctor = ({ id, name, specialist, distance, picture, navigation }) => {
     return (
         <View style={[styles.doctorItemList]}>
-            <Image style={[styles.doctorItemImage]} source={{ uri: 'data:image/jpg;base64,' + picture }} />
+            <FastImage
+                style={[styles.doctorItemImage]}
+                source={{
+                    uri: 'data:image/jpg;base64,' + picture,
+                    priority: FastImage.priority.low,
+                }}
+            />
+            {/* <Image style={[styles.doctorItemImage]} source={{ uri: 'data:image/jpg;base64,' + picture }} /> */}
             <TouchableOpacity style={[styles.doctorItemTextView]}
                 onPress={() => navigation.navigate('Doctor', { doctorId: id, picture: picture })}
             >
@@ -53,14 +62,28 @@ export default class FindDoctor extends Component {
             specialty: 'All',
             allSpecialty: [],
             specialtyModal: false,
-            flatListLoading: true
+            district: 'All',
+            districtModal: false,
+            flatListLoading: true,
+            endFlatList: false,
         };
     }
 
     componentDidMount() {
+        Promise.all([this.getDoctor(), this.checkPermission()]).then((value) => {
 
-        this.checkPermission();
-        // db call to show doctor
+            if (value[1]) {
+                this.sortByLocation();
+            }
+
+            this.setState({
+                flatListLoading: false,
+                doctorList: this.state.doctorListHolder
+            });
+
+            this.updateDoctorImage();
+        });
+
 
         // 2nd database call to get state in lookup table
         let bodyData = {
@@ -84,7 +107,10 @@ export default class FindDoctor extends Component {
                     let allState = [];
 
                     responseJson.data.forEach(element => {
-                        allState.push(element.Description);
+                        if (element.Description != 'Luar Negara') {
+                            allState.push(element.Description);
+                        }
+
                     });
 
                     this.setState({
@@ -102,143 +128,171 @@ export default class FindDoctor extends Component {
             });
     }
 
-    checkPermission = async () => {
-        if (Platform.OS === 'android') {
-            await requestLocationPermission().then(response => {
-                if (response !== 'granted') {
-                    this.getDoctor();
-                }
-                else {
-                    SystemSetting.isLocationEnabled().then((enable) => {
-                        const state = enable ? 'On' : 'Off';
-                        if (state === 'Off') {
-                            Alert.alert(
-                                //title
-                                'Enable Location Service',
-                                //body
-                                'For better experience, you may enable the location service',
-                                [
-                                    { text: 'Cancel', onPress: () => { this.getDoctor() } },
-                                    { text: 'Okay', onPress: () => { SystemSetting.switchLocation(() => { this.getCurrentLocation(); }) } },
+    checkPermission = () => {
 
-                                ],
-                                { cancelable: false }
-                                //clicking out side of alert will  cancel
-                            );
-                        }
-                        else {
-                            this.getCurrentLocation();
-                        }
+        return new Promise(async (resolve, reject) => {
+            const getCurrentLocation = () => {
+                Geolocation.getCurrentPosition((position) => {
+                    this.setState({
+                        currentLongitude: JSON.stringify(position.coords.longitude),
+                        currentLatitude: JSON.stringify(position.coords.latitude)
                     });
-                }
-            });
-        }
-    }
+                    resolve(true);
+                },
+                    (error) => {
+                        alert(error.message);
+                        resolve(false);
+                    },
+                    { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 });
 
-    getCurrentLocation = () => {
-        Geolocation.getCurrentPosition((position) => {
-            this.setState({
-                currentLongitude: JSON.stringify(position.coords.longitude),
-                currentLatitude: JSON.stringify(position.coords.latitude)
-            });
-            this.getDoctor();
-        },
-            (error) => alert(error.message),
-            // (error) => alert(error.message),
-            { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 });
+            }
+
+            if (Platform.OS === 'android') {
+                await requestLocationPermission().then(response => {
+                    if (response !== 'granted') {
+                        resolve(false);
+                    }
+                    else {
+                        SystemSetting.isLocationEnabled().then((enable) => {
+                            const state = enable ? 'On' : 'Off';
+                            if (state === 'Off') {
+                                Alert.alert(
+                                    //title
+                                    'Enable Location Service',
+                                    //body
+                                    'For better experience, you may enable the location service',
+                                    [
+                                        { text: 'Cancel', onPress: () => { resolve(false); } },
+                                        { text: 'Okay', onPress: () => { SystemSetting.switchLocation(() => { getCurrentLocation(); }) } },
+
+                                    ],
+                                    { cancelable: false }
+                                    //clicking out side of alert will  cancel
+                                );
+                            }
+                            else {
+                                getCurrentLocation();
+                            }
+                        });
+                    }
+                });
+            }
+        })
 
     }
 
     getDoctor = () => {
+        return new Promise((resolve, reject) => {
+            let bodyData = {
+                transactionCode: 'DOCTOR',
+                timestamp: new Date(),
+                data: {
+                }
+            };
 
-        let bodyData = {
-            transactionCode: 'DOCTOR',
-            timestamp: new Date(),
-            data: {
-            }
-        };
+            fetch(URL, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(bodyData),
+            }).then((response) => response.json())
+                .then((responseJson) => {
 
-        fetch(URL, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(bodyData),
-        }).then((response) => response.json())
-            .then((responseJson) => {
+                    if (responseJson.result === true) {
+                        let doctor = [];
+                        let specialty = ['All'];
+                        responseJson.data.forEach(element => {
+                            let doctorObject = {
+                                id: element.tenant_id,
+                                name: element.tenant_name,
+                                specialist: element.specialty_cd,
+                                state: element.tenant_state_cd,
+                                district: element.tenant_district_cd,
+                                longitude: element.longtitude,
+                                latitude: element.latitude,
+                                picture: element.picture,
+                            };
 
-                if (responseJson.result === true) {
-                    let doctor = [];
-                    let specialty = ['All'];
-                    responseJson.data.forEach(element => {
-                        let doctorObject = {
-                            id: element.tenant_id,
-                            name: element.tenant_name,
-                            specialist: element.specialty_cd,
-                            state: element.tenant_state_cd,
-                            longitude: element.longtitude,
-                            latitude: element.latitude
-                        };
+                            doctor.push(doctorObject);
+                            specialty.push(element.specialty_cd);
 
-                        if (element.picture !== null) {
-                            let unitArray = new Uint8Array(element.picture.data);
-
-                            const stringChar = unitArray.reduce((data, byte) => {
-                                return data + String.fromCharCode(byte);
-                            }, '');
-
-                            doctorObject.picture = RNFetchBlob.base64.encode(stringChar);
-                        }
-
-                        doctor.push(doctorObject);
-                        specialty.push(element.specialty_cd);
-
-                    });
-
-                    if (this.state.currentLongitude !== '' && this.state.currentLatitude !== '') {
-                        doctor.sort((a, b) => {
-                            const aDist = getPreciseDistance({
-                                latitude: a.latitude,
-                                longitude: a.longitude
-                            }, {
-                                latitude: this.state.currentLatitude,
-                                longitude: this.state.currentLongitude,
-                            })
-                            a['distance'] = (aDist / 1000).toFixed(1);
-                            const bDist = getPreciseDistance({
-                                latitude: b.latitude,
-                                longitude: b.longitude
-                            }, {
-                                latitude: this.state.currentLatitude,
-                                longitude: this.state.currentLongitude,
-                            })
-                            b['distance'] = (bDist / 1000).toFixed(1);
-                            return aDist - bDist;
                         });
+
+                        this.setState({
+                            doctorListHolder: doctor,
+                            allSpecialty: Array.from(new Set(specialty)),
+
+                        });
+
+                        resolve(true);
+                    }
+                    else {
+                        alert(responseJson);
+                        resolve(false);
                     }
 
-                    this.setState({
-                        doctorListHolder: doctor,
-                        doctorList: doctor,
-                        allSpecialty: Array.from(new Set(specialty)),
-                        flatListLoading: false
-                    });
+                })
+                .catch((error) => {
+                    alert(error);
+                    resolve(false);
+                });
+        })
+    }
 
-                }
-                else {
-                    console.log(responseJson);
-                }
+    updateDoctorImage = () => {
+        let doctor = this.state.doctorListHolder;
+        doctor.forEach(element => {
+            if (element.picture !== null) {
+                let unitArray = new Uint8Array(element.picture.data);
 
+                const stringChar = unitArray.reduce((data, byte) => {
+                    return data + String.fromCharCode(byte);
+                }, '');
+
+                element.picture = RNFetchBlob.base64.encode(stringChar);
+            }
+        });
+        this.setState({
+            doctorListHolder: doctor,
+            doctorList: doctor,
+        });
+    }
+
+    sortByLocation = () => {
+        let doctor = this.state.doctorListHolder;
+        doctor.sort((a, b) => {
+            const aDist = getPreciseDistance({
+                latitude: a.latitude,
+                longitude: a.longitude
+            }, {
+                latitude: this.state.currentLatitude,
+                longitude: this.state.currentLongitude,
             })
-            .catch((error) => {
-                alert(error);
-            });
+            a['distance'] = (aDist / 1000).toFixed(1);
+            const bDist = getPreciseDistance({
+                latitude: b.latitude,
+                longitude: b.longitude
+            }, {
+                latitude: this.state.currentLatitude,
+                longitude: this.state.currentLongitude,
+            })
+            b['distance'] = (bDist / 1000).toFixed(1);
+            return aDist - bDist;
+        });
+
+        this.setState({
+            doctorListHolder: doctor,
+            doctorList: doctor,
+        });
     }
 
     filterDoctorState = (state) => {
+
         const newData = this.state.doctorListHolder.filter(item => {
-            if ((state === item.state || state == 'Malaysia') && (this.state.specialty === item.specialist || this.state.specialty === 'All')) {
+            if ((state === item.state || state == 'Malaysia') && (this.state.specialty === item.specialist || this.state.specialty === 'All')
+                && (this.state.district === item.district || this.state.district === 'All')) {
                 const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
                 const textData = this.state.doctor.toUpperCase();
                 return itemData.indexOf(textData) > -1;
@@ -247,14 +301,44 @@ export default class FindDoctor extends Component {
 
         this.setState({
             doctorList: newData,
-            stateModal: !this.state.stateModal,
-            state: state
+            stateModal: false,
+            state: state,
+        });
+
+
+        if (DISTRICT[state.replace(/\s+/g, '')].length != 1) {
+            this.setState({
+                districtModal: true,
+            })
+        }
+        else {
+            this.setState({
+                district: 'All',
+            })
+        }
+    }
+
+    filterDoctorDistrict = (district) => {
+        const newData = this.state.doctorListHolder.filter(item => {
+            if ((this.state.state === item.state || this.state.state == 'Malaysia') && (this.state.specialty === item.specialist || this.state.specialty === 'All')
+                && (district === item.district || district === 'All')) {
+                const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
+                const textData = this.state.doctor.toUpperCase();
+                return itemData.indexOf(textData) > -1;
+            }
+        });
+
+        this.setState({
+            doctorList: newData,
+            district: district,
+            districtModal: false,
         });
     }
 
     filterDoctorSpecialty = (specialty) => {
         const newData = this.state.doctorListHolder.filter(item => {
-            if ((specialty === item.specialist || specialty == 'All') && (this.state.state === item.state || this.state.state === 'Malaysia')) {
+            if ((specialty === item.specialist || specialty == 'All') && (this.state.state === item.state || this.state.state === 'Malaysia')
+                && (this.state.district === item.district || this.state.district === 'All')) {
                 const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
                 const textData = this.state.doctor.toUpperCase();
                 return itemData.indexOf(textData) > -1;
@@ -270,7 +354,8 @@ export default class FindDoctor extends Component {
 
     filterDoctorSearch = (doctor) => {
         const newData = this.state.doctorListHolder.filter(item => {
-            if ((this.state.state === item.state || this.state.state === 'Malaysia') && (this.state.specialty === item.specialist || this.state.specialty === 'All')) {
+            if ((this.state.state === item.state || this.state.state === 'Malaysia') && (this.state.specialty === item.specialist || this.state.specialty === 'All')
+                && (this.state.district === item.district || this.state.district === 'All')) {
                 const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
                 const textData = doctor.toUpperCase();
                 return itemData.indexOf(textData) > -1;
@@ -283,19 +368,63 @@ export default class FindDoctor extends Component {
         });
     }
 
+    backStateModal = () => {
+        this.setState({
+            stateModal: true,
+            districtModal: false
+        });
+    }
+
+    closeModal = () => {
+        this.setState({
+            stateModal: false,
+            specialtyModal: false,
+            districtModal: false
+        });
+    }
+
 
     render() {
+        if (this.state.specialty !== 'All' || this.state.state !== 'Malaysia' || this.state.doctor !== '') {
+            this.props.navigation.setOptions({
+                headerRight: () => (
+                    <TouchableOpacity style={{ marginRight: 10 }}
+                        onPress={() => {
+                            this.setState({
+                                doctor: '',
+                                state: 'Malaysia',
+                                specialty: 'All',
+                                district: 'All',
+                                doctorList: this.state.doctorListHolder
+                            })
+                        }}
+                    >
+                        <MaterialCommunityIcon name={'filter-remove'} size={25} />
+                    </TouchableOpacity>
+                ),
+            });
+        }
+        else {
+            this.props.navigation.setOptions({
+                headerRight: () => null
+            });
+        }
 
         return (
             <View style={[styles.container]}>
                 <Text style={{ fontSize: 18, lineHeight: 25, fontWeight: '600', textAlign: 'center', marginVertical: 20 }}> Find Doctor </Text>
 
                 <Modal isVisible={this.state.stateModal}>
-                    <StatePickerModal filterState={this.filterDoctorState} allState={this.state.allState} />
+                    <StatePickerModal filterState={this.filterDoctorState} allState={this.state.allState} closeModal={this.closeModal} />
                 </Modal>
 
                 <Modal isVisible={this.state.specialtyModal}>
-                    <SpecialtyPickerModal filterSpecialty={this.filterDoctorSpecialty} allSpecialty={this.state.allSpecialty} />
+                    <SpecialtyPickerModal filterSpecialty={this.filterDoctorSpecialty} allSpecialty={this.state.allSpecialty} closeModal={this.closeModal} />
+                </Modal>
+
+                <Modal isVisible={this.state.districtModal}>
+                    <DistrictPickerModal filterDistrict={this.filterDoctorDistrict} state={this.state.state} district={DISTRICT[this.state.state.replace(/\s+/g, '')]}
+                        backStateModal={this.backStateModal} closeModal={this.closeModal} />
                 </Modal>
 
                 <View style={[styles.searchBox]}>
@@ -326,14 +455,10 @@ export default class FindDoctor extends Component {
 
                 </View>
 
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginVertical: 20, marginHorizontal: 12, justifyContent: 'space-between' }}>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginVertical: 15, marginHorizontal: 12, justifyContent: 'space-between' }}>
                     <View style={{ flexDirection: 'row' }}>
                         <Text style={[{ fontWeight: '600', fontSize: 16, lineHeight: 22, color: '#555555' }]}>Location: </Text>
-                        <Text style={[{ fontWeight: '600', fontSize: 16, lineHeight: 22, color: '#000000' }]}>{this.state.state}</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row' }}>
-                        <Text style={[{ fontWeight: '600', fontSize: 16, lineHeight: 22, color: '#555555' }]}>Specialty: </Text>
-                        <Text style={[{ fontWeight: '600', fontSize: 16, lineHeight: 22, color: '#000000' }]}>{this.state.specialty}</Text>
+                        <Text style={[{ fontWeight: '600', fontSize: 16, lineHeight: 22, color: '#000000' }]}>{this.state.district === 'All' ? this.state.state : this.state.district + ', ' + this.state.state}</Text>
                     </View>
 
                     <TouchableOpacity style={{ justifyContent: 'center', marginRight: 10 }}
@@ -355,6 +480,12 @@ export default class FindDoctor extends Component {
                         renderItem={({ item }) =>
                             <Doctor id={item.id} name={item.name} specialist={item.specialist} distance={item.distance} picture={item.picture} navigation={this.props.navigation} />}
                         keyExtractor={item => item.id}
+                        extraData={this.state}
+                        initialNumToRender={10}
+                        maxToRenderPerBatch={10}
+                        onEndReached={() => this.setState({ endFlatList: true })}
+                        onEndReachedThreshold={0.1}
+                        ListFooterComponent={() => <Text style={styles.flatListFooter}>{this.state.endFlatList ? 'End of List' : this.state.flatListLoading ? '' : 'Loading...'}</Text>}
                     />
                 </SafeAreaView>
 
@@ -401,12 +532,19 @@ const styles = StyleSheet.create({
     },
     doctorItemImage: {
         width: '30%',
-        height: 100
+        height: 100,
+        backgroundColor: '#D8D8D8'
     },
     doctorItemTextView: {
         flex: 1,
         justifyContent: 'space-evenly',
         marginLeft: 15
+    },
+    flatListFooter: {
+        fontStyle: 'italic',
+        textAlign: 'center',
+        marginVertical: 7,
+        color: '#979797'
     }
 
 })

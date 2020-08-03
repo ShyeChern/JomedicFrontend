@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { Text, StyleSheet, View, Linking, Alert } from 'react-native';
-import EntypoIcon from 'react-native-vector-icons/Entypo';
+import { Text, StyleSheet, View, Linking, Alert, Platform } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import SystemSetting from 'react-native-system-setting';
 import { requestLocationPermission } from '../util/permission/Permission';

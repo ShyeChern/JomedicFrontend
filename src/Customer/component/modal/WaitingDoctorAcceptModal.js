@@ -8,7 +8,7 @@ export default class WaitingDoctorAcceptModal extends Component {
 
                 <Text style={[styles.modalText, { flex: 1, marginHorizontal: 20, marginTop: 20 }]}>
                     {this.props.requestChatFeedback}
-                    {"\n\n"}You can chat with doctor at Account > Current Chat after doctor accept your request
+                    {"\n\n"}You can chat with doctor at Jomedic tab chat button after doctor accept your request
                         </Text>
 
                 <View style={{ flexDirection: 'row' }}>

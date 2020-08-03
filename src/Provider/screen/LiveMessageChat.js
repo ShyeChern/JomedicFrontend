@@ -688,7 +688,7 @@ export default class PatientLiveChat extends Component {
         })
     }
 
-    sendPrescriptionSlip = (tenant_id, pmi_no, order_no, health_facility_code) => {
+    sendPrescriptionSlip = async (tenant_id, pmi_no, order_no, health_facility_code) => {
         let datas = {
             txn_cd: "MEDORDER073",
             tstamp: getTodayDate(),

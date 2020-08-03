@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { Text, StyleSheet, View, ScrollView, TouchableOpacity, TextInput, Image } from 'react-native';
+import { Text, StyleSheet, View, ScrollView, TouchableOpacity, TextInput, Image, Platform } from 'react-native';
 import { requestImagePickerPermission } from '../util/permission/Permission';
+import { Picker } from '@react-native-community/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import FontistoIcon from 'react-native-vector-icons/Fontisto';
 import ImagePicker from 'react-native-image-picker';
 import RNFetchBlob from 'rn-fetch-blob';
-import { format } from 'date-fns';
 import { getCustomerId } from "../util/Auth";
 import { URL } from '../util/FetchURL';
 
@@ -32,6 +32,7 @@ export default class EditProfile extends Component {
             showDatePicker: false,
             filePath: {},  // gt data, fileSize, height, fileName, path, type, uri, content, width
             picture: '',
+            allState: [],
         }
 
 
@@ -76,8 +77,50 @@ export default class EditProfile extends Component {
                 alert(error);
             });
 
-        // get profile data
         bodyData = {
+            transactionCode: 'GETSTATE',
+            timestamp: new Date(),
+            data: {
+            }
+        };
+
+        fetch(URL, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(bodyData),
+        }).then((response) => response.json())
+            .then((responseJson) => {
+
+                if (responseJson.result === true) {
+                    let allState = [];
+
+                    responseJson.data.forEach(element => {
+                        if (element.Description !== "National" && element.Description !== "Luar Negara") {
+                            allState.push(element.Description);
+                        }
+                    });
+
+                    this.setState({
+                        allState: allState
+                    });
+
+                }
+                else {
+                    alert(responseJson.value);
+                }
+                this.getProfileData();
+            })
+            .catch((error) => {
+                alert(error);
+            });
+    }
+
+    getProfileData=()=>{
+        // get profile data
+        let bodyData = {
             transactionCode: 'PROFILE',
             timestamp: new Date(),
             data: {
@@ -353,11 +396,20 @@ export default class EditProfile extends Component {
                         />
 
                         <Text style={[styles.selfInfoLabelText]}>State</Text>
-                        <TextInput style={styles.selfInfoInputText}
-                            value={this.state.state}
-                            onChangeText={(state) => this.setState({ state })}
-                            placeholder={'State'}
-                        />
+                        
+                        <Picker style={styles.selfInfoInputText, { borderColor: 'blue' }}
+                            selectedValue={this.state.state}
+                            onValueChange={(itemValue, itemIndex) => this.setState({ state: itemValue })}
+                        >
+                            <Picker.Item label='Select State' value='' color="grey" />
+                            {
+                                this.state.allState.map((state, index) => {
+                                    return (
+                                        <Picker.Item label={state} value={state} color="#000000" />
+                                    )
+                                })
+                            }
+                        </Picker>
 
                     </View>
                     <TouchableOpacity style={[styles.btn]}

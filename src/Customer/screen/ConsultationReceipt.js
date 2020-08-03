@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, StyleSheet, View, Image, TouchableOpacity, BackHandler } from 'react-native';
+import { Text, StyleSheet, View, Image, TouchableOpacity, BackHandler, Platform } from 'react-native';
 import { Divider } from 'react-native-elements';
 import Modal from "react-native-modal";
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
@@ -120,11 +120,11 @@ export default class ConsultationReceipt extends Component {
         let options = {
             html: html,
             fileName: this.state.referenceId,
-            directory: 'Documents',
+            directory: 'Download',
         };
 
         let file = await RNHTMLtoPDF.convert(options);
-        alert('Your Receipt is Saved in Documents as ' + this.state.referenceId);
+        alert('Your Receipt is Saved in Download as ' + this.state.referenceId);
 
     }
 

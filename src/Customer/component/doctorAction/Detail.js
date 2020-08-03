@@ -25,15 +25,23 @@ export default class Detail extends Component {
                         <Text style={[styles.text, styles.textLabel]}>Experience</Text>
                         <Text style={[styles.text, styles.textDescription]}>{this.props.experience}</Text>
                     </View>
-                    <View style={{ marginVertical: 10 }}>
-                        <Text style={[styles.text, styles.textLabel]}>Work Location</Text>
-                        <TouchableOpacity onPress={() => Linking.openURL(this.props.address)}>
-                            <View style={{ flexDirection: 'row', alignItems:'center' }}>
-                                <Text style={[styles.text, styles.textDescription]}>{this.props.workLocation}</Text>
-                                <FeatherIcon style={{ marginLeft: 10 }} name='navigation' size={14} color='#000000' />
+
+                    {
+                        this.props.workLocation !== null ?
+                            <View style={{ marginVertical: 10 }}>
+                                <Text style={[styles.text, styles.textLabel]}>Work Location</Text>
+                                <TouchableOpacity onPress={() => Linking.openURL(this.props.address)}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Text style={[styles.text, styles.textDescription]}>{this.props.workLocation}</Text>
+                                        <FeatherIcon style={{ marginLeft: 10 }} name='navigation' size={14} color='#000000' />
+                                    </View>
+                                </TouchableOpacity>
                             </View>
-                        </TouchableOpacity>
-                    </View>
+                            :
+                            <View />
+                    }
+
+
                 </View>
 
                 <View style={[styles.bottomActionBtnBar]}>
