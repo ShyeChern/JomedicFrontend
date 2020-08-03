@@ -27,7 +27,7 @@ const SETTING = [
         section: 'Security & Login',
         data: [
             {
-                Name: 'History',
+                Name: 'Order History',
                 Navigate: 'History'
             },
             {
