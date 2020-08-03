@@ -214,7 +214,7 @@ export default class AccountSettings extends Component {
                         <Text style={styles.titleText}>Help</Text>
                     </View>
                     <TouchableOpacity style={styles.itemStyle}
-                        // onPress={() => this.props.navigation.navigate("ContactUs")}
+                        onPress={() => this.props.navigation.navigate("ContactUs")}
                     >
                         <Text style={styles.itemText}>Contact Us</Text>
                         <Image style={styles.iconStyle} source={require("../img/Left_Chevron.png")} />

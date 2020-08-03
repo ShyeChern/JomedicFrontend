@@ -342,7 +342,7 @@ export default class ClinicSchedule extends Component {
 
         // Ignore the operation if this is the first page
         if (params.page <= 1) {
-            Alert.alert("First Page", "This is the first page.")
+            // Alert.alert("First Page", "This is the first page.")
             return
         } else {
             this.props.navigation.goBack()

@@ -17,17 +17,17 @@ const SETTING = [
                 Name: 'FAQ',
                 Navigate: 'Faq'
             },
+            {
+                Name: 'User Manual',
+                Navigate: 'UserManual'
+            },
         ],
     },
     {
-        section: 'Logins',
+        section: 'Security & Login',
         data: [
             {
-                Name: 'Current Chat',
-                Navigate: 'CurrentChat'
-            },
-            {
-                Name: 'History',
+                Name: 'Order History',
                 Navigate: 'History'
             },
             {

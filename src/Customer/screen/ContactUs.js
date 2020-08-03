@@ -21,10 +21,10 @@ export default class ContactUs extends Component {
     }
 
     send = () => {
-        if(this.state.subject===''||this.state.content===''){
+        if (this.state.subject === '' || this.state.content === '') {
             alert('Please enter all the field');
         }
-        else{
+        else {
             let bodyData = {
                 transactionCode: 'CONTACT',
                 timestamp: new Date(),
@@ -34,7 +34,7 @@ export default class ContactUs extends Component {
                     Content: this.state.content
                 }
             };
-    
+
             fetch(URL, {
                 method: 'POST',
                 headers: {
@@ -44,25 +44,25 @@ export default class ContactUs extends Component {
                 body: JSON.stringify(bodyData),
             }).then((response) => response.json())
                 .then((responseJson) => {
-    
+
                     if (responseJson.result === true) {
                         this.setState({
                             subject: '',
                             content: ''
                         });
-    
+
                         alert('Your problem have been received, we will reply you via email soon.');
                     }
                     else {
                         alert(responseJson.value);
                     }
-    
+
                 })
                 .catch((error) => {
                     alert(error);
                 });
         }
-        
+
     }
 
     render() {
@@ -70,6 +70,8 @@ export default class ContactUs extends Component {
             <View style={styles.container}>
                 <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
                     <View style={{ marginTop: 10 }}>
+                        <Text style={{ fontSize: 16, lineHeight: 22, fontWeight: 'bold', marginHorizontal: 15 }}>Submit Us Your Problem</Text>
+                        <Text style={[styles.text, { fontWeight: 'normal', textAlign:'justify' }]}>Please kindly describe your problem in the given space below. Our staff will assist and reply to you via email as soon as possible.</Text>
                         <Text style={styles.text}>Subject</Text>
                         <TextInput
                             style={styles.input}
@@ -110,7 +112,8 @@ const styles = StyleSheet.create({
     text: {
         fontSize: 14,
         lineHeight: 19,
-        margin: 15
+        margin: 15,
+        fontWeight: 'bold'
     },
     input: {
         borderWidth: 1,

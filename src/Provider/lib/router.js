@@ -48,6 +48,7 @@ import ContactUsScreen from '../screen/ContactUs'
 
 import { AuthenticateNavigator } from '../../Customer/route/Navigator';
 import { tr } from 'date-fns/locale';
+import EWalletScreen from '../../eWallet/JOMEDIC WALLET/Appnavigator';
 
 const activeTintLabelColor = '#FFD54E';
 const inactiveTintLabelColor = 'black';
@@ -599,7 +600,7 @@ const AccountStackNavigator = ({ navigation, route }) => {
                     headerShown: true
                 }}
             />
-            <AccountStack.Screen name="E-Wallet" component={DummyScreen}
+            <AccountStack.Screen name="E-Wallet" component={EWalletScreen}
                 options={{
                     headerTintColor: '#000000',
                     headerShown: true,

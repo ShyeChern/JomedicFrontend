@@ -2,12 +2,20 @@ import React, { Component } from 'react';
 import { Text, StyleSheet, View, SafeAreaView, FlatList, Image, TouchableOpacity, RefreshControl } from 'react-native';
 import { Picker } from '@react-native-community/picker';
 import RNFetchBlob from 'rn-fetch-blob';
+import FastImage from 'react-native-fast-image';
 import { URL } from '../util/FetchURL';
 
 Healthcaredoctor = ({ id, name, specialist, picture, navigation }) => {
     return (
         <View style={[styles.healthcareDoctorList]}>
-            <Image style={[styles.healthcareDoctorImage]} source={{ uri: 'data:image/jpg;base64,' + picture }} />
+            <FastImage
+                style={[styles.healthcareDoctorImage]}
+                source={{
+                    uri: 'data:image/jpg;base64,' + picture,
+                    priority: FastImage.priority.low,
+                }}
+            />
+            {/* <Image style={[styles.healthcareDoctorImage]} source={{ uri: 'data:image/jpg;base64,' + picture }} /> */}
             <TouchableOpacity style={[styles.healthcareDoctorTextView]}
                 onPress={() => navigation.navigate('Doctor', { doctorId: id, picture: picture })}>
                 <Text style={{ fontWeight: '600', fontSize: 16, lineHeight: 22 }}>{name}</Text>
@@ -27,7 +35,8 @@ export default class HealthcareDoctor extends Component {
             allSpecialist: [],
             doctorListHolder: [],
             doctorList: [],
-            flatListLoading: true
+            flatListLoading: true,
+            endFlatList:false
         }
 
     }
@@ -59,18 +68,19 @@ export default class HealthcareDoctor extends Component {
                         let doctorObject = {
                             id: element.tenant_id,
                             name: element.tenant_name,
-                            specialist: element.specialty_cd
+                            specialist: element.specialty_cd,
+                            picture:element.picture,
                         };
 
-                        if (element.picture !== null) {
-                            let unitArray = new Uint8Array(element.picture.data);
+                        // if (element.picture !== null) {
+                        //     let unitArray = new Uint8Array(element.picture.data);
 
-                            const stringChar = unitArray.reduce((data, byte) => {
-                                return data + String.fromCharCode(byte);
-                            }, '');
+                        //     const stringChar = unitArray.reduce((data, byte) => {
+                        //         return data + String.fromCharCode(byte);
+                        //     }, '');
 
-                            doctorObject.picture = RNFetchBlob.base64.encode(stringChar);
-                        }
+                        //     doctorObject.picture = RNFetchBlob.base64.encode(stringChar);
+                        // }
 
                         doctor.push(doctorObject);
                         allSpecialist.push(element.specialty_cd);
@@ -83,7 +93,7 @@ export default class HealthcareDoctor extends Component {
                         allSpecialist: allSpecialist,
                         flatListLoading: false
                     });
-
+                    this.updateDoctorImage();
 
                 }
                 else {
@@ -94,6 +104,26 @@ export default class HealthcareDoctor extends Component {
             .catch((error) => {
                 alert(error);
             });
+    }
+
+    updateDoctorImage = () => {
+        let doctor = this.state.doctorListHolder;
+        doctor.forEach(element => {
+            if (element.picture !== null) {
+                let unitArray = new Uint8Array(element.picture.data);
+
+                const stringChar = unitArray.reduce((data, byte) => {
+                    return data + String.fromCharCode(byte);
+                }, '');
+
+                element.picture = RNFetchBlob.base64.encode(stringChar);
+            }
+        });
+        this.setState({
+            doctorListHolder: doctor,
+            doctorList: doctor,
+        });
+
     }
 
     filterDoctor = (specialist) => {
@@ -145,6 +175,12 @@ export default class HealthcareDoctor extends Component {
                         renderItem={({ item }) => 
                         <Healthcaredoctor id={item.id} name={item.name} specialist={item.specialist} picture={item.picture} navigation={this.props.navigation} />}
                         keyExtractor={item => item.id}
+                        extraData={this.state}
+                        initialNumToRender={10}
+                        maxToRenderPerBatch={10}
+                        onEndReached={() => this.setState({ endFlatList: true })}
+                        onEndReachedThreshold={0.1}
+                        ListFooterComponent={() => <Text style={styles.flatListFooter}>{this.state.endFlatList ? 'End of List' : this.state.flatListLoading ? '' : 'Loading...'}</Text>}
                     />
                 </SafeAreaView>
             </View>
@@ -185,11 +221,18 @@ const styles = StyleSheet.create({
     },
     healthcareDoctorImage: {
         width: '30%',
-        height: 100
+        height: 100,
+        backgroundColor: '#D8D8D8'
     },
     healthcareDoctorTextView: {
         flex: 1,
         justifyContent: 'space-evenly',
         marginLeft: 15
+    },
+    flatListFooter: {
+        fontStyle: 'italic',
+        textAlign: 'center',
+        marginVertical: 7,
+        color: '#979797'
     }
 })

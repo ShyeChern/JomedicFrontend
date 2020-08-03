@@ -1,60 +1,6 @@
 import React, { Component } from 'react';
 import { Text, StyleSheet, View, TouchableOpacity, SafeAreaView, FlatList } from 'react-native';
-import { format, add } from 'date-fns';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-
-const TimeData = [
-    {
-        id: '1',
-        status: 'available',
-        startTime: '11:00',
-        endTime: '12:00',
-        quota: 0,
-    },
-    {
-        id: '2',
-        status: 'not available',
-        startTime: '',
-        endTime: '',
-        quota: 0,
-    },
-    {
-        id: '3',
-        status: 'available',
-        startTime: '11:00',
-        endTime: '12:00',
-        quota: 2,
-    },
-    {
-        id: '4',
-        status: 'available',
-        startTime: '11:00',
-        endTime: '12:00',
-        quota: 0,
-    },
-    {
-        id: '5',
-        status: 'not available',
-        startTime: null,
-        endTime: null,
-        quota: 3,
-    },
-    {
-        id: '6',
-        status: 'available',
-        startTime: '11:00',
-        endTime: '12:00',
-        quota: 3,
-    },
-    {
-        id: '7',
-        status: 'available',
-        startTime: '11:00',
-        endTime: '12:00',
-        quota: 0,
-    },
-
-];
 
 Time = ({ id, week, startDate, status, startTime, endTime, quota, that }) => {
     return (

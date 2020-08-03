@@ -110,25 +110,26 @@ export default class CurrentChat extends Component {
             });
     }
 
+
+
     render() {
         return (
             <View style={styles.container}>
-                {
-                    this.state.chatList.length === 0 ?
-                        <Text style={{ textAlign: 'center', fontStyle: 'italic', marginTop: 10 }}>There are no active chat right now</Text>
-                        :
-                        <SafeAreaView style={{ flex: 1 }}>
-                            <FlatList
-                                data={this.state.chatList}
-                                refreshControl={<RefreshControl refreshing={this.state.flatListLoading} />}
-                                renderItem={({ item }) =>
-                                    <Chat orderNo={item.orderNo} doctorId={item.doctorId} doctorName={item.doctorName} specialist={item.specialist}
-                                        doctorImage={item.doctorImage} that={this} />}
-                                keyExtractor={item => item.orderNo}
-                            />
-                        </SafeAreaView>
-                }
 
+                <SafeAreaView style={{ flex: 1 }}>
+                    <FlatList
+                        data={this.state.chatList}
+                        refreshControl={<RefreshControl refreshing={this.state.flatListLoading} />}
+                        renderItem={({ item }) =>
+                            <Chat orderNo={item.orderNo} doctorId={item.doctorId} doctorName={item.doctorName} specialist={item.specialist}
+                                doctorImage={item.doctorImage} that={this} />}
+                        keyExtractor={item => item.orderNo}
+                        ListEmptyComponent={() => {
+                            return (
+                            <Text style={{ textAlign: 'center', fontStyle: 'italic', marginTop: 10 }}>No active chat right now.{'\n'}Request chat service from doctor to start a chat.</Text>)
+                        }}
+                    />
+                </SafeAreaView>
 
             </View>
         )

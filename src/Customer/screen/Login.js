@@ -44,6 +44,7 @@ export default class Login extends Component {
                 isLoading: true
             });
 
+
             let bodyData = {
                 transactionCode: 'USERTYPE',
                 timestamp: new Date(),
@@ -61,7 +62,6 @@ export default class Login extends Component {
                 body: JSON.stringify(bodyData),
             }).then((response) => response.json())
                 .then(async (responseJson) => {
-                   
                     if (responseJson.result === true) {
                         if (responseJson.data[0].user_type == '6') {
 
@@ -109,6 +109,7 @@ export default class Login extends Component {
                                 });
                         }
                         else {
+                            console.log("Entered Provider Login")
                             let datas = {
                                 txn_cd: 'MEDAUTH01',
                                 tstamp: getTodayDate(),
@@ -130,7 +131,7 @@ export default class Login extends Component {
 
                                 const json = await response.json();
 
-                                if (json.status == 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
+                                if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                                     console.log('Login Error');
                                     console.log(json.status);
                                 }
@@ -270,7 +271,7 @@ export default class Login extends Component {
 
             const json = await response.json();
 
-            if (json.status === 'success') {
+            if (json.status === 'success' || json.status === 'SUCCESS') {
                 // Return to Account Settings
                 console.log(json.status)
                 return true;

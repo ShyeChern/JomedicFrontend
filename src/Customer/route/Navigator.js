@@ -31,6 +31,7 @@ import History from '../screen/History';
 import ChangePassword from '../screen/ChangePassword';
 import Faq from '../screen/Faq';
 import ContactUs from '../screen/ContactUs';
+import UserManual from '../screen/UserManual';
 import AppointmentDetail from '../screen/AppointmentDetail';
 
 
@@ -130,25 +131,6 @@ function getHeaderTitleStyleOption(route) {
 
 }
 
-function getHeaderRightOption(route) {
-    switch (getBottomTabTitle(route)) {
-        case 'Jomedic':
-            return null
-            break;
-        case 'Appointment':
-            return <HeaderMenuWhite />;
-            break;
-        case 'Wallet':
-            return <HeaderMenuWhite />;
-            break;
-        case 'Account':
-            return null
-            break;
-        default:
-            return <HeaderMenuWhite />;
-    }
-}
-
 export function AuthenticateNavigator({ navigation }) {
     return (
         <Stack.Navigator initialRouteName='WelcomePage' screenOptions={navigatorScreenSetting}>
@@ -198,14 +180,11 @@ function MainNavigator({ navigation }) {
                 headerLeft: null,
             }} />
 
-            {/* Get headerTintColor, headerTitleStyle, headerRight */}
-            {/* Check if export class and export default class for headerMenu */}
             <Stack.Screen name='Jomedic' component={BottomHomeTab}
                 options={({ route }) => ({
                     title: getBottomTabTitle(route),
                     headerTransparent: getHeaderTransparentOption(route),
                     headerLeft: null,
-                    headerRight: () => getHeaderRightOption(route),
                     headerTintColor: getHeaderTintColorOption(route),
                     headerTitleStyle: getHeaderTitleStyleOption(route)
                 })}
@@ -214,16 +193,12 @@ function MainNavigator({ navigation }) {
             <Stack.Screen name='FindHealthcare' component={FindHealthcare} options={{
                 title: '',
                 headerTintColor: '#000000',
-                headerRight: () => (
-                    <HeaderMenuBlack />
-                ),
+
             }} />
             <Stack.Screen name='FindDoctor' component={FindDoctor} options={{
                 title: '',
                 headerTintColor: '#000000',
-                headerRight: () => (
-                    <HeaderMenuBlack />
-                ),
+
             }} />
             <Stack.Screen name='FindMap' component={FindMap} options={{
                 title: '',
@@ -315,6 +290,12 @@ function MainNavigator({ navigation }) {
 
             <Stack.Screen name='ContactUs' component={ContactUs} options={{
                 title: 'Contact Us',
+                headerTintColor: '#FFFFFF',
+                headerTransparent: false,
+            }} />
+
+            <Stack.Screen name='UserManual' component={UserManual} options={{
+                title: 'User Manual',
                 headerTintColor: '#FFFFFF',
                 headerTransparent: false,
             }} />

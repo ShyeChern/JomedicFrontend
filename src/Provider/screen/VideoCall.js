@@ -519,6 +519,58 @@ export default class VideoCall extends Component {
         })
     }
 
+    sendPrescriptionSlip = async (tenant_id, pmi_no, order_no) => {
+        let datas = {
+            txn_cd: "MEDORDER073",
+            tstamp: getTodayDate(),
+            data: {
+                order_no: order_no,
+                pmi_no: pmi_no,
+                hfc_cd: tenant_id,
+            }
+        }
+
+        try {
+            this.setState({ isLoading: true })
+
+            const response = await fetch(URL_Provider, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datas)
+            });
+
+            const json = await response.json();
+
+            if (json.status === 'SUCCESS' || json.status === 'success') {
+                this.setState({
+                    isLoading: false
+                });
+
+                return true;
+            } else {
+                console.log('Send Prescription Error: ');
+                console.log(json.status);
+                this.setState({
+                    isLoading: false
+                });
+
+                return false;
+            };
+
+        } catch (error) {
+            console.log("Send Prescription Error: " + error)
+            this.setState({
+                isLoading: false
+            });
+            handleNoInternet()
+            return false;
+        }
+
+    }
+
     menu = null;
 
     setMenuReference = (ref) => {
@@ -593,7 +645,7 @@ export default class VideoCall extends Component {
         }
 
         // Update Status to end, and go to Consultation Note Modal
-        if (this.updateMessageStatusEnd()) {
+        if (this.updateMessageStatusEnd() && this.sendPrescriptionSlip(this.state.tenant_id, this.state.id_number, this.state.order_no)) {
             this.props.navigation.navigate("RateCustomerModal", {
                 tenant_id: this.state.tenant_id,
                 tenant_type: this.state.tenant_type,

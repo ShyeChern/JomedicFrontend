@@ -369,8 +369,8 @@ export default class Queue extends Component {
         if (!this.state.isTenantAvailable) {
             return (
                 <View style={styles.inactiveQueueContainer}>
-                    <Text style={styles.inactiveQueueTitle}>Queue is not active.</Text>
-                    <Text style={styles.inactiveQueueMessage}>Please activate the queue by switching on the switch in the top right corner.</Text>
+                    <Text style={styles.inactiveQueueTitle}>The Queue is turn OFF.</Text>
+                    <Text style={styles.inactiveQueueMessage}>Please turn ON the queue by toggle on the switch in the top right corner.</Text>
                 </View>
             )
         } else {

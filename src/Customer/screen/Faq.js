@@ -16,7 +16,7 @@ const FAQDATA = [
     {
         id: '3',
         question: 'Does Jomedic can be used in the website?',
-        answer: 'Currently Jomedic support on;y for mobile user. Website will be develop in the future.',
+        answer: 'Currently Jomedic support only for mobile user. Website will be develop in the future.',
     }
 ]
 

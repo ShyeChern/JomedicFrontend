@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { Text, StyleSheet, View, TouchableOpacity, SafeAreaView, FlatList } from 'react-native';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 State = ({ state, that }) => {
-    if(state=='National'){
-        state='Malaysia';
+    if (state == 'National') {
+        state = 'Malaysia';
     }
     return (
         <View>
@@ -21,9 +22,14 @@ export default class StatePickerModal extends Component {
         return (
             <View style={[styles.modalView]}>
                 <View style={[styles.modalBox]}>
-                    <Text style={[styles.modalTitle]}>Select Location</Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <Text style={[styles.modalTitle]}>Select Location</Text>
+                        <TouchableOpacity onPress={() => this.props.closeModal()}>
+                            <FontAwesomeIcon style={[styles.modalTitle, { fontSize: 22 }]} name='close' size={22} color='#FDAA26' />
+                        </TouchableOpacity>
+                    </View>
 
-                    <SafeAreaView style={{flex:1}}>
+                    <SafeAreaView style={{ flex: 1 }}>
                         <FlatList
                             data={this.props.allState}
                             renderItem={({ item }) => <State state={item} that={this} />}
@@ -31,7 +37,7 @@ export default class StatePickerModal extends Component {
                         />
                     </SafeAreaView>
                 </View>
-            </View>
+            </View >
         )
     }
 }
@@ -41,13 +47,13 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        marginVertical:30
+        marginVertical: 30
     },
     modalBox: {
         backgroundColor: 'white',
         borderRadius: 15,
         width: '80%',
-        flex:1
+        flex: 1
     },
     modalTitle: {
         color: '#FDAA26',

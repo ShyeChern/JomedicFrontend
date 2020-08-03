@@ -1,8 +1,50 @@
 import React, { Component } from 'react';
-import { Text, StyleSheet, View, Image, TouchableOpacity, BackHandler } from 'react-native';
+import { Text, StyleSheet, View, Image, TouchableOpacity, BackHandler, SafeAreaView, FlatList } from 'react-native';
 import { getCustomerId } from "../util/Auth";
 import { URL } from '../util/FetchURL';
+
 import PushNotification from "react-native-push-notification";
+
+const SERVICE = [
+    {
+        id: "1",
+        name: "Find Doctor",
+        icon: require('../asset/icon/doctor.png'),
+        navigate: "FindDoctor",
+    },
+    {
+        id: "2",
+        name: "Find Healthcare",
+        icon: require('../asset/icon/healthcare.png'),
+        navigate: "FindHealthcare",
+    },
+    {
+        id: "3",
+        name: "Find Map",
+        icon: require('../asset/icon/map.png'),
+        navigate: "FindMap",
+    },
+    {
+        id: "4",
+        name: "Current Chat",
+        icon: require('../asset/icon/chat.png'),
+        navigate: "CurrentChat",
+    },
+]
+
+Services = ({ id, name, icon, navigate, that }) => {
+    return (
+        <View style={{ alignItems: 'center', marginHorizontal: 15, marginVertical: 10, flex: 1 }}>
+            <TouchableOpacity style={[styles.serviceBtn]}
+                onPress={() => that.props.navigation.navigate(navigate)}>
+                <Image style={[styles.icon]}
+                    source={icon}
+                />
+            </TouchableOpacity>
+            <Text style={[styles.serviceText]}>{name}</Text>
+        </View>
+    )
+}
 
 export default class Home extends Component {
 
@@ -45,7 +87,7 @@ export default class Home extends Component {
                                 PushNotification.localNotification({
                                     id: 1,
                                     title: "Request Accepted",
-                                    message: "Doctor has accepted your chat request. Go to Account > Current Chat to chat now",
+                                    message: "Doctor has accepted your chat request. Go to Jomedic tab and click the chat button to chat now",
                                 })
                             }
 
@@ -84,6 +126,10 @@ export default class Home extends Component {
     }
 
     render() {
+        this.props.navigation.setOptions({
+            headerRight: () => null
+        });
+
         return (
             <View style={[styles.container]}>
 
@@ -97,41 +143,16 @@ export default class Home extends Component {
 
                     <Text style={{ fontSize: 14, marginHorizontal: 20, fontWeight: '600', lineHeight: 19 }}>Services</Text>
 
-                    <View style={[styles.serviceBtnView]}>
-
-                        <View style={{ alignItems: 'center', marginHorizontal: 5, flex: 1 }}>
-                            <TouchableOpacity style={[styles.serviceBtn]}
-                                onPress={() => this.props.navigation.navigate('FindDoctor')}>
-                                <Image style={[styles.icon]}
-                                    source={require('../asset/icon/doctor.png')}
-                                />
-                            </TouchableOpacity>
-                            <Text style={[styles.serviceText]}>Find Doctor</Text>
-                        </View>
-
-                        <View style={{ alignItems: 'center', marginHorizontal: 5, flex: 1 }}>
-                            <TouchableOpacity style={[styles.serviceBtn]}
-                                onPress={() => this.props.navigation.navigate('FindHealthcare')}>
-                                <Image style={[styles.icon]}
-                                    source={require('../asset/icon/healthcare.png')}
-                                />
-                            </TouchableOpacity>
-                            <Text style={[styles.serviceText]}>Find Healthcare</Text>
-                        </View>
-
-                        <View style={{ alignItems: 'center', marginHorizontal: 5, flex: 1 }}>
-                            <TouchableOpacity style={[styles.serviceBtn]}
-                                onPress={() => this.props.navigation.navigate('FindMap')}>
-                                <Image style={[styles.icon]}
-                                    source={require('../asset/icon/map.png')}
-                                />
-                            </TouchableOpacity>
-                            <Text style={[styles.serviceText]}>View Map</Text>
-                        </View>
-
-
-                    </View>
-
+                    <SafeAreaView style={{ flex: 1 }}>
+                        <FlatList
+                            data={SERVICE}
+                            renderItem={({ item, index }) =>
+                                <Services id={item.id} name={item.name} icon={item.icon} navigate={item.navigate} that={this} />
+                            }
+                            keyExtractor={item => item.id}
+                            numColumns={3}
+                        />
+                    </SafeAreaView>
                 </View>
 
             </View >
@@ -148,8 +169,8 @@ const styles = StyleSheet.create({
     imageView: {
         flex: 2,
         alignItems: 'center',
-        marginTop: 25,
-        justifyContent: 'center'
+        justifyContent: 'center',
+        marginTop: 25
     },
     mainMenuImage: {
         width: '90%',
@@ -158,12 +179,6 @@ const styles = StyleSheet.create({
     },
     serviceView: {
         flex: 3
-    },
-    serviceBtnView: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        margin: 10,
-        flex: 1
     },
     serviceText: {
         fontWeight: '600',
@@ -177,11 +192,13 @@ const styles = StyleSheet.create({
         width: 66,
         height: 66,
         borderRadius: 66 / 2,
-        margin: 10
+        overflow: 'hidden',
+        flex: 1
     },
     icon: {
         width: 66,
         height: 66,
         borderRadius: 66 / 2,
+        resizeMode: 'contain',
     }
 })

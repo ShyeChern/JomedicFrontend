@@ -602,9 +602,7 @@ export default class PatientLiveChat extends Component {
         var isOrderDetailSave = this.saveOrderDetail(todayDate)
 
         // Send the prescription slip
-        // Get the health_facility_code from medicationmaster
-        var medicationMaster = await this.loadMedicationMaster()
-        var isPrescriptionSlipSent = await this.sendPrescriptionSlip(this.state.tenant_id, this.state.id_number, this.state.order_no, medicationMaster.HEALTH_FACILITY_CODE);
+        var isPrescriptionSlipSent = await this.sendPrescriptionSlip(this.state.tenant_id, this.state.id_number, this.state.order_no);
 
         if (isMessageQueueUpdate && isOrderMasterSave && isOrderDetailSave && isPrescriptionSlipSent) {
             this.props.navigation.navigate("RateCustomerModal", {
@@ -688,7 +686,7 @@ export default class PatientLiveChat extends Component {
         })
     }
 
-    sendPrescriptionSlip = (tenant_id, pmi_no, order_no, health_facility_code) => {
+    sendPrescriptionSlip = async (tenant_id, pmi_no, order_no) => {
         let datas = {
             txn_cd: "MEDORDER073",
             tstamp: getTodayDate(),
@@ -696,7 +694,6 @@ export default class PatientLiveChat extends Component {
                 order_no: order_no,
                 pmi_no: pmi_no,
                 hfc_cd: tenant_id,
-                health_facility_code: health_facility_code
             }
         }
 
@@ -714,7 +711,7 @@ export default class PatientLiveChat extends Component {
 
             const json = await response.json();
 
-            if (json.result === 'true') {
+            if (json.status === 'SUCCESS' || json.status === 'success') {
                 this.setState({
                     isLoading: false
                 });

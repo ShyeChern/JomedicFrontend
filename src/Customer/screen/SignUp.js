@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, StyleSheet, View, ActivityIndicator, TouchableOpacity, Keyboard, TouchableWithoutFeedback, TextInput, ScrollView, Image, YellowBox } from 'react-native';
+import { Text, StyleSheet, View, ActivityIndicator, TouchableOpacity, Keyboard, TouchableWithoutFeedback, Platform, ScrollView, Image, YellowBox } from 'react-native';
 import { TextField } from 'react-native-material-textfield';
 import { Picker } from '@react-native-community/picker';
 import { requestImagePickerPermission } from '../util/permission/Permission';

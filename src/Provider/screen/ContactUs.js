@@ -2,67 +2,68 @@ import React, { Component } from 'react';
 import { Text, StyleSheet, View, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { getCustomerId, getUserId } from "../util/Auth";
 import { URL_Provider } from '../util/provider';
+import { getTodayDate } from '../util/getDate';
 
 export default class ContactUs extends Component {
     constructor(props) {
         super(props)
 
         this.state = {
-            customerId: '',
+            user_id: '',
             subject: '',
             content: '',
         }
     }
 
     async componentDidMount() {
-        await getCustomerId().then(response => {
-            this.setState({ customerId: response });
+        await getUserId().then(response => {
+            this.setState({ user_id: response });
         });
     }
 
     send = () => {
-        if(this.state.subject===''||this.state.content===''){
+        if (this.state.subject === '' || this.state.content === '') {
             alert('Please enter all the field');
         }
-        else{
-            let bodyData = {
-                transactionCode: 'CONTACT',
-                timestamp: new Date(),
+        else {
+            let datas = {
+                txn_cd: "CONTACT",
+                tstamp: getTodayDate(),
                 data: {
-                    CustomerId: this.state.customerId,
-                    Subject: this.state.subject,
-                    Content: this.state.content
+                    user_id: this.state.user_id,
+                    subject: this.state.subject,
+                    content: this.state.content
                 }
-            };
-    
+            }
+
             fetch(URL_Provider, {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(bodyData),
+                body: JSON.stringify(datas),
             }).then((response) => response.json())
                 .then((responseJson) => {
-    
-                    if (responseJson.result === true) {
+
+                    if (responseJson.status === "SUCCESS" || responseJson.status === "success") {
                         this.setState({
                             subject: '',
                             content: ''
                         });
-    
+
                         alert('Your problem have been received, we will reply you via email soon.');
                     }
                     else {
-                        alert(responseJson.value);
+                        alert(responseJson.status);
                     }
-    
+
                 })
                 .catch((error) => {
                     alert(error);
                 });
         }
-        
+
     }
 
     render() {

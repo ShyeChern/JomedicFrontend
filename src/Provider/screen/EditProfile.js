@@ -33,7 +33,10 @@ export default class EditProfile extends Component {
             birthDay: 'DD',
             birthMonth: 'MM',
             birthYear: 'YYYY',
-            address: '',
+            address1: '',
+            address2: '',
+            address3: '',
+            postcode: '',
             city: '',
             state: '',
 
@@ -54,12 +57,11 @@ export default class EditProfile extends Component {
         this.loadProfileData()
     }
 
-    // Function to validate phone number syntax with RegEx 
-    validatePhone = (phone) => {
+    // Function to validate is given string numeric only with RegEx 
+    validateNumberOnly = (string) => {
         const regexp = /[^0-9]/;    // RegEx to Find any non numeric characters
-        return !(regexp.test(phone));   // If there is non numeric characters, return false; else true
+        return !(regexp.test(string));   // If there is non numeric characters, return false; else true
     }
-
 
     /*
      *  Data Processing Segments  
@@ -76,7 +78,10 @@ export default class EditProfile extends Component {
             birthDay: moment(data.DOB).format("DD"),
             birthMonth: moment(data.DOB).format("MM"),
             birthYear: moment(data.DOB).format('YYYY'),
-            address: data.home_address1,
+            address1: data.home_address1,
+            address2: data.home_address2,
+            address3: data.home_address3,
+            postcode: data.postcode,
             city: data.district,
             state: data.state,
 
@@ -118,8 +123,13 @@ export default class EditProfile extends Component {
             return;
         }
 
-        if (!this.state.address || this.state.address.trim() === "") {
+        if (!this.state.address1 || this.state.address1.trim() === "") {
             Alert.alert("Empty Address", "Empty Address. Please enter your address.");
+            return;
+        }
+
+        if (!this.state.postcode || this.state.postcode.trim() === "") {
+            Alert.alert("Empty Postcode", "Empty Postcode. Please enter your postcode.");
             return;
         }
 
@@ -135,8 +145,13 @@ export default class EditProfile extends Component {
 
         // Check IC & phone no format
         // Check Invalid Phone No Input (Number characters Only)
-        if (!this.validatePhone(this.state.phoneNo)) {
+        if (!this.validateNumberOnly(this.state.phoneNo)) {
             Alert.alert("Invalid Phone Number", "Invalid phone number. Please ensure your phone number only contains number characters.");
+            return;
+        }
+
+        if (!this.validateNumberOnly(this.state.postcode)) {
+            Alert.alert("Invalid Postcode", "Invalid postcode. Please ensure your postcode only contains number characters.");
             return;
         }
 
@@ -169,13 +184,13 @@ export default class EditProfile extends Component {
                 occupation_cd: initialData.occupation_cd,
                 mobile_no: this.state.phoneNo,
                 email: initialData.email,
-                home_address1: this.state.address,
-                home_address2: initialData.home_address2,
-                home_address3: initialData.home_address3,
+                home_address1: this.state.address1,
+                home_address2: this.state.address2,
+                home_address3: this.state.address3,
                 district: this.state.city,
                 state: this.state.state,
                 country: initialData.country,
-                postcode: initialData.postcode,
+                postcode: this.state.postcode,
                 picture: this.state.imageData,
                 id_img: initialData.id_img,
                 nationality_cd: initialData.nationality_cd
@@ -426,11 +441,29 @@ export default class EditProfile extends Component {
                         datePickerModeAndroid={'spinner'}
                     />
 
-                    <Text style={styles.labelText}>Address</Text>
+                    <Text style={styles.labelText}>Address 1</Text>
                     <TextInput style={styles.inputStyle}
-                        value={this.state.address}
+                        value={this.state.address1}
                         maxLength={40}
-                        onChangeText={(address) => this.setState({ address: address })} />
+                        onChangeText={(address) => this.setState({ address1: address })} />
+
+                    <Text style={styles.labelText}>Address 2</Text>
+                    <TextInput style={styles.inputStyle}
+                        value={this.state.address2}
+                        maxLength={40}
+                        onChangeText={(address) => this.setState({ address2: address })} />
+
+                    <Text style={styles.labelText}>Address 3</Text>
+                    <TextInput style={styles.inputStyle}
+                        value={this.state.address3}
+                        maxLength={40}
+                        onChangeText={(address) => this.setState({ address3: address })} />
+
+                    <Text style={styles.labelText}>Postcode</Text>
+                    <TextInput style={styles.inputStyle}
+                        value={this.state.postcode}
+                        maxLength={5}
+                        onChangeText={(postcode) => this.setState({ postcode: postcode })} />
 
                     <Text style={styles.labelText}>City</Text>
                     <TextInput style={styles.inputStyle}
