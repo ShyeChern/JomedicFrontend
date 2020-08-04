@@ -30,6 +30,7 @@
     "react-native": "0.62.2",
     "react-native-agora": "^2.9.1-alpha.3",
     "react-native-background-timer": "^2.2.0",
+    "react-native-calendars": "^1.301.0",
     "react-native-elements": "^1.2.7",
     "react-native-fast-image": "^8.3.2",
     "react-native-geocoding": "^0.4.0",
