@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, StyleSheet, View, SafeAreaView, SectionList, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, View, SafeAreaView, SectionList, TouchableOpacity, RefreshControl } from 'react-native';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import { format, add } from 'date-fns';
 import { getCustomerId } from "../util/Auth";
@@ -47,16 +47,29 @@ export default class Appointment extends Component {
             appointmentList: [{
                 date: '',
                 data: []
-            }]
+            }],
+            flatListLoading: true,
         }
     }
 
     async componentDidMount() {
-
         await getCustomerId().then(response => {
             this.setState({ customerId: response });
         });
+        let appointment = [];
+        let currentDate = new Date();
+        for (let i = 0; i < 7; i++) {
+            let appointmentListItem = {};
+            appointmentListItem.date = format(add(currentDate, { days: i }), 'MMM dd (E)');
+            appointmentListItem.data = ['No appointment booked'];
+            appointment.push(appointmentListItem);
+        }
+        this.setState({ appointmentList: appointment })
 
+        this.getAppointmentData();
+    }
+
+    getAppointmentData = () => {
         this.interval = setInterval(() => {
             if (this.props.navigation.isFocused()) {
                 let bodyData = {
@@ -93,7 +106,8 @@ export default class Appointment extends Component {
                                 appointment[index].data = element.appointment;
                             });
                             this.setState({
-                                appointmentList: appointment
+                                appointmentList: appointment,
+                                flatListLoading:false,
                             });
                         }
 
@@ -138,6 +152,7 @@ export default class Appointment extends Component {
                     <SafeAreaView style={styles.container}>
                         <SectionList
                             sections={this.state.appointmentList}
+                            refreshControl={<RefreshControl refreshing={this.state.flatListLoading} />}
                             keyExtractor={(item, index) => item + index}
                             renderItem={({ item }) => <AppointmentItem appointment={item} that={this} />}
                             renderSectionHeader={({ section: { date } }) => (
