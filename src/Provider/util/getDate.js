@@ -63,3 +63,35 @@ export const getDatesFor7DayFromGivenDate = (date) => {
 
     return days;
 }
+
+export const getStartOfMonth = (date) => {
+    console.log("Date in Start Month " + moment(date).format("YYYY-MM-DD"))
+
+    var startOfMonth = moment(date).startOf('month');
+    return moment(startOfMonth).format("YYYY-MM-DD HH:mm:ss");
+}
+
+export const getEndOfMonth = (date) => {
+    console.log("Date in End Month " + moment(date).format("YYYY-MM-DD"))
+
+    var endOfMonth = moment(date).endOf('month');
+    return moment(endOfMonth).format("YYYY-MM-DD HH:mm:ss");
+}
+
+export const getDatesForCurrentMonth = (date) => {
+
+    console.log("Date in Dates " + date)
+
+    var startOfMonth = moment(date).startOf('month');
+    var endOfMonth = moment(date).endOf('month');
+
+    var days = [];
+    var day = startOfMonth;
+
+    while (day <= endOfMonth) {
+        days.push(moment(day).format("YYYY-MM-DD"));
+        day = day.clone().add(1, 'd');
+    }
+
+    return days;
+}

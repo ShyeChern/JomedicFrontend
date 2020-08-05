@@ -77,14 +77,12 @@ export default class PatientLiveChat extends Component {
             this.getChatMessages();
             this.checkOrderStatus();
 
-            console.log("Chat Timer Running...")
         }, 2000);
     }
 
     endTimer = () => {
         // End the timer
         BackgroundTimer.clearInterval(this.timer);
-        console.log("Chat Timer ends.")
     }
 
     menu = null;

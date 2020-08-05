@@ -126,7 +126,6 @@ export default class Queue extends Component {
                 // this will be executed every 2000 ms (2s)
                 // even when app is the the background
                 this.loadQueueData();
-                console.log("Timer Running in Queue...")
             }, 1500);
 
             this.setState({
@@ -137,7 +136,6 @@ export default class Queue extends Component {
 
     endTimer = () => {
         BackgroundTimer.clearInterval(this.timer);
-        console.log("Queue Timer ends.")
         this.setState({
             isTimerStart: false
         })

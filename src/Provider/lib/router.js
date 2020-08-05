@@ -10,7 +10,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import ChatMenuScreen from '../screen/ChatMenuList';
 import QueueScreen from '../screen/Queue';
-import AppointmentScreen from '../screen/Appointment';
+import AppointmentScreen from '../screen/Appointment3';
 import AppointmentDetailScreen from '../screen/AppointmentDetail'
 import PersonScreen from '../screen/Person'
 import PatientChatHistorysScreen from '../screen/ChatHistory'
