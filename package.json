@@ -25,6 +25,7 @@
     "date-fns": "^2.13.0",
     "geolib": "^3.2.1",
     "moment": "^2.26.0",
+    "moment-range": "^4.0.2",
     "native-base": "^2.13.12",
     "react": "16.11.0",
     "react-native": "0.62.2",
