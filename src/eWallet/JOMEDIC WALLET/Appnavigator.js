@@ -18,6 +18,7 @@ import WithdrawMoneyScreen from './withdrawMoney';
 
 // import { AsyncStorage } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
+import transferDetails from './transferDetails';
 
 const AuthContext = React.createContext();
 
@@ -142,6 +143,7 @@ export default function App() {
         <Stack.Screen name="Details" component={Details} />
         <Stack.Screen name="TransferMoney" component={TransferMoneyScreen} />
         <Stack.Screen name="WithdrawMoney" component={WithdrawMoneyScreen} />
+        <Stack.Screen name="transferDetails" component={transferDetails} />
       </Stack.Navigator>
   );
 }

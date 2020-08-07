@@ -148,7 +148,7 @@ export default class onlineBanking extends Component {
                                     <TextInput
                                         style={styles.InputCardNumber}
                                         onChangeText={(cardNumber) => this.setState({ cardNumber })}
-                                        placeholder={'Card Number'}
+                                        placeholder={' Enter Card Number'}
                                         value={this.state.cardNumber}
                                     />
 
@@ -157,12 +157,19 @@ export default class onlineBanking extends Component {
                                     <TextInput
                                         style={styles.InputCVV}
                                         onChangeText={(cvv) => this.setState({ cvv })}
-                                        placeholder={'CVV'}
+                                        placeholder={'Enter 3 digit CVV number'}
                                         value={this.state.cvv} />
                                 </View>
 
                                 <Text style={styles.Acknowledge}> I acknowledge that my card information is saved in my jomedic
                             account and one time password might not be required for transaction in Jomedic.</Text>
+
+                            <View style={{ padding: 9 }}>
+                                    <TouchableOpacity onPress={() => this.reload()} style={styles.reload}>
+                                        <Text style={{ textAlign: 'center' }}> Proceed </Text>
+                                    </TouchableOpacity>
+                                </View>
+
                             </CollapseBody>
                         </Collapse>
                         <Collapse>
@@ -179,6 +186,12 @@ export default class onlineBanking extends Component {
                                         initial={0}
                                         onPress={(value) => { this.setState({ value: value }) }}
                                     />
+                                </View>
+
+                                <View style={{ padding:9}}>
+                                    <TouchableOpacity onPress={() => this.reload()} style={styles.reload}>
+                                        <Text style={{ textAlign: 'center' }}> Proceed </Text>
+                                    </TouchableOpacity>
                                 </View>
 
                             </CollapseBody>

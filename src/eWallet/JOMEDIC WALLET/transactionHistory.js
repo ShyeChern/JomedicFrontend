@@ -88,7 +88,7 @@ export default class transactionHistory extends Component {
 
             historyData.push(historyObject);
           }
-
+          historyData.reverse();
           this.setState({ transactionData: historyData })
         })
 
