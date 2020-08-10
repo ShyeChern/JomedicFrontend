@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Text, StyleSheet, View, TouchableOpacity, FlatList, SafeAreaView } from 'react-native';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
+import { versionNumber } from '../util/versionNumber';
 
 const FAQDATA = [
     {
@@ -17,6 +18,11 @@ const FAQDATA = [
         id: '3',
         question: 'Does Jomedic can be used in the website?',
         answer: 'Currently Jomedic support only for mobile user. Website will be develop in the future.',
+    },
+    {
+        id: '4',
+        question: 'What is the current version of Jomedic',
+        answer: 'The current version of Jomedic is ' + versionNumber,
     }
 ]
 
