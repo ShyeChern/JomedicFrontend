@@ -36,6 +36,73 @@ export default class onlineBanking extends Component {
         )
     }
 
+    card = () => {
+        if (this.state.cardNumber && this.state.cvv) {
+
+            let data = {
+                txn_cd: 'MEDEWALL04',
+                tstamp: getTodayDate(),
+                data: {
+                    userID: this.props.route.params.userId
+                }
+            }
+
+            fetch(URL + '/EWALL', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+
+            }).then((response) => response.json())
+                .then((responseJson) => {
+                    data = {
+                        txn_cd: 'MEDEWALL03',
+                        tstamp: getTodayDate(),
+                        data: {
+                            userID: this.props.route.params.userId,
+                            ewalletAccNo: responseJson.status.ewallet_acc_no,
+                            banAccNo: responseJson.status.bank_acc_no,
+                            creditCardNo: responseJson.status.credit_card_no,
+                            availableAmt: responseJson.status.available_amt + 1,
+                            freezeAmt: responseJson.status.freeze_amt,
+                            floatAmt: responseJson.status.float_amt,
+                            currencyCd: responseJson.status.currency_cd,
+                            status: responseJson.status.status,
+                        }
+                    }
+
+
+                    fetch(URL + '/EWALL', {
+                        method: 'POST',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+
+                    }).then((response) => response.json())
+                        .then((responseJson) => {
+                            if (responseJson.status == "SUCCESS") {
+                                this.props.navigation.goBack();
+                                alert('Top Up Success');
+                            }
+
+                        }).catch((error) => {
+                            alert(error)
+                        });
+
+                }).catch((error) => {
+                    alert(error)
+                });
+        }
+        else{
+            alert('Please enter card number and cvv number');
+        }
+
+    }
+
     reload = () => {
 
         const datas = {
@@ -89,7 +156,7 @@ export default class onlineBanking extends Component {
                                     ewalletAccNo: responseJson.status.ewallet_acc_no,
                                     banAccNo: responseJson.status.bank_acc_no,
                                     creditCardNo: responseJson.status.credit_card_no,
-                                    availableAmt: responseJson.status.available_amt+100,
+                                    availableAmt: responseJson.status.available_amt + 100,
                                     freezeAmt: responseJson.status.freeze_amt,
                                     floatAmt: responseJson.status.float_amt,
                                     currencyCd: responseJson.status.currency_cd,
@@ -120,10 +187,10 @@ export default class onlineBanking extends Component {
                         }).catch((error) => {
                             alert(error)
                         });
-                    }
-                }).catch((error) => {
-                    alert(error)
-                });
+                }
+            }).catch((error) => {
+                alert(error)
+            });
     }
 
     render() {
@@ -164,15 +231,15 @@ export default class onlineBanking extends Component {
                                 <Text style={styles.Acknowledge}> I acknowledge that my card information is saved in my jomedic
                             account and one time password might not be required for transaction in Jomedic.</Text>
 
-                            <View style={{ padding: 9 }}>
-                                    <TouchableOpacity onPress={() => this.reload()} style={styles.reload}>
+                                <View style={{ padding: 9 }}>
+                                    <TouchableOpacity onPress={() => this.card()} style={styles.reload}>
                                         <Text style={{ textAlign: 'center' }}> Proceed </Text>
                                     </TouchableOpacity>
                                 </View>
 
                             </CollapseBody>
                         </Collapse>
-                        <Collapse>
+                        {/* <Collapse>
                             <CollapseHeader>
                                 <View style={{ backgroundColor: '#ccdfff', height: 30, justifyContent: 'center', borderWidth: .5 }}>
                                     <Text style={styles.CreditOnline}> Online Banking         </Text>
@@ -195,7 +262,7 @@ export default class onlineBanking extends Component {
                                 </View>
 
                             </CollapseBody>
-                        </Collapse>
+                        </Collapse> */}
                         <Collapse>
                             <CollapseHeader>
                                 <View style={{ backgroundColor: '#ccdfff', height: 30, justifyContent: 'center', borderWidth: .5 }}>
