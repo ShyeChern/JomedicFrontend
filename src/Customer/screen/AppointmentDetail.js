@@ -146,7 +146,7 @@ export default class AppointmentDetail extends Component {
                 <Text style={{ fontSize: 18, lineHeight: 25, fontWeight: '600', textAlign: 'center', marginVertical: 20 }}>Appointment Detail</Text>
                 <Image style={{ alignSelf: 'center', width: 100, height: 100 }}
                     source={require('../asset/img/logo.png')} />
-                <Text style={{ fontSize: 14, color: 'red', textAlign: 'center', marginTop: 10 }}>* Your appointment could be cancel by doctor if you are late 15 minutes</Text>
+                <Text style={styles.warningText}>* Your appointment could be cancel by doctor if you are late 15 minutes.</Text>
                 <View style={{ margin: 20, flex: 1, flexDirection: 'row' }}>
                     <View style={{ flex: 1 }}>
                         <Text style={[styles.text, { fontWeight: 'bold', textAlign: 'right' }]}>Order No:</Text>
@@ -167,6 +167,12 @@ export default class AppointmentDetail extends Component {
                     </View>
 
                 </View>
+                {
+                    this.state.timeReach ?
+                        <View />
+                        :
+                        <Text style={styles.warningText}>* Consultation is only available at the appointment time</Text>
+                }
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginVertical: 20 }}>
                     <TouchableOpacity style={[styles.btn]}
@@ -207,5 +213,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#FFD44E',
         borderRadius: 50
+    },
+    warningText: {
+        fontSize: 14,
+        color: 'red',
+        textAlign: 'center',
+        marginTop: 10
     }
 })
