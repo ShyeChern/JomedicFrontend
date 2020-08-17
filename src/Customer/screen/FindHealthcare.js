@@ -63,6 +63,7 @@ export default class FindHealthcare extends Component {
             districtModal: '',
             flatListLoading: true,
             endFlatList: false,
+            firstTime: true,
         };
 
     }
@@ -302,6 +303,10 @@ export default class FindHealthcare extends Component {
                 district: 'All',
             })
         }
+
+        if (newData.length == 0) {
+            this.setState({ endFlatList: true })
+        }
     }
 
     filterHealthcareDistrict = (district) => {
@@ -318,6 +323,10 @@ export default class FindHealthcare extends Component {
             district: district,
             districtModal: false,
         });
+
+        if (newData.length == 0) {
+            this.setState({ endFlatList: true })
+        }
     }
 
     filterHealthcareSearch = (healthcare) => {
@@ -424,19 +433,38 @@ export default class FindHealthcare extends Component {
 
 
                 <SafeAreaView style={[styles.healthcareItemListView]}>
-                    <FlatList
-                        data={this.state.healthcareList}
-                        refreshControl={<RefreshControl refreshing={this.state.flatListLoading} />}
-                        renderItem={({ item }) =>
-                            <Healthcare id={item.id} name={item.name} state={item.state} distance={item.distance} photo={item.photo} that={this} />}
-                        keyExtractor={item => item.id}
-                        extraData={this.state}
-                        initialNumToRender={10}
-                        maxToRenderPerBatch={10}
-                        onEndReached={() => this.setState({ endFlatList: true })}
-                        onEndReachedThreshold={0.1}
-                        ListFooterComponent={() => <Text style={styles.flatListFooter}>{this.state.endFlatList ? 'End of List' : this.state.flatListLoading ? '' : 'Loading...'}</Text>}
-                    />
+                    {
+                        this.state.firstTime ?
+                            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                                <Text style={[styles.setButtonText, { color: '#000000' }]}>Current Location : {this.state.district === 'All' ? this.state.state : this.state.district + ', ' + this.state.state}</Text>
+                                <TouchableOpacity style={styles.setButton}
+                                    onPress={() => this.setState({ stateModal: true })}>
+                                    <Text style={styles.setButtonText}>Set Location</Text>
+                                </TouchableOpacity>
+                                
+                                <TouchableOpacity style={[styles.setButton, { borderRadius: 50, marginTop: 60, width: '40%' }]}
+                                    onPress={() => this.setState({ firstTime: false })}>
+                                    <Text style={styles.setButtonText}>Search</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            :
+
+                            <FlatList
+                                data={this.state.healthcareList}
+                                refreshControl={<RefreshControl refreshing={this.state.flatListLoading} />}
+                                renderItem={({ item }) =>
+                                    <Healthcare id={item.id} name={item.name} state={item.state} distance={item.distance} photo={item.photo} that={this} />}
+                                keyExtractor={item => item.id}
+                                extraData={this.state}
+                                initialNumToRender={10}
+                                maxToRenderPerBatch={10}
+                                onEndReached={() => this.setState({ endFlatList: true })}
+                                onEndReachedThreshold={0.1}
+                                ListFooterComponent={() => <Text style={styles.flatListFooter}>{this.state.endFlatList ? 'End of List' : this.state.flatListLoading ? '' : 'Loading...'}</Text>}
+                            />
+                    }
+
                 </SafeAreaView>
 
             </View>
@@ -496,6 +524,20 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginVertical: 7,
         color: '#979797'
+    },
+    setButton: {
+        backgroundColor: '#FFD44E',
+        width: '35%',
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginVertical: 10
+    },
+    setButtonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: '600',
+        lineHeight: 22
     }
 
 })

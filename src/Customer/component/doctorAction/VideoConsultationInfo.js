@@ -39,9 +39,6 @@ export default class VideoConsultationInfo extends Component {
                 <View style={[{ flex: 1, justifyContent: 'space-around', marginVertical: 10 }]}>
                     <Text style={[styles.text, styles.textLabel, { color: 'red' }]}>{this.state.warning}</Text>
 
-                    <Text style={[styles.text, styles.textLabel]}>Doctor Status</Text>
-                    <Text style={[styles.text, styles.textDescription]}>{this.props.doctorStatus}</Text>
-                    
                     <Text style={[styles.text, styles.textLabel]}>Video Consultation Fee</Text>
                     <Text style={[styles.text, styles.textDescription]}>RM {(this.props.videoConsultationFee).toFixed(2)}</Text>
 

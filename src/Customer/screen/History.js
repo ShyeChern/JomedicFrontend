@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import { Text, StyleSheet, View, TouchableOpacity, RefreshControl, SafeAreaView, SectionList } from 'react-native';
 import { URL } from '../util/FetchURL';
 import { getCustomerId } from "../util/Auth";
-import { format, parseISO } from "date-fns";
+import AntDesignIcon from 'react-native-vector-icons/AntDesign';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { format, parse, parseISO, isWithinInterval, endOfMonth, startOfMonth } from "date-fns";
 
 HistoryItem = ({ orderNo, service, dateTime, that }) => {
     return (
@@ -27,9 +29,16 @@ export default class History extends Component {
         super(props)
 
         this.state = {
+            historyListHolder: [],
             historyList: [],
             customerId: '',
             flatListLoading: true,
+            minHistoryDate: new Date(),
+            maxHistoryDate: new Date(),
+            minDate: new Date(),
+            maxDate: new Date(),
+            showMinDatePicker: false,
+            showMaxDatePicker: false,
         }
     }
 
@@ -87,10 +96,22 @@ export default class History extends Component {
                         }
 
                     });
+                    if (history.length > 0) {
+                        let minHistoryDate = parse(history[history.length - 1].data[history[history.length - 1].data.length - 1].dateTime, 'd/MM/yy HH:mm', new Date());
+                        let maxHistoryDate = parse(history[0].data[0].dateTime, 'd/MM/yy HH:mm', new Date());
+
+                        this.setState({
+                            minHistoryDate: minHistoryDate,
+                            maxHistoryDate: maxHistoryDate,
+                            minDate: minHistoryDate,
+                            maxDate: maxHistoryDate,
+                        })
+                    }
 
                     this.setState({
+                        historyListHolder: history,
                         historyList: history,
-                        flatListLoading: false
+                        flatListLoading: false,
                     });
 
                 }
@@ -145,10 +166,75 @@ export default class History extends Component {
             });
     }
 
+    datePicker = () => {
+        if (this.state.showMinDatePicker) {
+            return (
+                <DateTimePicker
+                    value={this.state.minDate}
+                    mode={'date'}
+                    minimumDate={this.state.minHistoryDate}
+                    maximumDate={this.state.maxDate}
+                    display='default'
+                    onChange={(event, date) => {
+                        if (event.type === 'set') {
+                            this.setState({ minDate: date, showMinDatePicker: false });
+                            this.filterDate();
+                        }
+                    }}
+                />
+            )
+        }
+
+        if (this.state.showMaxDatePicker) {
+            return (
+                <DateTimePicker
+                    value={this.state.maxDate}
+                    mode={'date'}
+                    minimumDate={this.state.minDate}
+                    maximumDate={this.state.maxHistoryDate}
+                    display='default'
+                    onChange={(event, date) => {
+                        if (event.type === 'set') {
+                            this.setState({ maxDate: date, showMaxDatePicker: false });
+                            this.filterDate();
+                        }
+                    }}
+                />
+            )
+        }
+    }
+
+    filterDate = () => {
+        
+        const newData = this.state.historyListHolder.filter(item => {
+            return isWithinInterval(parse(item.section, 'MMM yyyy', new Date()), { start: startOfMonth(this.state.minDate), end: endOfMonth(this.state.maxDate) });
+        });
+
+        this.setState({
+            historyList: newData,
+        });
+
+    }
+
     render() {
         return (
             <View style={styles.container}>
-                <View style={{}}></View>
+                <View style={{ paddingVertical: 5, flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
+                        onPress={() => this.setState({ showMinDatePicker: true })}>
+                        <Text>{format(this.state.minDate, "MMM yyyy").toString()}</Text>
+                        <AntDesignIcon style={{ marginLeft: 5 }} name={'caretdown'} size={10} color='#000000' />
+                    </TouchableOpacity>
+
+                    <AntDesignIcon style={{ alignSelf: 'center', marginHorizontal: 20 }} name={'minus'} size={14} color='#000000' />
+
+                    <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
+                        onPress={() => this.setState({ showMaxDatePicker: true })}>
+                        <Text>{format(this.state.maxDate, "MMM yyyy").toString()}</Text>
+                        <AntDesignIcon style={{ marginLeft: 5 }} name={'caretdown'} size={10} color='#000000' />
+                    </TouchableOpacity>
+                    {this.datePicker()}
+                </View>
                 <SafeAreaView style={{ flex: 1 }}>
                     <SectionList
                         sections={this.state.historyList}
@@ -160,6 +246,11 @@ export default class History extends Component {
                         renderSectionHeader={({ section: { section } }) => (
                             <View style={styles.sectionHeader}><Text style={styles.sectionHeaderText}>{section.toUpperCase()}</Text></View>
                         )}
+                        ListEmptyComponent={() => {
+                            return (
+                                <Text style={{ textAlign: 'center', fontStyle: 'italic', marginTop: 10 }}>No order have been made in your account</Text>
+                            )
+                        }}
                     />
                 </SafeAreaView>
             </View>

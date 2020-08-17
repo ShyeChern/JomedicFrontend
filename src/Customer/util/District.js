@@ -14,7 +14,7 @@ export const DISTRICT = {
         'Batang Padang', 'Muallim', 'Kampar'],
     Perlis: ['All'],
     Selangor: ['All', 'Petaling', 'Hulu Langat', 'Gombak', 'Klang', 'Kuala Selangor', 'Sepang', 'Kuala Langat', 'Sabak Bernam', 'Hulu Selangor'],
-    Terrenganu: ['All', 'Besut', 'Dungun', 'Kemaman', 'Kuala Terengganu', 'Marang', 'Kuala Nerus', 'Setiu', 'Hulu Terengganu'],
+    Terengganu: ['All', 'Besut', 'Dungun', 'Kemaman', 'Kuala Terengganu', 'Marang', 'Kuala Nerus', 'Setiu', 'Hulu Terengganu'],
     Sabah: ['All', 'Beufort', 'Kinabatangan', 'Kota Belud', 'Kota Kinabalu', 'Kunak', 'Lahad Datu', 'Papar', 'Putatan', 'Sandakan',
         'Semporna', 'Sipitang', 'Tawau', 'Ranau', 'Tuaran', 'Keningau', 'Kota Marudu', 'Kudat', 'Nabawan', 'Pitas', 'Tambunan', 'Tenom',
         'Penampang', 'Kuala Penyu', 'Tongod', 'Beluran'],

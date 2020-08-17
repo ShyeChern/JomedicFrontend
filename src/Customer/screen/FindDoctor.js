@@ -17,7 +17,7 @@ import { DISTRICT } from '../util/District';
 import { URL } from '../util/FetchURL';
 
 // receive as object base on the declared variable
-Doctor = ({ id, name, specialist, distance, picture, navigation }) => {
+Doctor = ({ id, name, specialist, distance, picture, status, navigation }) => {
     return (
         <View style={[styles.doctorItemList]}>
             <FastImage
@@ -33,6 +33,7 @@ Doctor = ({ id, name, specialist, distance, picture, navigation }) => {
             >
                 <Text style={{ fontSize: 16, lineHeight: 22, color: '#4A4A4A' }}>{name}</Text>
                 <Text style={{ fontSize: 12, lineHeight: 16, color: '#4A4A4A' }}>{specialist}</Text>
+                <Text style={{ fontSize: 12, lineHeight: 16, color: '#979797' }}>{status}</Text>
             </TouchableOpacity>
             {
                 distance ?
@@ -45,7 +46,6 @@ Doctor = ({ id, name, specialist, distance, picture, navigation }) => {
         </View >
     );
 }
-
 export default class FindDoctor extends Component {
 
     constructor(props) {
@@ -66,6 +66,7 @@ export default class FindDoctor extends Component {
             districtModal: false,
             flatListLoading: true,
             endFlatList: false,
+            firstTime: true,
         };
     }
 
@@ -213,6 +214,7 @@ export default class FindDoctor extends Component {
                                 longitude: element.longtitude,
                                 latitude: element.latitude,
                                 picture: element.picture,
+                                status: element.status,
                             };
 
                             doctor.push(doctorObject);
@@ -316,6 +318,10 @@ export default class FindDoctor extends Component {
                 district: 'All',
             })
         }
+
+        if (newData.length == 0) {
+            this.setState({ endFlatList: true })
+        }
     }
 
     filterDoctorDistrict = (district) => {
@@ -333,6 +339,10 @@ export default class FindDoctor extends Component {
             district: district,
             districtModal: false,
         });
+
+        if (newData.length == 0) {
+            this.setState({ endFlatList: true })
+        }
     }
 
     filterDoctorSpecialty = (specialty) => {
@@ -350,6 +360,10 @@ export default class FindDoctor extends Component {
             specialtyModal: false,
             specialty: specialty
         });
+
+        if (newData.length == 0) {
+            this.setState({ endFlatList: true })
+        }
     }
 
     filterDoctorSearch = (doctor) => {
@@ -474,19 +488,42 @@ export default class FindDoctor extends Component {
                 </View>
 
                 <SafeAreaView style={[styles.doctorItemListView]}>
-                    <FlatList
-                        data={this.state.doctorList}
-                        refreshControl={<RefreshControl refreshing={this.state.flatListLoading} />}
-                        renderItem={({ item }) =>
-                            <Doctor id={item.id} name={item.name} specialist={item.specialist} distance={item.distance} picture={item.picture} navigation={this.props.navigation} />}
-                        keyExtractor={item => item.id}
-                        extraData={this.state}
-                        initialNumToRender={10}
-                        maxToRenderPerBatch={10}
-                        onEndReached={() => this.setState({ endFlatList: true })}
-                        onEndReachedThreshold={0.1}
-                        ListFooterComponent={() => <Text style={styles.flatListFooter}>{this.state.endFlatList ? 'End of List' : this.state.flatListLoading ? '' : 'Loading...'}</Text>}
-                    />
+                    {
+                        this.state.firstTime ?
+                            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                                <Text style={[styles.setButtonText, { color: '#000000' }]}>Current Location : {this.state.district === 'All' ? this.state.state : this.state.district + ', ' + this.state.state}</Text>
+                                <TouchableOpacity style={styles.setButton}
+                                    onPress={() => this.setState({ stateModal: true })}>
+                                    <Text style={styles.setButtonText}>Set Location</Text>
+                                </TouchableOpacity>
+                                <Text style={[styles.setButtonText, { color: '#000000' }]}>Current Specialty : {this.state.specialty}</Text>
+                                <TouchableOpacity style={styles.setButton}
+                                    onPress={() => this.setState({ specialtyModal: true })}>
+                                    <Text style={styles.setButtonText}>Set Specialty</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={[styles.setButton, { borderRadius: 50, marginTop: 60, width: '40%' }]}
+                                    onPress={() => this.setState({ firstTime: false })}>
+                                    <Text style={styles.setButtonText}>Search</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            :
+
+                            <FlatList
+                                data={this.state.doctorList}
+                                refreshControl={<RefreshControl refreshing={this.state.flatListLoading} />}
+                                renderItem={({ item }) =>
+                                    <Doctor id={item.id} name={item.name} specialist={item.specialist} distance={item.distance} picture={item.picture} status={item.status} navigation={this.props.navigation} />}
+                                keyExtractor={item => item.id}
+                                extraData={this.state}
+                                initialNumToRender={10}
+                                maxToRenderPerBatch={10}
+                                onEndReached={() => this.setState({ endFlatList: true })}
+                                onEndReachedThreshold={0.1}
+                                ListFooterComponent={() => <Text style={styles.flatListFooter}>{this.state.endFlatList ? 'End of List' : this.state.flatListLoading ? '' : 'Loading...'}</Text>}
+                            />
+                    }
+
                 </SafeAreaView>
 
             </View>
@@ -545,6 +582,20 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginVertical: 7,
         color: '#979797'
+    },
+    setButton: {
+        backgroundColor: '#FFD44E',
+        width: '35%',
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginVertical: 10
+    },
+    setButtonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: '600',
+        lineHeight: 22
     }
 
 })

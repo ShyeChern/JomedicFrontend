@@ -7,6 +7,7 @@ import FontistoIcon from 'react-native-vector-icons/Fontisto';
 import ImagePicker from 'react-native-image-picker';
 import RNFetchBlob from 'rn-fetch-blob';
 import { getCustomerId } from "../util/Auth";
+import { DISTRICT } from '../util/District';
 import { URL } from '../util/FetchURL';
 
 var gender = [];
@@ -28,7 +29,7 @@ export default class EditProfile extends Component {
             addressLine2: '',
             addressLine3: '',
             city: '',
-            state: '',
+            state: 'Johor',
             showDatePicker: false,
             filePath: {},  // gt data, fileSize, height, fileName, path, type, uri, content, width
             picture: '',
@@ -118,7 +119,7 @@ export default class EditProfile extends Component {
             });
     }
 
-    getProfileData=()=>{
+    getProfileData = () => {
         // get profile data
         let bodyData = {
             transactionCode: 'PROFILE',
@@ -149,19 +150,17 @@ export default class EditProfile extends Component {
                         this.setState({ picture: RNFetchBlob.base64.encode(stringChar) });
                     }
 
-
                     this.setState({
                         name: responseJson.data[0].name,
                         icPassportNo: responseJson.data[0].id_number,
                         phoneNo: responseJson.data[0].mobile_no,
-                        gender: responseJson.data[0].gender_cd,
+                        gender: responseJson.data[0].gender_cd === null ? '' : responseJson.data[0].gender_cd,
                         dateOfBirth: new Date(responseJson.data[0].DOB),
-                        addressLine1: responseJson.data[0].home_address1,
-                        addressLine2: responseJson.data[0].home_address2,
-                        addressLine3: responseJson.data[0].home_address3,
-                        city: responseJson.data[0].district,
-                        state: responseJson.data[0].state,
-
+                        addressLine1: responseJson.data[0].home_address1 === null ? '' : responseJson.data[0].home_address1,
+                        addressLine2: responseJson.data[0].home_address2 === null ? '' :  responseJson.data[0].home_address2,
+                        addressLine3: responseJson.data[0].home_address3 === null ? '' : responseJson.data[0].home_address3,
+                        city: responseJson.data[0].district === null ? '' : responseJson.data[0].district,
+                        state: responseJson.data[0].state === null ? 'Johor' : responseJson.data[0].state,
                     })
                 }
                 else {
@@ -388,15 +387,8 @@ export default class EditProfile extends Component {
                             placeholder={'address Line 3'}
                         />
 
-                        <Text style={[styles.selfInfoLabelText]}>City</Text>
-                        <TextInput style={styles.selfInfoInputText}
-                            value={this.state.city}
-                            onChangeText={(city) => this.setState({ city })}
-                            placeholder={'City'}
-                        />
-
                         <Text style={[styles.selfInfoLabelText]}>State</Text>
-                        
+
                         <Picker style={styles.selfInfoInputText, { borderColor: 'blue' }}
                             selectedValue={this.state.state}
                             onValueChange={(itemValue, itemIndex) => this.setState({ state: itemValue })}
@@ -409,6 +401,27 @@ export default class EditProfile extends Component {
                                     )
                                 })
                             }
+                        </Picker>
+
+                        <Text style={[styles.selfInfoLabelText]}>City</Text>
+                        <Picker style={styles.selfInfoInputText, { borderColor: 'blue' }}
+                            selectedValue={this.state.city}
+                            onValueChange={(itemValue, itemIndex) => this.setState({ city: itemValue })}
+                        >
+                            <Picker.Item label='Select City' value='' color="grey" />
+                            {
+                                DISTRICT[this.state.state.replace(/\s+/g, '')].filter(function (value) {
+                                    if (value === "All") {
+                                        return false; // skip
+                                    }
+                                    return true;
+                                }).map((district, index) => {
+                                    return (
+                                        <Picker.Item label={district} value={district} color="#000000" />
+                                    )
+                                })
+                            }
+                            <Picker.Item label='Others' value='Others' color="#000000" />
                         </Picker>
 
                     </View>

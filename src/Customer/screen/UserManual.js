@@ -99,9 +99,10 @@ export default class UserManual extends Component {
         })
             .fetch('GET', this.state.url, { 'Cache-Control': 'no-store' })
             .then((res) => {
-                if (Platform.OS = 'android') {
-                    android.actionViewIntent(res.path(), 'application/pdf')
-                }
+                // to be test on other device
+                // if (Platform.OS = 'android') {
+                //     android.actionViewIntent(res.path(), 'application/pdf')
+                // }
             })
             .catch((e) => {
                 console.log(e);
