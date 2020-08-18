@@ -126,7 +126,8 @@ export default class CurrentChat extends Component {
                         keyExtractor={item => item.orderNo}
                         ListEmptyComponent={() => {
                             return (
-                            <Text style={{ textAlign: 'center', fontStyle: 'italic', marginTop: 10 }}>No active chat right now.{'\n'}Request chat service from doctor to start a chat.</Text>)
+                                <Text style={{ textAlign: 'center', fontStyle: 'italic', marginTop: 10 }}>No active chat right now.{'\n'}Request chat service from doctor to start a chat.</Text>
+                            )
                         }}
                     />
                 </SafeAreaView>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, TouchableOpacity, Image } from 'react-native'
+import { Text, StyleSheet, View, TouchableOpacity, Image, ScrollView } from 'react-native'
 import { Avatar } from 'react-native-elements'
 
 import { getTenantId, getTenantType, getUserId, logout } from '../util/Auth'
@@ -27,6 +27,7 @@ export default class AccountSettings extends Component {
         // Load the data for the first time
         await this.initializeData();
         this.loadProfileData();
+
 
         // Add hook to refresh profile data when screen is Focus, and if reload is true
         this.props.navigation.addListener('focus',
@@ -168,10 +169,15 @@ export default class AccountSettings extends Component {
 
         return (
             <View style={{ backgroundColor: '#E5E5E5', flex: 1 }}>
+
                 <View style={styles.headerContainer}>
                     <Avatar rounded
                         size={70}
-                        source={this.state.avatar} />
+                        source={this.state.avatar} 
+                        onPress={() => this.props.navigation.navigate('EditProfile', {
+                            profileData: this.state.profileData,
+                        })}
+                    />
                     <View style={styles.headerTextContainer}>
                         <Text style={styles.nameText}>{this.state.name}</Text>
                         <TouchableOpacity style={styles.editProfileButton}
@@ -182,64 +188,71 @@ export default class AccountSettings extends Component {
                         </TouchableOpacity>
                     </View>
                 </View>
+                <ScrollView>
+                    <View style={{ backgroundColor: '#E5E5E5' }}>
+                        <TouchableOpacity style={[styles.itemStyle, { borderTopWidth: 1, }]}
+                            onPress={() => this.props.navigation.navigate("ClinicSchedule", {
+                                page: 1
+                            })}>
+                            <Text style={styles.itemText}>Clinic Schedule</Text>
+                            <Image style={styles.iconStyle} source={require("../img/Left_Chevron.png")} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.itemStyle}
+                            onPress={() => this.props.navigation.navigate("ServiceCharges")}>
+                            <Text style={styles.itemText}>Service Charges</Text>
+                            <Image style={styles.iconStyle} source={require("../img/Left_Chevron.png")} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.itemStyle}
+                            onPress={() => this.props.navigation.navigate("CustomerReview")}
+                        >
+                            <Text style={styles.itemText}>Customer Review</Text>
+                            <Image style={styles.iconStyle} source={require("../img/Left_Chevron.png")} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.itemStyle}
+                            onPress={() => this.props.navigation.navigate("E-Wallet")}
+                        >
+                            <Text style={styles.itemText}>E-Wallet</Text>
+                            <Image style={styles.iconStyle} source={require("../img/Left_Chevron.png")} />
+                        </TouchableOpacity>
 
-                <View style={{ backgroundColor: '#E5E5E5' }}>
-                    <TouchableOpacity style={[styles.itemStyle, { borderTopWidth: 1, }]}
-                        onPress={() => this.props.navigation.navigate("ClinicSchedule", {
-                            page: 1
-                        })}>
-                        <Text style={styles.itemText}>Clinic Schedule</Text>
-                        <Image style={styles.iconStyle} source={require("../img/Left_Chevron.png")} />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.itemStyle}
-                        onPress={() => this.props.navigation.navigate("ServiceCharges")}>
-                        <Text style={styles.itemText}>Service Charges</Text>
-                        <Image style={styles.iconStyle} source={require("../img/Left_Chevron.png")} />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.itemStyle}
-                        onPress={() => this.props.navigation.navigate("CustomerReview")}
-                    >
-                        <Text style={styles.itemText}>Customer Review</Text>
-                        <Image style={styles.iconStyle} source={require("../img/Left_Chevron.png")} />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.itemStyle}
-                        onPress={() => this.props.navigation.navigate("E-Wallet")}
-                    >
-                        <Text style={styles.itemText}>E-Wallet</Text>
-                        <Image style={styles.iconStyle} source={require("../img/Left_Chevron.png")} />
-                    </TouchableOpacity>
 
-
-                    <View style={styles.titleStyle}>
-                        <Text style={styles.titleText}>Help</Text>
+                        <View style={styles.titleStyle}>
+                            <Text style={styles.titleText}>Help</Text>
+                        </View>
+                        <TouchableOpacity style={styles.itemStyle}
+                            onPress={() => this.props.navigation.navigate("ContactUs")}
+                        >
+                            <Text style={styles.itemText}>Contact Us</Text>
+                            <Image style={styles.iconStyle} source={require("../img/Left_Chevron.png")} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.itemStyle}
+                            onPress={() => this.props.navigation.navigate("FAQ")}
+                        >
+                            <Text style={styles.itemText}>FAQ</Text>
+                            <Image style={styles.iconStyle} source={require("../img/Left_Chevron.png")} />
+                        </TouchableOpacity>
+                        <View style={styles.titleStyle}>
+                            <Text Text style={styles.titleText}>Logins</Text>
+                        </View>
+                        <TouchableOpacity style={styles.itemStyle}
+                            onPress={() => this.props.navigation.navigate("Status")}
+                        >
+                            <Text style={styles.itemText}>Change Status</Text>
+                            <Image style={styles.iconStyle} source={require("../img/Left_Chevron.png")} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.itemStyle}
+                            onPress={() => this.props.navigation.navigate("ChangePassword")}
+                        >
+                            <Text style={styles.itemText}>Change Password</Text>
+                            <Image style={styles.iconStyle} source={require("../img/Left_Chevron.png")} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.itemStyle}
+                            onPress={() => this.logOutProcess()}>
+                            <Text style={styles.itemText}>Logout</Text>
+                            <Image style={styles.iconStyle} source={require("../img/logout.png")} />
+                        </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={styles.itemStyle}
-                        onPress={() => this.props.navigation.navigate("ContactUs")}
-                    >
-                        <Text style={styles.itemText}>Contact Us</Text>
-                        <Image style={styles.iconStyle} source={require("../img/Left_Chevron.png")} />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.itemStyle}
-                        onPress={() => this.props.navigation.navigate("FAQ")}
-                    >
-                        <Text style={styles.itemText}>FAQ</Text>
-                        <Image style={styles.iconStyle} source={require("../img/Left_Chevron.png")} />
-                    </TouchableOpacity>
-                    <View style={styles.titleStyle}>
-                        <Text Text style={styles.titleText}>Logins</Text>
-                    </View>
-                    <TouchableOpacity style={styles.itemStyle}
-                        onPress={() => this.props.navigation.navigate("ChangePassword")}
-                    >
-                        <Text style={styles.itemText}>Change Password</Text>
-                        <Image style={styles.iconStyle} source={require("../img/Left_Chevron.png")} />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.itemStyle}
-                        onPress={() => this.logOutProcess()}>
-                        <Text style={styles.itemText}>Logout</Text>
-                        <Image style={styles.iconStyle} source={require("../img/logout.png")} />
-                    </TouchableOpacity>
-                </View>
+                </ScrollView>
             </View>
         )
     }

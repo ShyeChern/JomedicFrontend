@@ -284,7 +284,7 @@ export default class Doctor extends Component {
                     })
 
 
-                    this.props.navigation.navigate('Appointment');
+                    this.doctorActionChange('detail');
                 }
                 else {
                     alert(responseJson.value);
@@ -346,6 +346,7 @@ export default class Doctor extends Component {
                         <Image style={[styles.doctorImage]} source={{ uri: 'data:image/jpg;base64,' + this.state.doctorImage }} />
                         <Text style={{ fontWeight: '600', fontSize: 18, lineHeight: 25, color: '#000000' }}>{this.state.doctorName}</Text>
                         <Text style={[styles.text, { color: '#979797' }]}>{this.state.doctorSpecialist}</Text>
+                        <Text style={[styles.text, { color: '#979797' }]}>{this.state.doctorStatus}</Text>
                     </View>
                 </View>
 

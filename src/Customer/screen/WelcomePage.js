@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Text, StyleSheet, View, Image, TouchableOpacity, BackHandler } from 'react-native';
+import { versionNumber } from '../util/versionNumber';
 
 
 export default class WelcomePage extends Component {
@@ -20,24 +21,28 @@ export default class WelcomePage extends Component {
     render() {
         return (
             <View style={[styles.container]}>
-                <View style={[styles.welcomePageImageView]}>
-                    <Image style={[styles.welcomePageImage]}
-                        source={require('../asset/img/logo.png')}
-                    />
-                    <Text style={{ fontWeight: '600', fontSize: 18, textAlign: 'center', lineHeight: 25 }}>Welcome to Jomedic</Text>
-                    <Text style={{ color: '#4A4A4A', fontSize: 16, textAlign: 'center', lineHeight: 22 }}>An online medical consultation platform</Text>
-                </View>
+                <View style={{ flex: 1 }}>
+                    <View style={[styles.welcomePageImageView]}>
+                        <Image style={[styles.welcomePageImage]}
+                            source={require('../asset/img/logo.png')}
+                        />
+                        <Text style={{ fontWeight: '600', fontSize: 18, textAlign: 'center', lineHeight: 25 }}>Welcome to Jomedic</Text>
+                        <Text style={{ color: '#4A4A4A', fontSize: 16, textAlign: 'center', lineHeight: 22 }}>An online medical consultation platform</Text>
+                    </View>
 
-                <View style={[styles.actionBtnView]}>
-                    <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#FFD44E' }]}
-                        onPress={() => this.props.navigation.navigate('SignUp')}>
-                        <Text style={{ fontWeight: '600', fontSize: 16, lineHeight: 22, color: '#FFFFFF' }}>Sign Up</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={[styles.actionBtn]}
-                        onPress={() => this.props.navigation.navigate('Login')}>
-                        <Text style={{ fontWeight: '600', fontSize: 16, lineHeight: 22, color: '#FFD44E' }}>Log in</Text>
-                    </TouchableOpacity>
+                    <View style={[styles.actionBtnView]}>
+                        <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#FFD44E' }]}
+                            onPress={() => this.props.navigation.navigate('SignUp')}>
+                            <Text style={{ fontWeight: '600', fontSize: 16, lineHeight: 22, color: '#FFFFFF' }}>Sign Up</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={[styles.actionBtn]}
+                            onPress={() => this.props.navigation.navigate('Login')}>
+                            <Text style={{ fontWeight: '600', fontSize: 16, lineHeight: 22, color: '#FFD44E' }}>Log in</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
+                <Text style={styles.versionText}>{versionNumber}</Text>
+
             </View>
         )
     }
@@ -72,5 +77,10 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         margin: 13,
         borderColor: '#FFD44E'
+    },
+    versionText: {
+        textAlign: 'right',
+        margin: 10,
+        color: '#979797'
     }
 })

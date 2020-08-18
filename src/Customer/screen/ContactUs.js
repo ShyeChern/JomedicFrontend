@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, StyleSheet, View, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { Text, StyleSheet, View, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard, ScrollView } from 'react-native';
 import { getCustomerId } from "../util/Auth";
 import { URL } from '../util/FetchURL';
 
@@ -51,7 +51,7 @@ export default class ContactUs extends Component {
                             content: ''
                         });
 
-                        alert('Your problem have been received, we will reply you via email soon.');
+                        alert('Your question have been submitted, we will reply you via email soon.');
                     }
                     else {
                         alert(responseJson.value);
@@ -67,17 +67,17 @@ export default class ContactUs extends Component {
 
     render() {
         return (
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
                 <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
                     <View style={{ marginTop: 10 }}>
                         <Text style={{ fontSize: 16, lineHeight: 22, fontWeight: 'bold', marginHorizontal: 15 }}>Submit Us Your Problem</Text>
-                        <Text style={[styles.text, { fontWeight: 'normal', textAlign:'justify' }]}>Please kindly describe your problem in the given space below. Our staff will assist and reply to you via email as soon as possible.</Text>
+                        <Text style={[styles.text, { fontWeight: 'normal', textAlign:'justify' }]}>Please kindly describe your question in the given space below. Our staff will assist and reply to you via email as soon as possible.</Text>
                         <Text style={styles.text}>Subject</Text>
                         <TextInput
                             style={styles.input}
                             value={this.state.subject}
                             onChangeText={(subject) => this.setState({ subject })}
-                            placeholder={' Your Problem'}
+                            placeholder={' Your Question'}
                             returnKeyType={"next"}
                             ref={(subject) => { this.subject = subject; }}
                             onSubmitEditing={() => { this.content.focus(); }}
@@ -87,7 +87,7 @@ export default class ContactUs extends Component {
                             style={[styles.input, { height: 200 }]}
                             value={this.state.content}
                             onChangeText={(content) => this.setState({ content })}
-                            placeholder={' Describe Your Problem Here...'}
+                            placeholder={' Describe Your Question Here...'}
                             multiline={true}
                             // numberOfLines={10}
                             // onContentSizeChange={(e) => e.nativeEvent.contentSize.height}
@@ -99,7 +99,7 @@ export default class ContactUs extends Component {
                         </TouchableOpacity>
                     </View>
                 </TouchableWithoutFeedback>
-            </View>
+            </ScrollView>
         )
     }
 }

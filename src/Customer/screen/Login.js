@@ -188,7 +188,7 @@ export default class Login extends Component {
 
                     }
                     else {
-                        this.setState({ submitError: responseJson.value });
+                        this.setState({ submitError: responseJson.value, isLoading:false });
                     }
 
                 })

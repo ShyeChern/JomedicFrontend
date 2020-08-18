@@ -374,7 +374,8 @@ export default class EditProfile extends Component {
                 <View style={styles.headerContainer}>
                     <Avatar rounded
                         size={100}
-                        source={this.state.avatar} />
+                        source={this.state.avatar}
+                        onPress={() => this.toggleImagePickerModal()} />
                     <TouchableOpacity style={styles.changePhotoButton}
                         onPress={() => this.toggleImagePickerModal()}
                     >
