@@ -45,6 +45,7 @@ import MedicationListScreen from '../screen/MedicationList'
 import ChangePasswordScreen from '../screen/ChangePassword'
 import FAQScreen from '../screen/FAQ'
 import ContactUsScreen from '../screen/ContactUs'
+import StatusScreen from '../screen/Status'
 
 import { AuthenticateNavigator } from '../../Customer/route/Navigator';
 import { tr } from 'date-fns/locale';
@@ -658,6 +659,24 @@ const AccountStackNavigator = ({ navigation, route }) => {
                     headerShown: true
                 }}
             />
+            <AccountStack.Screen name="Status" component={StatusScreen}
+                options={{
+                    headerTitle: 'Change Status',
+                    headerTitleStyle: {
+                        fontFamily: 'Open Sans',
+                        fontStyle: 'normal',
+                        fontWeight: '600',
+                        fontSize: 18,
+                        lineHeight: 25,
+                        textAlign: 'center',
+                        color: '#4A4A4A',
+                    },
+                    headerTintColor: '#000000',
+                    headerTransparent: false,
+                    headerShown: true
+                }}
+            />
+
         </AccountStack.Navigator>
     )
 }
@@ -714,7 +733,7 @@ const VitalSignTopTabNavigator = ({ navigation, route }) => {
                     }
                 }
             />
-             <VitalSignTab.Screen name='Cholesterol' component={CholesterolScreen}
+            <VitalSignTab.Screen name='Cholesterol' component={CholesterolScreen}
                 options={{ title: 'Cholesterol' }}
                 initialParams={
                     {
