@@ -53,6 +53,17 @@ function getBottomTabTitle(route) {
     return routeName;
 }
 
+function getHeaderShownOption(route) {
+    switch (getBottomTabTitle(route)) {
+        case 'Wallet':
+            return false;
+            break;
+
+        default:
+            return true;
+    }
+}
+
 function getHeaderTransparentOption(route) {
     switch (getBottomTabTitle(route)) {
         case 'Jomedic':
@@ -186,7 +197,8 @@ function MainNavigator({ navigation }) {
                     headerTransparent: getHeaderTransparentOption(route),
                     headerLeft: null,
                     headerTintColor: getHeaderTintColorOption(route),
-                    headerTitleStyle: getHeaderTitleStyleOption(route)
+                    headerTitleStyle: getHeaderTitleStyleOption(route),
+                    headerShown: getHeaderShownOption(route)
                 })}
             />
 

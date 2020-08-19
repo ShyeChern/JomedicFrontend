@@ -109,42 +109,53 @@ export default function App() {
   );
 
   return (
-      <Stack.Navigator initialRouteName={"Balance"}
+    <Stack.Navigator initialRouteName={"Balance"}
       screenOptions={{
         cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+        headerShown: true,
+        headerStyle: {
+          backgroundColor: '#FFD44E',
+        },
+        headerTitleAlign: 'center',
+        headerTitleStyle: {
+          fontWeight: '600',
+          fontSize: 18,
+          lineHeight: 25
+        },
+        headerTintColor: '#FFFFFF'
       }}
-      >
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{
-            headerShown: false
-          }} />
-        <Stack.Screen
-          name="Verify"
-          component={VerificationScreen}
-          options={{
-            headerShown: false
-          }} />
-        <Stack.Screen
-          name="Balance"
-          component={BalanceScreen}
-          options={{
-            headerShown: false
-          }} />
-        
-    
-        <Stack.Screen name="AccountInfo" component={AccountInfo} />
-        <Stack.Screen name="PaymentMethod" component={PaymentMethod} />
-        <Stack.Screen name="PinReload" component={PinReload} />
-        <Stack.Screen name="Topup" component={Topup} />
-        <Stack.Screen name="Activate" component={ActivateScreen} />
-        <Stack.Screen name="TransactionHistory" component={TransactionHistoryScreen} />
-        <Stack.Screen name="Details" component={Details} />
-        <Stack.Screen name="TransferMoney" component={TransferMoneyScreen} />
-        <Stack.Screen name="WithdrawMoney" component={WithdrawMoneyScreen} />
-        <Stack.Screen name="transferDetails" component={transferDetails} />
-      </Stack.Navigator>
+    >
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{
+          headerLeft: null,
+        }} />
+      <Stack.Screen
+        name="Verify"
+        component={VerificationScreen}
+        options={{
+
+        }} />
+      <Stack.Screen
+        name="Balance"
+        component={BalanceScreen}
+        options={{
+          headerLeft: null,
+        }} />
+
+
+      <Stack.Screen name="AccountInfo" component={AccountInfo} />
+      <Stack.Screen name="PaymentMethod" component={PaymentMethod} />
+      <Stack.Screen name="PinReload" component={PinReload} />
+      <Stack.Screen name="Topup" component={Topup} />
+      <Stack.Screen name="Activate" component={ActivateScreen} />
+      <Stack.Screen name="TransactionHistory" component={TransactionHistoryScreen} />
+      <Stack.Screen name="Details" component={Details} />
+      <Stack.Screen name="TransferMoney" component={TransferMoneyScreen} />
+      <Stack.Screen name="WithdrawMoney" component={WithdrawMoneyScreen} />
+      <Stack.Screen name="transferDetails" component={transferDetails} />
+    </Stack.Navigator>
   );
 }
 
