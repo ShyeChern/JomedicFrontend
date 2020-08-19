@@ -130,18 +130,20 @@ export default function App() {
         component={LoginScreen}
         options={{
           headerLeft: null,
+          title: 'eWallet'
         }} />
       <Stack.Screen
         name="Verify"
         component={VerificationScreen}
         options={{
-
+          title: 'eWallet'
         }} />
       <Stack.Screen
         name="Balance"
         component={BalanceScreen}
         options={{
           headerLeft: null,
+          title: 'eWallet'
         }} />
 
 

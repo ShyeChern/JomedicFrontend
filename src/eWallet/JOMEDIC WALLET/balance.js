@@ -8,7 +8,7 @@ import { set } from 'date-fns';
 import { useFocusEffect } from '@react-navigation/native';
 
 function balance({ navigation }) {
-    
+
     const [loading, setLoading] = useState(true);
     const [activate, setActivate] = useState(false);
     const [userid, setUserId] = useState('');
@@ -19,26 +19,53 @@ function balance({ navigation }) {
         React.useCallback(() => {
             const fetchData = async () => {
                 let userToken;
+                let userid;
                 try {
                     userToken = await AsyncStorage.getItem('userToken');
+                    userid = await AsyncStorage.getItem('userId');
+                    const datas = {
+                        txn_cd: 'MEDEWALL04',
+                        tstamp: getTodayDate(),
+                        data: {
+                            userID: userid
+                        }
+                    }
+
+                    fetch(URL + '/EWALL', {
+                        method: 'POST',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(datas)
+
+                    }).then((response) => response.json())
+                        .then((responseJson) => {
+                            if (responseJson.status === "NOTFOUND") {
+                                navigation.navigate('Login')
+                            }
+                            else {
+                                return userid;
+                            }
+
+                            setLoading(false)
+
+                        }).catch((error) => {
+                            alert(error)
+                            setLoading(false)
+                        });
 
                 } catch (e) {
                     console.log(e);
                 }
-                if (userToken != null) {
-                    return userToken;
 
-                }
-                else {
-                    navigation.navigate('Login')
-                }
 
-                return userToken;
+                return userid;
 
             };
 
-            fetchData().then(userToken => {
-                returnData(userToken)
+            fetchData().then(userid => {
+                returnData(userid)
             })
         }, [])
     );
@@ -141,9 +168,9 @@ function balance({ navigation }) {
                 </View>
                 <View style={{ flex: 1, justifyContent: 'center' }}>
                     <TouchableOpacity
-                        onPress={() => navigation.navigate('PaymentMethod',{
-                            walletNo:walletNo,
-                            userId:userid
+                        onPress={() => navigation.navigate('PaymentMethod', {
+                            walletNo: walletNo,
+                            userId: userid
                         })}
                         style={styles.topupBtn}>
                         < Text style={{ color: 'white', textAlign: 'center' }}>Top Up</Text>
@@ -162,9 +189,9 @@ function balance({ navigation }) {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button}
-                onPress={() => navigation.navigate('TransactionHistory',{
-                    walletNo:walletNo,
-                    userId:userid
+                onPress={() => navigation.navigate('TransactionHistory', {
+                    walletNo: walletNo,
+                    userId: userid
                 })}>
                 <View style={{ flex: 1, flexDirection: 'row' }}>
                     <Text style={styles.buttonText}>Transaction History</Text>
@@ -176,25 +203,25 @@ function balance({ navigation }) {
                 <View style={{ flexDirection: 'row', justifyContent: 'space-around', paddingTop: 60, }}>
                     <View >
                         <TouchableOpacity style={styles.transferBtn}
-                            onPress={() => navigation.navigate('TransferMoney',{
-                                walletNo:walletNo,
-                                userId:userid
+                            onPress={() => navigation.navigate('TransferMoney', {
+                                walletNo: walletNo,
+                                userId: userid
                             })}>
-                            <Text style={{ color: 'white',textAlign: 'center' }}> Transfer</Text>
+                            <Text style={{ color: 'white', textAlign: 'center' }}> Transfer</Text>
                         </TouchableOpacity>
                     </View>
                     <View >
                         <TouchableOpacity style={styles.transferBtn}
-                            onPress={() => navigation.navigate('WithdrawMoney',{
-                                walletNo:walletNo,
-                                userId:userid
+                            onPress={() => navigation.navigate('WithdrawMoney', {
+                                walletNo: walletNo,
+                                userId: userid
                             })}>
-                            <Text style={{color: 'white', textAlign: 'center' }}> Withdraw</Text>
+                            <Text style={{ color: 'white', textAlign: 'center' }}> Withdraw</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
             </View>
-            
+
 
         </View>
     )

@@ -292,6 +292,7 @@ export default class Login extends Component {
             await AsyncStorage.setItem('loginStatus', 'true');
             await AsyncStorage.setItem('customerId', id);
             await AsyncStorage.setItem('userType', userType);
+            await AsyncStorage.setItem('userId', this.state.email);
         } catch (e) {
             console.log(e);
         }

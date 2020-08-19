@@ -49,11 +49,27 @@ export const getUserType = async () => {
     }
 }
 
+export const getUserId = async () => {
+    try {
+        const userId = await AsyncStorage.getItem('userId')
+        if (userId !== null) {
+            return userId;
+        }
+        else {
+            return '';
+        }
+    }
+    catch (e) {
+        console.log(e);
+        return '';
+    }
+}
+
 export const logout = async () => {
 
     try {
-        // await AsyncStorage.clear()
-        await AsyncStorage.multiRemove(['customerId', 'userType', 'loginStatus'])
+        await AsyncStorage.clear()
+        // await AsyncStorage.multiRemove(['customerId', 'userType', 'loginStatus', 'userId']);
     }
     catch (e) {
         console.log(e);
