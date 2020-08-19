@@ -26,7 +26,7 @@ export const getCustomerId = async () => {
         else {
             return '';
         }
-    } 
+    }
     catch (e) {
         console.log(e);
         return '';
@@ -42,7 +42,7 @@ export const getUserType = async () => {
         else {
             return '';
         }
-    } 
+    }
     catch (e) {
         console.log(e);
         return '';
@@ -52,7 +52,8 @@ export const getUserType = async () => {
 export const logout = async () => {
 
     try {
-        await AsyncStorage.clear()
+        // await AsyncStorage.clear()
+        await AsyncStorage.multiRemove(['customerId', 'userType', 'loginStatus'])
     }
     catch (e) {
         console.log(e);
