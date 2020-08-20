@@ -498,6 +498,7 @@ const QueueStackNavigator = ({ navigation, route }) => {
 }
 
 const AccountStackNavigator = ({ navigation, route }) => {
+
     if (route.state) {
         navigation.setOptions({
             tabBarVisible: route.state.index > 0 ? false : true
@@ -528,7 +529,7 @@ const AccountStackNavigator = ({ navigation, route }) => {
                 options={{
                     headerTransparent: true,
                     headerTitle: 'Account',
-                    headerShown: true
+                    headerShown: true,
                 }}
             />
             <AccountStack.Screen name="EditProfile" component={EditProfileScreen}

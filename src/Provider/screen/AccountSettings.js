@@ -14,12 +14,15 @@ export default class AccountSettings extends Component {
         super(props)
         this.state = {
             isLoading: false,
+            isProfileUpdated: false,
+            isTenantStatusUpdated: false,
             name: '',
             avatar: defaultAvatar,
             profileData: {},
             user_id: '',
             tenant_id: '',
             tenant_type: '',
+            status: '',
         }
     }
 
@@ -27,12 +30,19 @@ export default class AccountSettings extends Component {
         // Load the data for the first time
         await this.initializeData();
         this.loadProfileData();
-
+        this.loadTenantStatus();
 
         // Add hook to refresh profile data when screen is Focus, and if reload is true
         this.props.navigation.addListener('focus',
             event => {
-                this.loadProfileData();
+                console.log(this.props.route.params)
+                if (this.props.route.params) {
+                    if (this.props.route.params.isProfileUpdated) {
+                        this.loadProfileData();
+                        this.props.route.params.isProfileUpdated = false
+                    }
+                }
+                this.loadTenantStatus();
             }
         )
 
@@ -93,16 +103,78 @@ export default class AccountSettings extends Component {
             };
 
             this.setState({
-                isLoading: false
+                isLoading: false,
+                isProfileUpdated: false
             });
 
         } catch (error) {
             console.log(error)
             this.setState({
-                isLoading: false
+                isLoading: false,
+                isProfileUpdated: false
             });
             handleNoInternet()
         }
+    }
+
+    loadTenantStatus = async () => {
+        // this.setState({
+        //     isLoading: true
+        // })
+
+        let datas = {
+            txn_cd: "MEDORDER011",
+            tstamp: getTodayDate(),
+            data: {
+                user_id: this.state.user_id,
+                tenant_type: this.state.tenant_type,
+            }
+        }
+
+        try {
+            const response = await fetch(URL_Provider, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datas)
+            });
+
+            const json = await response.json();
+
+            var status = "";
+
+            if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
+                console.log('Get Tenant Status Error');
+                console.log(json.status);
+            }
+            else {
+                let data = json.status[0]
+                status = data.status
+
+                console.log("Get Tenant Status succcess")
+            }
+
+            this.setState({
+                status: status,
+                isLoading: false,
+                isTenantStatusUpdated: false,
+            })
+        }
+        catch (error) {
+            console.log("Get Tenant Status Error")
+            this.setState({
+                isLoading: false,
+                isTenantStatusUpdated: false
+            })
+            Alert.alert(
+                'Failed',
+                'Sorry, unable to get tenant status. Please check your internet connection.',
+            );
+            return false
+        }
+
     }
 
     logOutProcess = async () => {
@@ -169,25 +241,36 @@ export default class AccountSettings extends Component {
 
         return (
             <View style={{ backgroundColor: '#E5E5E5', flex: 1 }}>
-
                 <View style={styles.headerContainer}>
-                    <Avatar rounded
-                        size={70}
-                        source={this.state.avatar} 
-                        onPress={() => this.props.navigation.navigate('EditProfile', {
-                            profileData: this.state.profileData,
-                        })}
-                    />
-                    <View style={styles.headerTextContainer}>
-                        <Text style={styles.nameText}>{this.state.name}</Text>
-                        <TouchableOpacity style={styles.editProfileButton}
+                    <View style={{ flexDirection: 'row' }}>
+                        <Avatar rounded
+                            size={75}
+                            source={this.state.avatar}
                             onPress={() => this.props.navigation.navigate('EditProfile', {
                                 profileData: this.state.profileData,
-                            })}>
-                            <Text style={styles.editProfileText}>Edit Profile</Text>
-                        </TouchableOpacity>
+                            })}
+                        />
+                        <View style={styles.headerTextContainer}>
+                            <Text style={styles.nameText}>{this.state.name}</Text>
+                            <TouchableOpacity style={styles.editProfileButton}
+                                onPress={() => this.props.navigation.navigate('EditProfile', {
+                                    profileData: this.state.profileData,
+                                })}>
+                                <Text style={styles.editProfileText}>Edit Profile</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.statusContainer}
+                                onPress={() => this.props.navigation.navigate("Status", {
+                                    status: this.state.status
+                                })}
+                            >
+                                <Text style={styles.statusText}>{this.state.status}</Text>
+                                <Image style={styles.statusIcon} source={require("../img/Left_Chevron.png")} />
+                            </TouchableOpacity>
+
+                        </View>
                     </View>
                 </View>
+
                 <ScrollView>
                     <View style={{ backgroundColor: '#E5E5E5' }}>
                         <TouchableOpacity style={[styles.itemStyle, { borderTopWidth: 1, }]}
@@ -234,12 +317,14 @@ export default class AccountSettings extends Component {
                         <View style={styles.titleStyle}>
                             <Text Text style={styles.titleText}>Logins</Text>
                         </View>
-                        <TouchableOpacity style={styles.itemStyle}
-                            onPress={() => this.props.navigation.navigate("Status")}
+                        {/* <TouchableOpacity style={styles.itemStyle}
+                            onPress={() => this.props.navigation.navigate("Status", {
+                                status: this.state.status
+                            })}
                         >
                             <Text style={styles.itemText}>Change Status</Text>
                             <Image style={styles.iconStyle} source={require("../img/Left_Chevron.png")} />
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                         <TouchableOpacity style={styles.itemStyle}
                             onPress={() => this.props.navigation.navigate("ChangePassword")}
                         >
@@ -263,8 +348,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         backgroundColor: '#E5E5E5',
         paddingLeft: '9%',
+        paddingRight: '5%',
         paddingTop: '15%',
         paddingBottom: 30,
+        justifyContent: 'space-between'
     },
 
     headerTextContainer: {
@@ -278,7 +365,7 @@ const styles = StyleSheet.create({
     },
 
     editProfileButton: {
-        marginTop: 10,
+        marginTop: 5,
     },
 
     editProfileText: {
@@ -338,5 +425,29 @@ const styles = StyleSheet.create({
     iconStyle: {
         alignSelf: 'center',
         marginRight: 30,
+    },
+
+    statusContainer: {
+        flexDirection: 'row',
+        alignSelf: 'flex-start',
+        marginTop: 5,
+        padding: 5,
+        backgroundColor: '#FFFFFF',
+        justifyContent: "space-between",
+    },
+
+    statusText: {
+        alignSelf: "flex-start",
+        fontFamily: 'Open Sans',
+        fontStyle: 'normal',
+        fontWeight: '600',
+        fontSize: 12,
+        lineHeight: 20,
+        color: '#000000',
+    },
+
+    statusIcon: {
+        marginLeft: 15,
+        alignSelf: 'center',
     },
 })

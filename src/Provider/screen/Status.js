@@ -6,6 +6,7 @@ import { URL_Provider, URL_AuditTrail } from '../util/provider'
 import { getTodayDate } from '../util/getDate'
 import { handleNoInternet } from '../util/CheckConn'
 import Loader from './Loader'
+import { check } from 'react-native-permissions'
 
 
 export default class Status extends Component {
@@ -18,7 +19,7 @@ export default class Status extends Component {
             user_id: '',
             tenant_id: '',
             tenant_type: '',
-            status: '',
+            status: this.props.route.params.status || 'Available',
 
             // Radio Button Initalization, 0: Available, 1: Busy, 2: 'Not Available', 3: 'Offline'
             radioBtnsData: ['Available', 'Busy', 'Not Available', 'Offline'],
@@ -28,8 +29,8 @@ export default class Status extends Component {
     }
 
     async componentDidMount() {
+        this.checkTenantStatus();
         await this.initalizeData();
-        await this.getTenantData();
     }
 
     initalizeData = async () => {
@@ -46,22 +47,57 @@ export default class Status extends Component {
         });
     }
 
+    // Function to check the radio button with status from previous screen
+    checkTenantStatus = async () => {
+        var status = this.state.status
+        var checked = 0;
+        // Determine which raduio button to select with the status
+        if (status) {
+            if (status === "Available") {
+                checked = 0;
+            } else if (status === "Busy") {
+                checked = 1;
+            } else if (status === "Not Available") {
+                checked = 2;
+            } else if (status === "Offline") {
+                checked = 3;
+            } else {
+                // Check default value as available
+                checked = 0;
+            }
+        } else {
+            checked = 0;
+        }
+
+        this.setState({
+            checked: checked
+        })
+    }
+
     // Functions to set status
     setTenantState = async (key, data) => {
 
+        var isUpdateSuccess = false
+
         if (key === 0) {
-            await this.setAvailable();
+            isUpdateSuccess = await this.setAvailable();
         } else if (key === 1) {
-            await this.setBusy();
+            isUpdateSuccess = await this.setBusy();
         } else if (key === 2) {
-            await this.setNotAvailable();
+            isUpdateSuccess = await this.setNotAvailable();
         } else if (key === 3) {
-            await this.setOffline();
+            isUpdateSuccess = await this.setOffline();
         } else {
-            return Alert('Invalid status')
+            isUpdateSuccess = false;
+            return Alert.alert('Invalid status')
         }
 
         this.setState({ checked: key, status: data })
+
+        if (isUpdateSuccess) {
+            this.props.navigation.navigate("Account", { isTenantStatusUpdated: true })
+        }
+
     }
 
     setAvailable = async () => {
@@ -107,82 +143,6 @@ export default class Status extends Component {
             handleNoInternet()
             return false
         }
-
-    }
-
-    getTenantData = async () => {
-        this.setState({
-            isLoading: true
-        })
-
-        let datas = {
-            txn_cd: "MEDORDER011",
-            tstamp: getTodayDate(),
-            data: {
-                user_id: this.state.user_id,
-                tenant_type: this.state.tenant_type,
-            }
-        }
-
-        try {
-            const response = await fetch(URL_Provider, {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(datas)
-            });
-
-            const json = await response.json();
-
-            var status = "";
-            var checked = 0;
-
-            if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
-                console.log('Get Tenant Status Error');
-                console.log(json.status);
-            }
-            else {
-                let data = json.status[0]
-                status = data.status
-
-                // Determine which raduio button to select with the status
-                if (status) {
-                    if (status === "Available") {
-                        checked = 0;
-                    } else if (status === "Busy") {
-                        checked = 1;
-                    } else if (status === "Not Available") {
-                        checked = 2;
-                    } else if (status === "Offline") {
-                        checked = 3;
-                    } else {
-                        // Check default value as available
-                        checked = 0;
-                    }
-                } else {
-                    checked = 0;
-                }
-
-                console.log("Get Tenant Status succcess")
-            }
-
-            this.setState({
-                status: status,
-                checked: checked,
-                isLoading: false
-            })
-        }
-        catch (error) {
-            console.log("Get Tenant Status Error")
-            this.setState({
-                isLoading: false
-            })
-            handleNoInternet()
-            return false
-        }
-
 
     }
 

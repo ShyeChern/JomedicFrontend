@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
-import { StyleSheet, Text, View, SafeAreaView, SectionList, TouchableOpacity, Alert, RefreshControl } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView, SectionList, TouchableOpacity, Alert, RefreshControl, Image } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import moment from 'moment';
-import DateTimePicker from 'react-native-modal-datetime-picker';
 import { Divider } from 'react-native-elements';
 import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
 
@@ -13,7 +12,7 @@ import { handleNoInternet } from '../util/CheckConn'
 import { URL_AuditTrail, URL_Provider } from '../util/provider'
 import Loader from './Loader'
 
-
+import { useFocusEffect, useIsFocused } from '@react-navigation/native'
 
 export default class AgendaScreen extends Component {
     constructor(props) {
@@ -34,6 +33,14 @@ export default class AgendaScreen extends Component {
 
     async componentDidMount() {
         await this.initializeData();
+
+        // Add hook to refresh profile data when screen is Focus, and if reload is true
+        // this.props.navigation.addListener('focus',
+        //     event => {
+        //         this.refreshAppointment(true);
+        //     }
+        // )
+
     }
 
     initializeData = async () => {
@@ -66,8 +73,6 @@ export default class AgendaScreen extends Component {
             }
         }
 
-        console.log(datas)
-
         try {
             this.setState({
                 isLoading: true
@@ -91,9 +96,6 @@ export default class AgendaScreen extends Component {
             else {
                 let data = json.status;
 
-                console.log("From database")
-                console.log(data)
-
                 if (!data) {
                     appointments = []
                 } else {
@@ -113,8 +115,6 @@ export default class AgendaScreen extends Component {
             });
             handleNoInternet()
         }
-
-        console.log(appointments)
 
         return appointments
     }
@@ -143,8 +143,6 @@ export default class AgendaScreen extends Component {
             }
         }
 
-        console.log(sortedAppointments)
-
         return sortedAppointments;
     }
 
@@ -171,9 +169,8 @@ export default class AgendaScreen extends Component {
 
         // As react native calendars Agenda tend to load previous month from today during the first initalization,
         // Ignore the operation if month is previous than today date
-        var currentMonth = parseInt(moment().format("MM"));
-        var selectedMonth = parseInt(day.month);
-        if(selectedMonth < currentMonth){
+        var selectedMonth = moment(day.dateString);
+        if (selectedMonth.isBefore(moment(), "month")) {
             return;
         }
 
@@ -183,13 +180,13 @@ export default class AgendaScreen extends Component {
         })
 
         setTimeout(async () => {
+
             var startDate = getStartOfMonth(day.dateString);
             var endDate = getEndOfMonth(day.dateString);
             var dates = getDatesForCurrentMonth(day.dateString);
 
             console.log(startDate)
             console.log(endDate)
-            console.log(dates)
 
             // Get the Appointments from database
             var unsortedAppointments = await this.getAppointments(startDate, endDate);
@@ -216,16 +213,17 @@ export default class AgendaScreen extends Component {
             });
         }, 1000);
 
-        this.setState({isRefreshing: false});
+        this.setState({ isRefreshing: false });
     }
 
     renderItem(item) {
         return (
             <TouchableOpacity
-                style={[styles.item, { height: 60 }]}
+                style={[styles.item, { height: 70 }]}
                 onPress={() => this.loadAppointmentDetails(item)}
             >
                 <Text>Name: {item.name}</Text>
+                {/* <Text>Date: {moment(item.start_time).format("DD MMMM YYYY")}</Text> */}
                 <Text>Time: {moment(item.start_time).format("hh:mm A")}</Text>
             </TouchableOpacity>
         );
@@ -255,11 +253,32 @@ export default class AgendaScreen extends Component {
         this.setState({ isRefreshing: false });
     }
 
+    renderNextMonth = async (day) => {
+        const totalNumOfDay = 7
+        const time = day.timestamp + totalNumOfDay * 24 * 60 * 60 * 1000;
+        const strTime = this.timeToString(time)
+        console.log("StrTime is: " + strTime)
+
+        // Check if the appointment with date strTime exists in the list, load from database if no.
+        if (!this.state.items[strTime]) {
+            console.log("No such time in items: " + strTime)
+            var newDay = {
+                "dateString": strTime,
+                "day": parseInt(moment(strTime).format("DD")),
+                "month": parseInt(moment(strTime).format("MM")),
+                "timestamp": time,
+                "year": parseInt(moment(strTime).format("YYYY"))
+            }
+            this.loadItems(newDay);
+        }
+    }
+
     render() {
         return (
             <Agenda
                 items={this.state.items}
                 loadItemsForMonth={this.loadItems.bind(this)}
+                onDayChange={(day) => this.renderNextMonth(day)}
                 selected={this.state.todayDate}
                 minDate={this.state.todayDate}
                 pastScrollRange={2}
@@ -276,9 +295,16 @@ export default class AgendaScreen extends Component {
                     agendaKnobColor: '#FFD54E',
                 }}
                 onRefresh={
-                    () => this.refreshAppointment()                    
+                    () => this.refreshAppointment()
                 }
                 refreshing={this.state.isRefreshing}
+                renderKnob={() => {
+                    return (
+                        <View>
+                            <Icon name={'chevron-triple-down'} size={20} color={'#FFD54E'} />
+                        </View>
+                    );
+                }}
             />
         );
     }
