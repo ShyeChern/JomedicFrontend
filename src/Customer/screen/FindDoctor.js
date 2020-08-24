@@ -380,6 +380,10 @@ export default class FindDoctor extends Component {
             doctorList: newData,
             doctor: doctor
         });
+
+        if (newData.length == 0) {
+            this.setState({ endFlatList: true })
+        }
     }
 
     backStateModal = () => {
@@ -453,7 +457,7 @@ export default class FindDoctor extends Component {
                     <TextInput style={{ flex: 4, fontWeight: '300', fontSize: 14, lineHeight: 19 }}
                         value={this.state.doctor}
                         onChangeText={(doctor) => this.filterDoctorSearch(doctor)}
-                        placeholder={'Enter Search Queries'}
+                        placeholder={'Enter Doctor Name'}
                         ref={(doctor) => { this.doctor = doctor; }}
                     />
 
@@ -491,7 +495,7 @@ export default class FindDoctor extends Component {
                     {
                         this.state.firstTime ?
                             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                                <Text style={[styles.setButtonText, { color: '#000000' }]}>Current Location : {this.state.district === 'All' ? this.state.state : this.state.district + ', ' + this.state.state}</Text>
+                                {/* <Text style={[styles.setButtonText, { color: '#000000' }]}>Current Location : {this.state.district === 'All' ? this.state.state : this.state.district + ', ' + this.state.state}</Text>
                                 <TouchableOpacity style={styles.setButton}
                                     onPress={() => this.setState({ stateModal: true })}>
                                     <Text style={styles.setButtonText}>Set Location</Text>
@@ -500,8 +504,9 @@ export default class FindDoctor extends Component {
                                 <TouchableOpacity style={styles.setButton}
                                     onPress={() => this.setState({ specialtyModal: true })}>
                                     <Text style={styles.setButtonText}>Set Specialty</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={[styles.setButton, { borderRadius: 50, marginTop: 60, width: '40%' }]}
+                                </TouchableOpacity> */}
+                                <Text style={[styles.setButtonText, { color: '#000000' }]}>You may search doctor by enter their name or select the location and specialty</Text>
+                                <TouchableOpacity style={[styles.setButton, { borderRadius: 50, marginTop: 20, width: '40%' }]}
                                     onPress={() => this.setState({ firstTime: false })}>
                                     <Text style={styles.setButtonText}>Search</Text>
                                 </TouchableOpacity>
@@ -595,7 +600,8 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 16,
         fontWeight: '600',
-        lineHeight: 22
+        lineHeight: 22,
+        textAlign:'center'
     }
 
 })
