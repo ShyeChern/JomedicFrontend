@@ -6,6 +6,7 @@ import moment from 'moment'
 import BackgroundTimer from 'react-native-background-timer'
 import { HeaderBackButton } from '@react-navigation/stack';
 import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
+import { AndroidBackHandler } from "react-navigation-backhandler";
 
 import { URL_Provider, URL_AuditTrail, CODE_JomedicOnlineChat } from '../util/provider'
 import { getTodayDate } from '../util/getDate'
@@ -61,6 +62,7 @@ export default class PatientLiveChat extends Component {
             // Get the price of Jomedic Live Chat Service
             this.getServicePrice();
 
+
             this.startTimer();
         } else {
             // Get the Chat History Data if it is not live chat
@@ -98,6 +100,14 @@ export default class PatientLiveChat extends Component {
     showMenu = () => {
         this.menu.show();
     }
+
+    onBackButtonPressAndroid = () => {
+        if (!this.props.route.params.isReadOnly) {
+            this.handleEndChat();
+            return true;
+        }
+        return false;
+    };
 
     initialzeData = () => {
         var params = this.props.route.params
@@ -270,18 +280,20 @@ export default class PatientLiveChat extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Get Message Queue Error');
                 console.log(json.status);
+                this.setState({
+                    isLoading: false
+                });
+                return 0;
             }
             else {
                 var data = json.status[0]
                 this.setState({
-                    servicePrice: data.price
+                    servicePrice: data.price,
+                    isLoading: false
                 })
-
+                return parseFloat(data.price);
             };
 
-            this.setState({
-                isLoading: false
-            });
 
         } catch (error) {
             console.log("Get Message Queue: " + error)
@@ -289,6 +301,7 @@ export default class PatientLiveChat extends Component {
                 isLoading: false
             });
             handleNoInternet()
+            return 0;
         }
     }
 
@@ -453,6 +466,59 @@ export default class PatientLiveChat extends Component {
         }
     }
 
+    receivePayment = async (todaydate, payment) => {
+        this.setState({ isLoading: true });
+
+        // Get the required datas
+        let datas = {
+            txn_cd: 'MEDORDER074',
+            tstamp: todaydate,
+            data: {
+                user_id: this.state.tenant_id,
+                payment: payment
+            }
+        }
+
+        try {
+            const response = await fetch(URL_Provider, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datas)
+            });
+
+            const json = await response.json();
+
+            if (json.status == 'success' || json.status == "SUCCESS") {
+                this.setState({
+                    isLoading: false
+                });
+
+                return true;
+            } else {
+                console.log('Receive Payment Error (Message Queue)');
+                console.log(json.status);
+                this.setState({
+                    isLoading: false
+                });
+
+                return false;
+            };
+
+
+        } catch (error) {
+            console.log("Receive Payment Error (Message Queue): " + error)
+            this.setState({
+                isLoading: false
+            });
+            handleNoInternet()
+            return false;
+        }
+
+    }
+
     customizeHeader = () => {
         this.props.navigation.setOptions({
             headerTintColor: 'white',
@@ -599,10 +665,13 @@ export default class PatientLiveChat extends Component {
         // Save Order Detail
         var isOrderDetailSave = this.saveOrderDetail(todayDate)
 
+        // Receive the payment from customer
+        var isPaymentReceived = this.receivePayment(todayDate, this.state.servicePrice);
+
         // Send the prescription slip
         var isPrescriptionSlipSent = await this.sendPrescriptionSlip(this.state.tenant_id, this.state.id_number, this.state.order_no);
 
-        if (isMessageQueueUpdate && isOrderMasterSave && isOrderDetailSave && isPrescriptionSlipSent) {
+        if (isMessageQueueUpdate && isOrderMasterSave && isOrderDetailSave && isPrescriptionSlipSent && isPaymentReceived) {
             this.props.navigation.navigate("RateCustomerModal", {
                 tenant_id: this.state.tenant_id,
                 tenant_type: this.state.tenant_type,
@@ -811,46 +880,47 @@ export default class PatientLiveChat extends Component {
 
     render() {
         return (
-            <View style={{ flex: 1 }}>
-                <ScrollView style={styles.bodyContainer}
-                    ref={(view) => {
-                        this.scrollView = view;
-                    }}
-                    onContentSizeChange={() => this.scrollView.scrollToEnd({ animated: true })} // Automatic scroll to end of list when new message added
-                    onLayout={() => this.scrollView.scrollToEnd({ animated: true })}    // Automatic scroll to end of list when keyboard clicked
-                >
-                    {
-                        this.state.messages.map((message, index) =>
-                            <this.Message
-                                key={index.toString()}
-                                {...message} />
-                        )
-                    }
-                </ScrollView>
-
-                <View style={styles.footerContainer}>
-                    <TextInput
-                        style={styles.textInputField}
-                        value={this.state.newMessage}
-                        editable={!this.state.isReadOnly}
-                        maxLength={500}
-                        onChangeText={(newMessage) => {
-                            this.setState({ newMessage: newMessage })
+            <AndroidBackHandler onBackPress={this.onBackButtonPressAndroid}>
+                <View style={{ flex: 1 }}>
+                    <ScrollView style={styles.bodyContainer}
+                        ref={(view) => {
+                            this.scrollView = view;
                         }}
-                        placeholder={'Message'}
-                    />
-                    <TouchableOpacity
-                        style={styles.sendButton}
-                        disabled={this.state.isReadOnly}
-                        onPress={() => this.sendMessage()}>
-                        <MaterialCommunityIcon
-                            name={this.state.isReadOnly ? 'cancel' : 'send'}
-                            size={25}
-                            color={this.state.isReadOnly ? '#E50027' : '#494949'} />
-                    </TouchableOpacity>
-                </View>
-            </View >
+                        onContentSizeChange={() => this.scrollView.scrollToEnd({ animated: true })} // Automatic scroll to end of list when new message added
+                        onLayout={() => this.scrollView.scrollToEnd({ animated: true })}    // Automatic scroll to end of list when keyboard clicked
+                    >
+                        {
+                            this.state.messages.map((message, index) =>
+                                <this.Message
+                                    key={index.toString()}
+                                    {...message} />
+                            )
+                        }
+                    </ScrollView>
 
+                    <View style={styles.footerContainer}>
+                        <TextInput
+                            style={styles.textInputField}
+                            value={this.state.newMessage}
+                            editable={!this.state.isReadOnly}
+                            maxLength={500}
+                            onChangeText={(newMessage) => {
+                                this.setState({ newMessage: newMessage })
+                            }}
+                            placeholder={'Message'}
+                        />
+                        <TouchableOpacity
+                            style={styles.sendButton}
+                            disabled={this.state.isReadOnly}
+                            onPress={() => this.sendMessage()}>
+                            <MaterialCommunityIcon
+                                name={this.state.isReadOnly ? 'cancel' : 'send'}
+                                size={25}
+                                color={this.state.isReadOnly ? '#E50027' : '#494949'} />
+                        </TouchableOpacity>
+                    </View>
+                </View >
+            </AndroidBackHandler>
         )
     }
 }

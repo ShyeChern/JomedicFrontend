@@ -258,15 +258,17 @@ export default class AccountSettings extends Component {
                                 })}>
                                 <Text style={styles.editProfileText}>Edit Profile</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.statusContainer}
-                                onPress={() => this.props.navigation.navigate("Status", {
-                                    status: this.state.status
-                                })}
-                            >
-                                <Text style={styles.statusText}>{this.state.status}</Text>
-                                <Image style={styles.statusIcon} source={require("../img/Left_Chevron.png")} />
-                            </TouchableOpacity>
-
+                            <View style={{flexDirection: 'row'}}>
+                                <Text style={[styles.statusText, {alignSelf: 'center', textAlignVertical: 'center'}]}>Status: </Text>
+                                <TouchableOpacity style={styles.statusContainer}
+                                    onPress={() => this.props.navigation.navigate("Status", {
+                                        status: this.state.status
+                                    })}
+                                >
+                                    <Text style={styles.statusText}>{this.state.status}</Text>
+                                    <Image style={styles.statusIcon} source={require("../img/Left_Chevron.png")} />
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
                 </View>

@@ -77,6 +77,8 @@ function shouldHeaderBeShown(route) {
     switch (routeName) {
         case 'ChatHistory':
             return false
+        default:
+            return true
     }
 }
 
@@ -355,11 +357,11 @@ const ChatHistoryStackNavigator = ({ navigation, route }) => {
                     backgroundColor: 'white',
                 },
                 headerTintColor: 'black',
-                headerShown: shouldHeaderBeShown(route)
             }} >
             <ChatHistoryStack.Screen name="ChatHistory" component={PatientChatHistorysScreen}
                 options={{
                     title: '',
+                    headerShown: false
                 }}
                 initialParams={{
                     user_id: route.params.user_id,
@@ -375,6 +377,7 @@ const ChatHistoryStackNavigator = ({ navigation, route }) => {
                         backgroundColor: 'white',
                     },
                     headerTintColor: 'black',
+                    headerShown: true,
                     // headerShown: shouldHeaderBeShown(route),
                     headerTransparent: true,
 
@@ -395,11 +398,11 @@ const CallHistoryStackNavigator = ({ navigation, route }) => {
                     backgroundColor: 'white',
                 },
                 headerTintColor: 'black',
-                headerShown: shouldHeaderBeShown(route)
             }} >
             <CallHistoryStack.Screen name="ChatHistory" component={CallHistoryScreen}
                 options={{
                     title: '',
+                    headerShown: false,
                 }}
                 initialParams={{
                     user_id: route.params.user_id,
@@ -415,7 +418,7 @@ const CallHistoryStackNavigator = ({ navigation, route }) => {
                         backgroundColor: 'white',
                     },
                     headerTintColor: 'black',
-                    // headerShown: shouldHeaderBeShown(route),
+                    headerShown: true,
                     headerTransparent: true,
 
                     // title: '',

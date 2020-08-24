@@ -6,15 +6,6 @@ import moment from 'moment'
 
 import { getTenantId, getTenantType, getUserId } from '../util/Auth'
 
-const tempData = {
-    dob: '29 January 1990',
-    age: 30,
-    phoneNo: '012-284849299',
-    email: 'ikram@hotmail.com',
-    nationality: 'Malaysian',
-    address: 'Lot 123, Kg Albion, 42000 Selangor'
-}
-
 export default class Profile extends Component {
     constructor(props) {
         super(props)
@@ -89,10 +80,10 @@ export default class Profile extends Component {
                         <Text style={styles.detailDataFont}>{this.state.profileData.email}</Text>
                     </View>
 
-                    <View style={styles.detailContainer}>
+                    {/* <View style={styles.detailContainer}>
                         <Text style={styles.detailHeaderFont}>Nationality</Text>
                         <Text style={styles.detailDataFont}>{this.state.profileData.nationality_cd}</Text>
-                    </View>
+                    </View> */}
 
                     <View style={styles.detailContainer}>
                         <Text style={styles.detailHeaderFont}>Address</Text>

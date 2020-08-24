@@ -1,14 +1,14 @@
 import React, { Component } from 'react'
 
 import { Text, StyleSheet, View, ScrollView, TextInput, TouchableOpacity, Alert, NativeModules, Dimensions } from 'react-native'
-
 import { Avatar } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import { HeaderBackButton } from '@react-navigation/stack';
 import { RtcEngine, AgoraView } from 'react-native-agora';
 import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
+import { AndroidBackHandler } from "react-navigation-backhandler";
 
-import { URL_Provider, URL_AuditTrail } from '../util/provider'
+import { URL_Provider, URL_AuditTrail, CODE_JomedicVideoCall } from '../util/provider'
 import { getTodayDate } from '../util/getDate'
 import { handleNoInternet } from '../util/CheckConn'
 
@@ -38,6 +38,7 @@ export default class VideoCall extends Component {
             id_number: '',
             email: '',
             mobile_no: '',
+            servicePrice: 0,
 
             messageQueue: {},
             orderMaster: {},
@@ -54,7 +55,8 @@ export default class VideoCall extends Component {
             isJoinSuccess: false,
             isLoading: false,
             isAppointment: this.props.route.params.isAppointment,
-            
+            isStart: true,
+
             // For connection details
             peerIds: [],                                //Array for storing connected peers
             uid: Math.floor(Math.random() * 100),       //Generate a UID for local user
@@ -77,24 +79,38 @@ export default class VideoCall extends Component {
         RtcEngine.init(config);                     //Initialize the RTC engine
     }
 
-    componentDidMount() {
+    async componentDidMount() {
 
         this.initialzeData();
         this.customizeHeader();
 
-        // Get the full data for Order Master, Order Detail and Message Queue Detail
-        // this.getOrderMasterData();
-        // this.getOrderDetailData();
-        // if(!isAppointment){
-        //     this.getMessageQueueData();
-        // } else {
-        //     this.setState({
-        //         messageQueue: this.route.params.messageQueue
-        //     })
-        // }
+        // Get the price for video call
+        await this.getServicePrice();
 
         // Start the video call
         this.startVideoCall();
+    }
+
+    initialzeData = () => {
+        var params = this.props.route.params
+
+        this.setState({
+            name: params.name,
+            id_number: params.id_number,
+            email: params.email,
+            mobile_no: params.mobile_no,
+            picture: params.picture,
+            order_no: params.order_no,
+            user_id: params.user_id,
+            tenant_id: params.tenant_id,
+            tenant_type: params.tenant_type,
+            episode_date: params.episode_date,
+            encounter_date: params.encounter_date,
+            isAppointment: params.isAppointment,
+
+            // Set the Order Number as Channel Name
+            ChannelName: params.order_no,
+        })
     }
 
     updateTenantAvailable = async () => {
@@ -399,28 +415,6 @@ export default class VideoCall extends Component {
 
     }
 
-    initialzeData = () => {
-        var params = this.props.route.params
-
-        this.setState({
-            name: params.name,
-            id_number: params.id_number,
-            email: params.email,
-            mobile_no: params.mobile_no,
-            picture: params.picture,
-            order_no: params.order_no,
-            user_id: params.user_id,
-            tenant_id: params.tenant_id,
-            tenant_type: params.tenant_type,
-            episode_date: params.episode_date,
-            encounter_date: params.encounter_date,
-            isAppointment: params.isAppointment,
-
-            // Set the Order Number as Channel Name
-            ChannelName: params.order_no,
-        })
-    }
-
     customizeHeader = () => {
         this.props.navigation.setOptions({
             headerTintColor: 'white',
@@ -571,6 +565,110 @@ export default class VideoCall extends Component {
 
     }
 
+    getServicePrice = async () => {
+
+        // Get the code for online chat
+        let datas = {
+            txn_cd: 'MEDORDER033',
+            tstamp: getTodayDate(),
+            data: {
+                service_type: CODE_JomedicVideoCall,
+            }
+        }
+
+        try {
+            const response = await fetch(URL_Provider, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datas)
+            });
+
+            const json = await response.json();
+
+            if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
+                console.log('Get Message Queue Error');
+                console.log(json.status);
+                this.setState({
+                    isLoading: false
+                });
+                return 0;
+            }
+            else {
+                var data = json.status[0]
+                this.setState({
+                    servicePrice: data.price,
+                    isLoading: false
+                })
+                return parseFloat(data.price);
+            };
+
+
+        } catch (error) {
+            console.log("Get Message Queue: " + error)
+            this.setState({
+                isLoading: false
+            });
+            handleNoInternet()
+            return 0;
+        }
+    }
+
+    receivePayment = async (todaydate, payment) => {
+        this.setState({ isLoading: true });
+
+        // Get the required datas
+        let datas = {
+            txn_cd: 'MEDORDER074',
+            tstamp: todaydate,
+            data: {
+                user_id: this.state.tenant_id,
+                payment: payment
+            }
+        }
+
+        try {
+            const response = await fetch(URL_Provider, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datas)
+            });
+
+            const json = await response.json();
+
+            if (json.status == 'success' || json.status == "SUCCESS") {
+                this.setState({
+                    isLoading: false
+                });
+
+                return true;
+            } else {
+                console.log('Receive Payment Error (Message Queue)');
+                console.log(json.status);
+                this.setState({
+                    isLoading: false
+                });
+
+                return false;
+            };
+
+
+        } catch (error) {
+            console.log("Receive Payment Error (Message Queue): " + error)
+            this.setState({
+                isLoading: false
+            });
+            handleNoInternet()
+            return false;
+        }
+
+    }
+
     menu = null;
 
     setMenuReference = (ref) => {
@@ -632,7 +730,6 @@ export default class VideoCall extends Component {
 
     endVideoCall() {
         RtcEngine.destroy();
-
         console.log("Is Appointment: " + this.state.isAppointment.toString())
 
         // Check the video call is appointment or normal order
@@ -644,8 +741,11 @@ export default class VideoCall extends Component {
             }
         }
 
+        var todayDate = getTodayDate();
+        var isPaymentReceived = this.receivePayment(todayDate, this.state.servicePrice);
+
         // Update Status to end, and go to Consultation Note Modal
-        if (this.updateMessageStatusEnd() && this.sendPrescriptionSlip(this.state.tenant_id, this.state.id_number, this.state.order_no)) {
+        if (this.updateMessageStatusEnd() && isPaymentReceived && this.sendPrescriptionSlip(this.state.tenant_id, this.state.id_number, this.state.order_no)) {
             this.props.navigation.navigate("RateCustomerModal", {
                 tenant_id: this.state.tenant_id,
                 tenant_type: this.state.tenant_type,
@@ -660,11 +760,20 @@ export default class VideoCall extends Component {
 
     }
 
+    onBackButtonPressAndroid = () => {
+        if (this.state.isStart) {
+            console.log("Hardware Back button blocked in video call")
+            this.handleEndCall();
+            return true;
+        }
+        return false;
+    };
+
     handleEndCall = () => {
         Alert.alert(
             'Leave Video Call Session', // Alert Title
             "Do you want to leave the video call session?" + "\nThe video call will end once you leave." +
-            "\n\nPlease ensure that you have saved all consultation notes before leaving the chat.", // Alert Message
+            "\n\nPlease ensure that you have saved all consultation notes before leaving the call.", // Alert Message
             [
                 {
                     text: "No", // No Button
@@ -686,6 +795,7 @@ export default class VideoCall extends Component {
 
     BottomButtonBar = () => {
         return (
+
             <View style={styles.buttonBar}>
                 <Icon.Button style={styles.iconStyle}
                     backgroundColor="#FFD54E"
@@ -752,10 +862,12 @@ export default class VideoCall extends Component {
 
     render() {
         return (
-            <View style={{ flex: 1 }}>
-                <this.VideoView />
-                <this.BottomButtonBar />
-            </View>
+            <AndroidBackHandler onBackPress={this.onBackButtonPressAndroid}>
+                <View style={{ flex: 1 }}>
+                    <this.VideoView />
+                    <this.BottomButtonBar />
+                </View>
+            </AndroidBackHandler>
         )
     }
 }

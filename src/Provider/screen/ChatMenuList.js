@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, FlatList, RefreshControl } from 'react-native'
+import { Text, StyleSheet, View, FlatList, RefreshControl, BackHandler } from 'react-native'
 import { ListItem, Avatar } from 'react-native-elements'
 import { handleNoInternet } from '../util/CheckConn'
 import { getTodayDate } from '../util/getDate'
