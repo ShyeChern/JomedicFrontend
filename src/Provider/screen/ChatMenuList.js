@@ -53,6 +53,16 @@ export default class PatientChatList extends Component {
         this.loadChatListData()
     }
 
+    componentWillUnmount() {
+        BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
+    }
+
+    handleBackPress = () => {
+        if (this.props.navigation.isFocused()) {
+            return true;
+        }
+    }
+
     loadChatListData = async () => {
         let tenant_id = this.state.tenant_id
         // let tenant_id = this.props.route.params.tenant_id

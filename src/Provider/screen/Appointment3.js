@@ -1,18 +1,14 @@
 import React, { Component } from 'react'
-import { StyleSheet, Text, View, SafeAreaView, SectionList, TouchableOpacity, Alert, RefreshControl, Image } from 'react-native'
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import moment from 'moment';
-import { Divider } from 'react-native-elements';
-import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
+import { Agenda } from 'react-native-calendars';
 
 
 import { getTenantId, getTenantType, getUserId } from '../util/Auth'
-import { getTodayDate, getStartOfMonth, getEndOfMonth, getDatesForCurrentMonth } from '../util/getDate'
+import { getTodayDate, getDatesFor60DayFromGivenDate } from '../util/getDate'
 import { handleNoInternet } from '../util/CheckConn'
 import { URL_AuditTrail, URL_Provider } from '../util/provider'
 import Loader from './Loader'
-
-import { useFocusEffect, useIsFocused } from '@react-navigation/native'
 
 export default class AgendaScreen extends Component {
     constructor(props) {
@@ -24,6 +20,7 @@ export default class AgendaScreen extends Component {
             user_id: '',
             tenant_id: '',
             tenant_type: '',
+            appointments: [],
 
             todayDate: moment().format("YYYY-MM-DD"),
             items: {},
@@ -34,13 +31,19 @@ export default class AgendaScreen extends Component {
     async componentDidMount() {
         await this.initializeData();
 
+        this.loadAppointments();
+        
         // Add hook to refresh profile data when screen is Focus, and if reload is true
-        // this.props.navigation.addListener('focus',
-        //     event => {
-        //         this.refreshAppointment(true);
-        //     }
-        // )
+        this.props.navigation.addListener('focus',
+            event => {
+                this.loadAppointments();
+            }
+        )
 
+    }
+
+    componentWillUnmount = () => {
+        clearInterval(this.interval);
     }
 
     initializeData = async () => {
@@ -57,6 +60,73 @@ export default class AgendaScreen extends Component {
         });
     }
 
+    loadAppointmentsInterval = async () => {
+        var startDate = moment().format("YYYY-MM-DD");
+        var endDate = moment().add(60, 'd').format('YYYY-MM-DD');
+        var dates = getDatesFor60DayFromGivenDate(startDate);
+
+        this.interval = setInterval(async () => {
+            console.log("Tick!")
+            if (this.props.navigation.isFocused()) {
+                this.setState({
+                    items: {},
+                })
+
+                var unsortedAppointments = await this.getAppointments(startDate, endDate)
+                var sortedAppointments = [];
+                sortedAppointments = this.sortAppointments(unsortedAppointments, dates);
+
+                var agendas = {}
+                if (sortedAppointments.length > 0) {
+                    for (let index = 0; index < dates.length; index++) {
+                        agendas[dates[index]] = sortedAppointments[index]
+                    }
+                } else {
+                    for (let index = 0; index < dates.length; index++) {
+                        agendas[dates[index]] = []
+                    }
+                }
+
+                Object.keys(this.state.items).forEach(key => { agendas[key] = this.state.items[key]; });
+                this.setState({
+                    items: agendas,
+                });
+            }
+
+        }, 5000);
+    }
+
+    loadAppointments = async () => {
+        var startDate = moment().format("YYYY-MM-DD");
+        var endDate = moment().add(60, 'd').format('YYYY-MM-DD');
+        var dates = getDatesFor60DayFromGivenDate(startDate);
+        if (this.props.navigation.isFocused()) {
+            this.setState({
+                items: {},
+            })
+
+            var unsortedAppointments = await this.getAppointments(startDate, endDate)
+            var sortedAppointments = [];
+            sortedAppointments = this.sortAppointments(unsortedAppointments, dates);
+
+            var agendas = {}
+            if (sortedAppointments.length > 0) {
+                for (let index = 0; index < dates.length; index++) {
+                    agendas[dates[index]] = sortedAppointments[index]
+                }
+            } else {
+                for (let index = 0; index < dates.length; index++) {
+                    agendas[dates[index]] = []
+                }
+            }
+
+            Object.keys(this.state.items).forEach(key => { agendas[key] = this.state.items[key]; });
+            this.setState({
+                items: agendas,
+            });
+        }
+
+    }
 
     getAppointments = async (startDate, endDate) => {
         var appointments = [];
@@ -164,56 +234,15 @@ export default class AgendaScreen extends Component {
     }
 
     loadItems(day) {
-        console.log("The date from loadMonth: ")
-        console.log(day)
+        let newList = {};
+        for (let i = 0; i < 61; i++) {
+            const time = new Date(this.state.todayDate).getTime() + i * 24 * 60 * 60 * 1000;
+            const date = new Date(time).toISOString().split('T')[0];
 
-        // As react native calendars Agenda tend to load previous month from today during the first initalization,
-        // Ignore the operation if month is previous than today date
-        var selectedMonth = moment(day.dateString);
-        if (selectedMonth.isBefore(moment(), "month")) {
-            return;
-        }
-
-        // Set the state
-        this.setState({
-            selectedDay: day
-        })
-
-        setTimeout(async () => {
-
-            var startDate = getStartOfMonth(day.dateString);
-            var endDate = getEndOfMonth(day.dateString);
-            var dates = getDatesForCurrentMonth(day.dateString);
-
-            console.log(startDate)
-            console.log(endDate)
-
-            // Get the Appointments from database
-            var unsortedAppointments = await this.getAppointments(startDate, endDate);
-
-            // Sort the appointments into their respective dates
-            var sortedAppointments = [];
-            sortedAppointments = this.sortAppointments(unsortedAppointments, dates);
-
-            // Construct the Object for Agenda
-            var agendas = {}
-            if (sortedAppointments.length > 0) {
-                for (let index = 0; index < dates.length; index++) {
-                    agendas[dates[index]] = sortedAppointments[index]
-                }
-            } else {
-                for (let index = 0; index < dates.length; index++) {
-                    agendas[dates[index]] = []
-                }
+            if (!newList[date]) {
+                newList[date] = [];
             }
-
-            Object.keys(this.state.items).forEach(key => { agendas[key] = this.state.items[key]; });
-            this.setState({
-                items: agendas,
-            });
-        }, 1000);
-
-        this.setState({ isRefreshing: false });
+        }
     }
 
     renderItem(item) {
@@ -223,7 +252,6 @@ export default class AgendaScreen extends Component {
                 onPress={() => this.loadAppointmentDetails(item)}
             >
                 <Text>Name: {item.name}</Text>
-                {/* <Text>Date: {moment(item.start_time).format("DD MMMM YYYY")}</Text> */}
                 <Text>Time: {moment(item.start_time).format("hh:mm A")}</Text>
             </TouchableOpacity>
         );
@@ -246,43 +274,17 @@ export default class AgendaScreen extends Component {
         return date.toISOString().split('T')[0];
     }
 
-    refreshAppointment = () => {
-        this.setState({ isRefreshing: true })
-        this.setState({ items: {} });
-        this.loadItems(this.state.selectedDay);
-        this.setState({ isRefreshing: false });
-    }
-
-    renderNextMonth = async (day) => {
-        const totalNumOfDay = 7
-        const time = day.timestamp + totalNumOfDay * 24 * 60 * 60 * 1000;
-        const strTime = this.timeToString(time)
-        console.log("StrTime is: " + strTime)
-
-        // Check if the appointment with date strTime exists in the list, load from database if no.
-        if (!this.state.items[strTime]) {
-            console.log("No such time in items: " + strTime)
-            var newDay = {
-                "dateString": strTime,
-                "day": parseInt(moment(strTime).format("DD")),
-                "month": parseInt(moment(strTime).format("MM")),
-                "timestamp": time,
-                "year": parseInt(moment(strTime).format("YYYY"))
-            }
-            this.loadItems(newDay);
-        }
-    }
-
     render() {
         return (
             <Agenda
                 items={this.state.items}
                 loadItemsForMonth={this.loadItems.bind(this)}
-                onDayChange={(day) => this.renderNextMonth(day)}
+                // onDayChange={(day) => this.renderNextMonth(day)}
                 selected={this.state.todayDate}
                 minDate={this.state.todayDate}
-                pastScrollRange={2}
-                futureScrollRange={12}
+                maxDate={moment(this.state.todayDate).add(60, 'd').format("YYYY-MM-DD")}
+                pastScrollRange={1}
+                futureScrollRange={2}
                 renderItem={this.renderItem.bind(this)}
                 renderEmptyDate={this.renderEmptyDate.bind(this)}
                 rowHasChanged={this.rowHasChanged.bind(this)}
@@ -294,16 +296,17 @@ export default class AgendaScreen extends Component {
                     agendaTodayColor: '#FFD54E',
                     agendaKnobColor: '#FFD54E',
                 }}
-                onRefresh={
-                    () => this.refreshAppointment()
-                }
+                onRefresh={this.loadAppointments}
                 refreshing={this.state.isRefreshing}
+                // refreshControl={<RefreshControl refreshing={this.state.isRefreshing} />}
                 renderKnob={() => {
                     return (
                         <View>
-                            <Icon name={'chevron-triple-down'} size={20} color={'#FFD54E'} />
+                            <Text style={{ fontStyle: 'italic', color: '#4A4A4A', paddingVertical: 3 }}>
+                                View Calendar
+                            </Text>
                         </View>
-                    );
+                    )
                 }}
             />
         );
