@@ -69,6 +69,7 @@ export default class withdrawDetails extends Component {
                   txn_cd: 'MEDEWALL04',
                   tstamp: getTodayDate(),
                   data: {
+                  
                       userID: this.state.userID
                   }
               }
