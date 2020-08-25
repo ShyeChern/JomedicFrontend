@@ -156,7 +156,7 @@ function balance({ navigation }) {
             <TouchableOpacity style={styles.button}
                 onPress={() => navigation.navigate('AccountInfo')}>
                 <View style={{ flex: 1, flexDirection: 'row' }}>
-                    <Text style={styles.buttonText}> Account </Text>
+                    <Text style={styles.buttonText}> My e-wallet </Text>
                 </View>
                 <Text style={{ fontSize: 20, fontWeight: 'bold', marginRight: 30, color: '#979797' }}></Text>
             </TouchableOpacity>

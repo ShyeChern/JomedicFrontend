@@ -20,6 +20,7 @@ export default class onlineBanking extends Component {
             cardNumber: '',
             cvv: '',
             pinNumber: '',
+            amount: '',
         }
     }
 
@@ -65,7 +66,8 @@ export default class onlineBanking extends Component {
                             ewalletAccNo: responseJson.status.ewallet_acc_no,
                             banAccNo: responseJson.status.bank_acc_no,
                             creditCardNo: responseJson.status.credit_card_no,
-                            availableAmt: responseJson.status.available_amt + 1,
+                            
+                            
                             freezeAmt: responseJson.status.freeze_amt,
                             floatAmt: responseJson.status.float_amt,
                             currencyCd: responseJson.status.currency_cd,
@@ -86,7 +88,7 @@ export default class onlineBanking extends Component {
                         .then((responseJson) => {
                             if (responseJson.status == "SUCCESS") {
                                 this.props.navigation.goBack();
-                                alert('Top Up Success');
+                                alert('Top Up Successfully');
                             }
 
                         }).catch((error) => {
@@ -177,7 +179,7 @@ export default class onlineBanking extends Component {
                                 .then((responseJson) => {
                                     if (responseJson.status == "SUCCESS") {
                                         this.props.navigation.goBack();
-                                        alert('Reload Success');
+                                        alert('Top Up Successfully');
                                     }
 
                                 }).catch((error) => {
@@ -211,7 +213,8 @@ export default class onlineBanking extends Component {
                                 </View>
                             </CollapseHeader>
                             <CollapseBody>
-                                <View>
+                                <View style = {{ paddingTop: 5}}>
+                                <Text style = {{height: 20, marginRight: 150,marginLeft: 50}}> Card Number</Text>
                                     <TextInput
                                         style={styles.InputCardNumber}
                                         onChangeText={(cardNumber) => this.setState({ cardNumber })}
@@ -220,26 +223,36 @@ export default class onlineBanking extends Component {
                                     />
 
                                 </View>
-                                <View>
-                                    <TextInput
+                                <View style = {{ paddingTop: 5}}>
+                                <Text style = {{height: 20, marginRight: 150,marginLeft: 50}}> CVV</Text>
+                                        <TextInput
                                         style={styles.InputCVV}
                                         onChangeText={(cvv) => this.setState({ cvv })}
                                         placeholder={'Enter 3 digit CVV number'}
                                         value={this.state.cvv} />
                                 </View>
 
+                                <View style = {{ paddingTop: 5}}>
+                                <Text style = {{height: 20, marginRight: 150,marginLeft: 50}}> Amount</Text>
+                                    <TextInput
+                                        style={styles.InputCVV}
+                                        onChangeText={(amount) => this.setState({ amount })}
+                                        placeholder={'Enter the topup amount'}
+                                        value={this.state.amount} />
+                                </View>
+
                                 <Text style={styles.Acknowledge}> I acknowledge that my card information is saved in my jomedic
                             account and one time password might not be required for transaction in Jomedic.</Text>
 
-                                <View style={{ padding: 9 }}>
+                                <View style={{ padding: 3 }}>
                                     <TouchableOpacity onPress={() => this.card()} style={styles.reload}>
-                                        <Text style={{ textAlign: 'center' }}> Proceed </Text>
+                                        <Text style={{ textAlign: 'center' }}> Pay Now </Text>
                                     </TouchableOpacity>
                                 </View>
 
                             </CollapseBody>
                         </Collapse>
-                        {/* <Collapse>
+                        { <Collapse>
                             <CollapseHeader>
                                 <View style={{ backgroundColor: '#ccdfff', height: 30, justifyContent: 'center', borderWidth: .5 }}>
                                     <Text style={styles.CreditOnline}> Online Banking         </Text>
@@ -255,14 +268,23 @@ export default class onlineBanking extends Component {
                                     />
                                 </View>
 
+                                <View style = {{ paddingTop: 5}}>
+                                    <Text style = {{height: 20, marginRight: 150,marginLeft: 50}}> Amount</Text>
+                                    <TextInput
+                                        style={styles.InputCVV}
+                                        onChangeText={(amount) => this.setState({ amount })}
+                                        placeholder={'Enter the topup amount'}
+                                        value={this.state.amount} />
+                                </View>
+
                                 <View style={{ padding:9}}>
                                     <TouchableOpacity onPress={() => this.reload()} style={styles.reload}>
-                                        <Text style={{ textAlign: 'center' }}> Proceed </Text>
+                                        <Text style={{ textAlign: 'center' }}> Pay Now </Text>
                                     </TouchableOpacity>
                                 </View>
 
                             </CollapseBody>
-                        </Collapse> */}
+                        </Collapse> }
                         <Collapse>
                             <CollapseHeader>
                                 <View style={{ backgroundColor: '#ccdfff', height: 30, justifyContent: 'center', borderWidth: .5 }}>
@@ -371,7 +393,7 @@ const styles = StyleSheet.create({
 
     InputCardNumber: {
         height: 40,
-        borderColor: 'white',
+        borderColor: 'black',
         borderWidth: 1,
         marginRight: 60,
         marginLeft: 50
@@ -380,7 +402,7 @@ const styles = StyleSheet.create({
     InputCVV: {
 
         height: 40,
-        borderColor: 'white',
+        borderColor: 'black',
         borderWidth: 1,
         marginRight: 150,
         marginLeft: 50

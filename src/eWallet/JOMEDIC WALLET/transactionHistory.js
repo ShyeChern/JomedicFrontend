@@ -132,7 +132,7 @@ export default class transactionHistory extends Component {
     if (this.state.showEndDatePicker) {
       return (
         <DateTimePicker
-          value={this.state.endDate}
+         value={this.state.endDate}
           mode={'date'}
           display='calendar'
           onChange={(event, date) => { if (event.type === 'set') { this.setState({ endDate: date, showEndDatePicker: false }); } }}
@@ -150,6 +150,10 @@ export default class transactionHistory extends Component {
     return (
       <View style={styles.container}>
 
+        <View style={styles.Method}>
+           <Text style={{ fontSize: 20, color: 'grey' }}> Transaction History</Text>
+        </View>
+       
         <View style={{ flexDirection: 'row', padding: 40, justifyContent: 'center' }}>
           <View style={{ justifyContent: 'center' }}>
             <AntDesign name='calendar' size={35} color='#4A4A4A' />
@@ -212,5 +216,17 @@ const styles = StyleSheet.create({
     paddingTop: 1
 
   },
+
+  Method: {
+
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginLeft: 20,
+    marginRight: 20,
+    marginBottom: 5,
+    marginTop: 20,
+
+
+},
 
 });

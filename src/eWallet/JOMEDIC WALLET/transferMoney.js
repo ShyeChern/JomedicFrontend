@@ -136,14 +136,17 @@ export default class TransferMoney extends Component {
 
             <View style={styles.container}>
 
-                <View style={{ borderRadius: 10, padding: 40,  }}>
+                <View style={{ borderRadius: 10, padding: 20,  }}>
+                <View style={{ paddingTop: 10, paddingBottom: 5 }}>
+                     <Text style={{ textAlign: "center", fontSize: 20 }}>  Transfer </Text>
+                 </View>
 
                      <View style = {{ paddingTop: 20}}>
-                     <Text> Receiver account number</Text>
+                     <Text> Receiver e-wallet number</Text>
                         <TextInput
                         value={this.state.value}
                         onChangeText={(receiverAccNo) => this.setState({ receiverAccNo })}
-                        placeholder={'Enter receiver account number'}
+                        placeholder={'Enter receiver e-wallet number'}
                         style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
                     />
                      </View>
@@ -251,6 +254,19 @@ const styles = StyleSheet.create({
         marginTop: 16,
 
     },
+
+    
+  Method: {
+
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginLeft: 20,
+    marginRight: 20,
+    marginBottom: 5,
+    marginTop: 10,
+
+
+},
 
 
 

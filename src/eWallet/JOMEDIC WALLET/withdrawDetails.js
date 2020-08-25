@@ -4,7 +4,7 @@ import { StyleSheet, Text, View, TouchableOpacity, } from 'react-native';
 import { getTodayDate } from '../util/getDate';
 import { URL } from '../util/provider';
 
-export default class transferDetails extends Component {
+export default class withdrawDetails extends Component {
 
   constructor(props) {
     super(props)
@@ -13,7 +13,7 @@ export default class transferDetails extends Component {
 
       userID: '',
       eWalletAccNo: '',
-      receiverAccNo: '',
+      banAccNo: '',
       Receiver_reference: '',
       Other_reference: '',
       amount: '',
@@ -24,14 +24,14 @@ export default class transferDetails extends Component {
     this.setState({
       userID: this.props.route.params.userId,
       eWalletAccNo: this.props.route.params.walletId,
-      receiverAccNo: this.props.route.params.receiverAccNo,
+      bankAccNo: this.props.route.params.bank_acc_no,
       Receiver_reference: this.props.route.params.Receiver_reference,
       Other_reference: this.props.route.params.Other_reference,
       amount: this.props.route.params.amount,
     })
   }
 
-  confirmTransfer = () => {
+  confirmWithdraw = () => {
     const datas = {
       txn_cd: 'MEDEWALL05',
       tstamp: getTodayDate(),
@@ -39,14 +39,14 @@ export default class transferDetails extends Component {
         userID: this.state.userID,
         txnDate: getTodayDate(),
         ewalletAccNo: this.state.eWalletAccNo,
-        txnCode: "TRANSFER",
+        txnCode: "WITHDRAW",
         quantity: "",
         amount: parseFloat(this.state.amount),
         idType: "",
         idNo: "",
         photoYourself: "",
         senderAccNo: this.state.eWalletAccNo,
-        receiverAccNo: this.state.receiverAccNo,
+        receiverAccNo: this.state.bank_acc_no,
         tacCode: "",
         status: "001"
       }
@@ -112,7 +112,7 @@ export default class transferDetails extends Component {
                           .then((responseJson) => {
                               if (responseJson.status == "SUCCESS") {
                                   this.props.navigation.navigate('Balance');
-                                  alert('The transfer is successful and your e-wallet is deducted');
+                                  alert('Withdrawal Success');
                               }
 
                           }).catch((error) => {
@@ -134,7 +134,7 @@ export default class transferDetails extends Component {
     return (
       <View style={styles.container}>
         <View style={{ paddingTop: 10, paddingBottom: 20 }}>
-          <Text style={{ textAlign: "center", fontSize: 25 }}>  Transfer Details </Text>
+          <Text style={{ textAlign: "center", fontSize: 25 }}>  Withdraw Details </Text>
         </View>
         <View style={styles.detail}>
           <View style={styles.detailRow}>
@@ -146,8 +146,8 @@ export default class transferDetails extends Component {
             <Text style={styles.text}>{this.state.eWalletAccNo}</Text>
           </View>
           <View style={styles.detailRow}>
-            <Text style={styles.labelText}>To account</Text>
-            <Text style={styles.text}>{this.state.receiverAccNo}</Text>
+            <Text style={styles.labelText}>Bank Account No</Text>
+            <Text style={styles.text}>{this.state.banAccNo}</Text>
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.labelText}>Receiver reference</Text>
@@ -164,7 +164,7 @@ export default class transferDetails extends Component {
 
         </View>
         <View style={{ padding: 50 }}>
-          <TouchableOpacity style={styles.btn} onPress={() => this.confirmTransfer()}>
+          <TouchableOpacity style={styles.btn} onPress={() => this.confirmWithdraw()}>
             <Text> Confirm </Text>
           </TouchableOpacity>
         </View>

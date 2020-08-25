@@ -8,22 +8,15 @@ export default class withdrawMoney extends Component {
     constructor() {
         super();
         this.state = {
-            receiverAccNo: '',
             amount: '',
+            receiverAccNo: '',
+            Receiver_reference: '',
+            Other_reference:'',
         };
       }
 
-      pay = () => {
-        Alert.alert(
-            'Confirmation',
-            'Confirm to pay RM ' + this.state.amount  + ' ?',
-            [
-                { text: 'Cancel' },
-                { text: 'Okay', onPress: () => this.withdraw() }
+      componentDidMount(){
 
-            ],
-            { cancelable: false }
-        )
     }
 
     withdraw = () => {
@@ -132,36 +125,79 @@ export default class withdrawMoney extends Component {
             });
     }
     render() {
+
         return (
 
             <View style={styles.container}>
 
-                <View style={{ borderRadius: 10, padding: 40 }}>
+               
+                <View style={{ borderRadius: 10, padding: 40,  }}>
+                <View style={{ paddingTop:2.5, paddingBottom: 5 }}>
+                     <Text style={{ textAlign: "center", fontSize: 20 }}>  Withdraw </Text>
+                 </View>
 
-                    <TextInput
-                        value={this.state.value}
-                        onChangeText={(receiverAccNo) => this.setState({ receiverAccNo })}
-                        placeholder={'Enter your bank account number'}
-                        style={styles.input}
+                    <View style = {{ paddingTop: 20}}>
+                    <Text> Bank account number</Text>
+                        <TextInput
+                         value={this.state.value}
+                         onChangeText={(receiverAccNo) => this.setState({ receiverAccNo })}
+                         placeholder={'Enter bank account number'}
+                         style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
                     />
+                    </View>
+
+                <View style = {{ paddingTop: 20}}>
+                    <Text> Receiver reference </Text>
+                     <TextInput
+                     value={this.state.value}
+                     onChangeText={(Receiver_reference) => this.setState({ Receiver_reference })}
+                     placeholder={'Enter receiver reference'}
+                     style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+   
+                    />
+                </View>
+
+                <View style = {{ paddingTop: 20}}>
+                     <Text> Other reference</Text>
+                      <TextInput
+                      value={this.state.value}
+                      onChangeText={(Other_reference) => this.setState({ Other_reference })}
+                      placeholder={'Enter Other references'}
+                      style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+                    />
+                </View>
+
+                <View style = {{ paddingTop: 20}}>
+                    <Text> Amount</Text>
                     <TextInput
-                        value={this.state.amount }
-                        onChangeText={(amount ) => this.setState({amount })}
-                        placeholder={'Enter the amount'}
-                        style={styles.input}
-                        keyboardType={'number-pad'}
+                    value={this.state.amount}
+                    onChangeText={(amount) => this.setState({ amount })}
+                    placeholder={'Enter the amount'}
+                    style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+                    keyboardType={'number-pad'}
                     />
 
                 </View>
+
+                </View>
+
                 <View style={{ backgroundColor: 'white', borderRadius: 10, padding: 40 }}>
-                    <TouchableOpacity style={styles.btn} onPress={() => this.pay()}>
-                        <Text style={{ color: '#FFFFFF' }}> Withdraw RM{this.state.amount}</Text>
+                    <TouchableOpacity style={styles.btn} onPress={() => this.props.navigation.navigate('transferDetails',{
+                            receiverAccNo:this.state.receiverAccNo,
+                            Receiver_reference:this.state.Receiver_reference,
+                            Other_reference:this.state.Other_reference,
+                            amount:this.state.amount,
+                            userId:this.props.route.params.userId,
+                            walletId:this.props.route.params.walletNo
+
+                         })}>
+                        <Text style={{ color: '#FFFFFF' }}>Proceed</Text>
                     </TouchableOpacity>
                 </View>
 
             </View>
             
-        )
+        );
     }
 }
 
