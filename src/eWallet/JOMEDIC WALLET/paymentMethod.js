@@ -21,6 +21,7 @@ export default class onlineBanking extends Component {
             cvv: '',
             pinNumber: '',
             amount: '',
+            bankValue: '0',
         }
     }
 
@@ -38,7 +39,7 @@ export default class onlineBanking extends Component {
     }
 
     card = () => {
-        if (this.state.cardNumber && this.state.cvv) {
+        if (this.state.cardNumber && this.state.cvv && this.state.amount) {
 
             let data = {
                 txn_cd: 'MEDEWALL04',
@@ -66,8 +67,76 @@ export default class onlineBanking extends Component {
                             ewalletAccNo: responseJson.status.ewallet_acc_no,
                             banAccNo: responseJson.status.bank_acc_no,
                             creditCardNo: responseJson.status.credit_card_no,
-                            
-                            
+                            availableAmt: responseJson.status.available_amt + parseInt(this.state.amount),
+                            freezeAmt: responseJson.status.freeze_amt,
+                            floatAmt: responseJson.status.float_amt,
+                            currencyCd: responseJson.status.currency_cd,
+                            status: responseJson.status.status,
+
+                        }
+                    }
+
+
+                    fetch(URL + '/EWALL', {
+                        method: 'POST',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+
+                    }).then((response) => response.json())
+                        .then((responseJson) => {
+                            if (responseJson.status == "SUCCESS") {
+                                this.props.navigation.goBack();
+                                alert('Top Up Successfully');
+                            }
+
+                        }).catch((error) => {
+                            alert(error)
+                        });
+
+                }).catch((error) => {
+                    alert(error)
+                });
+        }
+        else {
+            alert('Please enter card number, cvv number and amount to reload');
+        }
+
+    }
+
+    onlineBanking = () => {
+        console.log(this.state.amount, this.state.bankValue);
+        if (this.state.amount && this.state.bankValue) {
+
+            let data = {
+                txn_cd: 'MEDEWALL04',
+                tstamp: getTodayDate(),
+                data: {
+                    userID: this.props.route.params.userId
+                }
+            }
+
+            fetch(URL + '/EWALL', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+
+            }).then((response) => response.json())
+                .then((responseJson) => {
+                    data = {
+                        txn_cd: 'MEDEWALL03',
+                        tstamp: getTodayDate(),
+                        data: {
+                            userID: this.props.route.params.userId,
+                            ewalletAccNo: responseJson.status.ewallet_acc_no,
+                            banAccNo: responseJson.status.bank_acc_no,
+                            creditCardNo: responseJson.status.credit_card_no,
+                            availableAmt: responseJson.status.available_amt + parseInt(this.state.amount),
                             freezeAmt: responseJson.status.freeze_amt,
                             floatAmt: responseJson.status.float_amt,
                             currencyCd: responseJson.status.currency_cd,
@@ -99,8 +168,8 @@ export default class onlineBanking extends Component {
                     alert(error)
                 });
         }
-        else{
-            alert('Please enter card number and cvv number');
+        else {
+            alert('Please choose your bank provider and enter the top up amount');
         }
 
     }
@@ -213,8 +282,8 @@ export default class onlineBanking extends Component {
                                 </View>
                             </CollapseHeader>
                             <CollapseBody>
-                                <View style = {{ paddingTop: 5}}>
-                                <Text style = {{height: 20, marginRight: 150,marginLeft: 50}}> Card Number</Text>
+                                <View style={{ paddingTop: 5 }}>
+                                    <Text style={{ height: 20, marginRight: 150, marginLeft: 50 }}> Card Number</Text>
                                     <TextInput
                                         style={styles.InputCardNumber}
                                         onChangeText={(cardNumber) => this.setState({ cardNumber })}
@@ -223,17 +292,17 @@ export default class onlineBanking extends Component {
                                     />
 
                                 </View>
-                                <View style = {{ paddingTop: 5}}>
-                                <Text style = {{height: 20, marginRight: 150,marginLeft: 50}}> CVV</Text>
-                                        <TextInput
+                                <View style={{ paddingTop: 5 }}>
+                                    <Text style={{ height: 20, marginRight: 150, marginLeft: 50 }}> CVV</Text>
+                                    <TextInput
                                         style={styles.InputCVV}
                                         onChangeText={(cvv) => this.setState({ cvv })}
                                         placeholder={'Enter 3 digit CVV number'}
                                         value={this.state.cvv} />
                                 </View>
 
-                                <View style = {{ paddingTop: 5}}>
-                                <Text style = {{height: 20, marginRight: 150,marginLeft: 50}}> Amount</Text>
+                                <View style={{ paddingTop: 5 }}>
+                                    <Text style={{ height: 20, marginRight: 150, marginLeft: 50 }}> Amount</Text>
                                     <TextInput
                                         style={styles.InputCVV}
                                         onChangeText={(amount) => this.setState({ amount })}
@@ -252,7 +321,7 @@ export default class onlineBanking extends Component {
 
                             </CollapseBody>
                         </Collapse>
-                        { <Collapse>
+                        {<Collapse>
                             <CollapseHeader>
                                 <View style={{ backgroundColor: '#ccdfff', height: 30, justifyContent: 'center', borderWidth: .5 }}>
                                     <Text style={styles.CreditOnline}> Online Banking         </Text>
@@ -264,12 +333,12 @@ export default class onlineBanking extends Component {
                                     <RadioForm style={styles.Radio}
                                         radio_props={radio_props}
                                         initial={0}
-                                        onPress={(value) => { this.setState({ value: value }) }}
+                                        onPress={(bankValue) => { this.setState({ bankValue }) }}
                                     />
                                 </View>
 
-                                <View style = {{ paddingTop: 5}}>
-                                    <Text style = {{height: 20, marginRight: 150,marginLeft: 50}}> Amount</Text>
+                                <View style={{ paddingTop: 5 }}>
+                                    <Text style={{ height: 20, marginRight: 150, marginLeft: 50 }}> Amount</Text>
                                     <TextInput
                                         style={styles.InputCVV}
                                         onChangeText={(amount) => this.setState({ amount })}
@@ -277,14 +346,14 @@ export default class onlineBanking extends Component {
                                         value={this.state.amount} />
                                 </View>
 
-                                <View style={{ padding:9}}>
-                                    <TouchableOpacity onPress={() => this.reload()} style={styles.reload}>
+                                <View style={{ padding: 9 }}>
+                                    <TouchableOpacity onPress={() => this.onlineBanking()} style={styles.reload}>
                                         <Text style={{ textAlign: 'center' }}> Pay Now </Text>
                                     </TouchableOpacity>
                                 </View>
 
                             </CollapseBody>
-                        </Collapse> }
+                        </Collapse>}
                         <Collapse>
                             <CollapseHeader>
                                 <View style={{ backgroundColor: '#ccdfff', height: 30, justifyContent: 'center', borderWidth: .5 }}>

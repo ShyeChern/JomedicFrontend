@@ -1,6 +1,6 @@
 
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
 import { getTodayDate } from '../util/getDate';
 import { URL } from '../util/provider';
 
@@ -31,6 +31,19 @@ export default class transferDetails extends Component {
     })
   }
 
+  confirmation = () => {
+    Alert.alert(
+      'Confirmation',
+      'Confirm to transfer RM ' + this.state.amount + ' to ' + this.state.receiverAccNo + ' ?',
+      [
+        { text: 'Cancel' },
+        { text: 'Okay', onPress: () => this.confirmTransfer() }
+
+      ],
+      { cancelable: false }
+    )
+  }
+
   confirmTransfer = () => {
     const datas = {
       txn_cd: 'MEDEWALL05',
@@ -56,77 +69,77 @@ export default class transferDetails extends Component {
     fetch(URL + '/EWALL', {
       method: 'POST',
       headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify(datas)
 
-  }).then((response) => response.json())
+    }).then((response) => response.json())
       .then((responseJson) => {
-          console.log(responseJson)
-          if (responseJson.status == "SUCCESS") {
-              let data = {
-                  txn_cd: 'MEDEWALL04',
-                  tstamp: getTodayDate(),
-                  data: {
-                      userID: this.state.userID
-                  }
-              }
-
-              fetch(URL + '/EWALL', {
-                  method: 'POST',
-                  headers: {
-                      Accept: 'application/json',
-                      'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify(data)
-
-              }).then((response) => response.json())
-                  .then((responseJson) => {
-                      data = {
-                          txn_cd: 'MEDEWALL03',
-                          tstamp: getTodayDate(),
-                          data: {
-                              userID: this.state.userID,
-                              ewalletAccNo: responseJson.status.ewallet_acc_no,
-                              banAccNo: responseJson.status.bank_acc_no,
-                              creditCardNo: responseJson.status.credit_card_no,
-                              availableAmt: responseJson.status.available_amt-this.state.amount,
-                              freezeAmt: responseJson.status.freeze_amt,
-                              floatAmt: responseJson.status.float_amt,
-                              currencyCd: responseJson.status.currency_cd,
-                              status: responseJson.status.status,
-                          }
-                      }
-
-
-                      fetch(URL + '/EWALL', {
-                          method: 'POST',
-                          headers: {
-                              Accept: 'application/json',
-                              'Content-Type': 'application/json',
-                          },
-                          body: JSON.stringify(data)
-
-                      }).then((response) => response.json())
-                          .then((responseJson) => {
-                              if (responseJson.status == "SUCCESS") {
-                                  this.props.navigation.navigate('Balance');
-                                  alert('The transfer is successful and your e-wallet is deducted');
-                              }
-
-                          }).catch((error) => {
-                              alert(error)
-                          });
-
-                  }).catch((error) => {
-                      alert(error)
-                  });
-
+        console.log(responseJson)
+        if (responseJson.status == "SUCCESS") {
+          let data = {
+            txn_cd: 'MEDEWALL04',
+            tstamp: getTodayDate(),
+            data: {
+              userID: this.state.userID
+            }
           }
 
+          fetch(URL + '/EWALL', {
+            method: 'POST',
+            headers: {
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+
+          }).then((response) => response.json())
+            .then((responseJson) => {
+              data = {
+                txn_cd: 'MEDEWALL03',
+                tstamp: getTodayDate(),
+                data: {
+                  userID: this.state.userID,
+                  ewalletAccNo: responseJson.status.ewallet_acc_no,
+                  banAccNo: responseJson.status.bank_acc_no,
+                  creditCardNo: responseJson.status.credit_card_no,
+                  availableAmt: responseJson.status.available_amt - parseInt(this.state.amount),
+                  freezeAmt: responseJson.status.freeze_amt,
+                  floatAmt: responseJson.status.float_amt,
+                  currencyCd: responseJson.status.currency_cd,
+                  status: responseJson.status.status,
+                }
+              }
+
+
+              fetch(URL + '/EWALL', {
+                method: 'POST',
+                headers: {
+                  Accept: 'application/json',
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+
+              }).then((response) => response.json())
+                .then((responseJson) => {
+                  if (responseJson.status == "SUCCESS") {
+                    this.props.navigation.navigate('Balance');
+                    alert('The transfer is successful and your e-wallet is deducted');
+                  }
+
+                }).catch((error) => {
+                  alert(error)
+                });
+
+            }).catch((error) => {
+              alert(error)
+            });
+
+        }
+
       }).catch((error) => {
-          alert(error)
+        alert(error)
       });
   }
 
@@ -164,7 +177,7 @@ export default class transferDetails extends Component {
 
         </View>
         <View style={{ padding: 50 }}>
-          <TouchableOpacity style={styles.btn} onPress={() => this.confirmTransfer()}>
+          <TouchableOpacity style={styles.btn} onPress={() => this.confirmation()}>
             <Text> Confirm </Text>
           </TouchableOpacity>
         </View>

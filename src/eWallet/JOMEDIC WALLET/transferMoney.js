@@ -12,117 +12,62 @@ export default class TransferMoney extends Component {
             amount: '',
             receiverAccNo: '',
             Receiver_reference: '',
-            Other_reference:'',
+            Other_reference: '',
         }
     }
 
-    componentDidMount(){
-        
+    componentDidMount() {
+
     }
 
-    transfer = () => {
+    proceedTransfer = () => {
         console.log(this.props.route.params.userId);
         console.log(this.props.route.params.walletNo);
-
-        const datas = {
-            txn_cd: 'MEDEWALL05',
-            tstamp: getTodayDate(),
-            data: {
-                userID: this.props.route.params.userId,
-                txnDate: getTodayDate(),
-                ewalletAccNo: this.props.route.params.walletNo,
-                txnCode: "TRANSFER",
-                quantity: "",
-                amount: parseFloat(this.state.amount),
-                idType: "",
-                idNo: "",
-                photoYourself: "",
-                senderAccNo: this.props.route.params.walletNo,
-                receiverAccNo: this.state.receiverAccNo,
-                tacCode: "",
-                status: "001"
-                
-
+        if (this.state.amount && this.state.receiverAccNo && this.state.Receiver_reference && this.state.Other_reference) {
+            const datas = {
+                txn_cd: 'MEDEWALL04-1',
+                tstamp: getTodayDate(),
+                data: {
+                    ewalletAccNo: this.state.receiverAccNo
+                }
             }
+
+            fetch(URL + '/EWALL', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datas)
+
+            }).then((response) => response.json())
+                .then((responseJson) => {
+                    console.log(responseJson)
+                    if (responseJson.status == "NOTFOUND") {
+                        alert("Invalid receiver e-wallet number");
+                    }
+                    else {
+                        
+                        this.props.navigation.navigate('transferDetails', {
+                            receiverAccNo: this.state.receiverAccNo,
+                            Receiver_reference: this.state.Receiver_reference,
+                            Other_reference: this.state.Other_reference,
+                            amount: this.state.amount,
+                            userId: this.props.route.params.userId,
+                            walletId: this.props.route.params.walletNo,
+                            receiverUserId:responseJson.status.user_id
+                        })
+                    }
+                })
+                .catch((error) => {
+                    alert(error)
+                });
+
+        }
+        else {
+            alert("Please fill in all the detail");
         }
 
-        console.log(datas);
-
-        fetch(URL + '/EWALL', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(datas)
-
-        }).then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson)
-                if (responseJson.status == "SUCCESS") {
-                    let data = {
-                        txn_cd: 'MEDEWALL04',
-                        tstamp: getTodayDate(),
-                        data: {
-                            userID: this.props.route.params.userId
-                        }
-                    }
-
-                    fetch(URL + '/EWALL', {
-                        method: 'POST',
-                        headers: {
-                            Accept: 'application/json',
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(data)
-
-                    }).then((response) => response.json())
-                        .then((responseJson) => {
-                            data = {
-                                txn_cd: 'MEDEWALL03',
-                                tstamp: getTodayDate(),
-                                data: {
-                                    userID: this.props.route.params.userId,
-                                    ewalletAccNo: responseJson.status.ewallet_acc_no,
-                                    banAccNo: responseJson.status.bank_acc_no,
-                                    creditCardNo: responseJson.status.credit_card_no,
-                                    availableAmt: responseJson.status.available_amt-this.state.amount,
-                                    freezeAmt: responseJson.status.freeze_amt,
-                                    floatAmt: responseJson.status.float_amt,
-                                    currencyCd: responseJson.status.currency_cd,
-                                    status: responseJson.status.status,
-                                }
-                            }
-
-
-                            fetch(URL + '/EWALL', {
-                                method: 'POST',
-                                headers: {
-                                    Accept: 'application/json',
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify(data)
-
-                            }).then((response) => response.json())
-                                .then((responseJson) => {
-                                    if (responseJson.status == "SUCCESS") {
-                                        this.props.navigation.goBack();
-                                        alert('Transfer Success');
-                                    }
-
-                                }).catch((error) => {
-                                    alert(error)
-                                });
-
-                        }).catch((error) => {
-                            alert(error)
-                        });
-
-                }
-
-            }).catch((error) => {
-                alert(error)
-            });
     }
 
 
@@ -136,65 +81,57 @@ export default class TransferMoney extends Component {
 
             <View style={styles.container}>
 
-                <View style={{ borderRadius: 10, padding: 20,  }}>
-                <View style={{ paddingTop: 10, paddingBottom: 5 }}>
-                     <Text style={{ textAlign: "center", fontSize: 20 }}>  Transfer </Text>
-                 </View>
+                <View style={{ borderRadius: 10, padding: 20, }}>
+                    <View style={{ paddingTop: 10, paddingBottom: 5 }}>
+                        <Text style={{ textAlign: "center", fontSize: 20 }}>  Transfer </Text>
+                    </View>
 
-                     <View style = {{ paddingTop: 20}}>
-                     <Text> Receiver e-wallet number</Text>
+                    <View style={{ paddingTop: 20 }}>
+                        <Text> Receiver e-wallet number</Text>
                         <TextInput
-                        value={this.state.value}
-                        onChangeText={(receiverAccNo) => this.setState({ receiverAccNo })}
-                        placeholder={'Enter receiver e-wallet number'}
-                        style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
-                    />
-                     </View>
-                    
-                    <View style = {{ paddingTop: 20}}>
+                            value={this.state.value}
+                            onChangeText={(receiverAccNo) => this.setState({ receiverAccNo })}
+                            placeholder={'Enter receiver e-wallet number'}
+                            style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+                        />
+                    </View>
+
+                    <View style={{ paddingTop: 20 }}>
                         <Text> Receiver reference </Text>
-                          <TextInput
-                        value={this.state.value}
-                        onChangeText={(Receiver_reference) => this.setState({ Receiver_reference })}
-                        placeholder={'Enter receiver reference'}
-                        style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
-                        
-                    />
+                        <TextInput
+                            value={this.state.value}
+                            onChangeText={(Receiver_reference) => this.setState({ Receiver_reference })}
+                            placeholder={'Enter receiver reference'}
+                            style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+
+                        />
                     </View>
 
-                    <View style = {{ paddingTop: 20}}>
+                    <View style={{ paddingTop: 20 }}>
                         <Text> Other reference</Text>
-                          <TextInput
-                        value={this.state.value}
-                        onChangeText={(Other_reference) => this.setState({ Other_reference })}
-                        placeholder={'Enter Other references'}
-                        style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
-                    />
+                        <TextInput
+                            value={this.state.value}
+                            onChangeText={(Other_reference) => this.setState({ Other_reference })}
+                            placeholder={'Enter Other references'}
+                            style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+                        />
                     </View>
-                   
-                    <View style = {{ paddingTop: 20}}>
+
+                    <View style={{ paddingTop: 20 }}>
                         <Text> Amount</Text>
-                         <TextInput
-                        value={this.state.amount}
-                        onChangeText={(amount) => this.setState({ amount })}
-                        placeholder={'Enter the amount'}
-                        style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
-                        keyboardType={'number-pad'}
-                    />
+                        <TextInput
+                            value={this.state.amount}
+                            onChangeText={(amount) => this.setState({ amount })}
+                            placeholder={'Enter the amount'}
+                            style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+                            keyboardType={'number-pad'}
+                        />
 
                     </View>
-                   
+
                 </View>
                 <View style={{ backgroundColor: 'white', borderRadius: 10, padding: 40 }}>
-                    <TouchableOpacity style={styles.btn} onPress={() => this.props.navigation.navigate('transferDetails',{
-                            receiverAccNo:this.state.receiverAccNo,
-                            Receiver_reference:this.state.Receiver_reference,
-                            Other_reference:this.state.Other_reference,
-                            amount:this.state.amount,
-                            userId:this.props.route.params.userId,
-                            walletId:this.props.route.params.walletNo
-
-                        })}>
+                    <TouchableOpacity style={styles.btn} onPress={() => this.proceedTransfer()}>
                         <Text style={{ color: '#FFFFFF' }}>Proceed</Text>
                     </TouchableOpacity>
                 </View>
@@ -255,18 +192,18 @@ const styles = StyleSheet.create({
 
     },
 
-    
-  Method: {
 
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginLeft: 20,
-    marginRight: 20,
-    marginBottom: 5,
-    marginTop: 10,
+    Method: {
+
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginLeft: 20,
+        marginRight: 20,
+        marginBottom: 5,
+        marginTop: 10,
 
 
-},
+    },
 
 
 
