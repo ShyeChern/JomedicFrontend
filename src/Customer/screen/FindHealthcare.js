@@ -342,6 +342,10 @@ export default class FindHealthcare extends Component {
             healthcareList: newData,
             healthcare: healthcare
         });
+
+        if (newData.length == 0) {
+            this.setState({ endFlatList: true })
+        }
     }
 
     backStateModal = () => {
@@ -410,7 +414,7 @@ export default class FindHealthcare extends Component {
                     <TextInput style={{ flex: 4, fontWeight: '300', fontSize: 14, lineHeight: 19 }}
                         value={this.state.healthcare}
                         onChangeText={(healthcare) => this.filterHealthcareSearch(healthcare)}
-                        placeholder={'Enter Search Queries'}
+                        placeholder={'Enter Healthcare Name'}
                         ref={(healthcare) => { this.healthcare = healthcare; }}
                     />
 
@@ -436,13 +440,15 @@ export default class FindHealthcare extends Component {
                     {
                         this.state.firstTime ?
                             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                                <Text style={[styles.setButtonText, { color: '#000000' }]}>Current Location : {this.state.district === 'All' ? this.state.state : this.state.district + ', ' + this.state.state}</Text>
+                                {/* <Text style={[styles.setButtonText, { color: '#000000' }]}>Current Location : {this.state.district === 'All' ? this.state.state : this.state.district + ', ' + this.state.state}</Text>
                                 <TouchableOpacity style={styles.setButton}
                                     onPress={() => this.setState({ stateModal: true })}>
                                     <Text style={styles.setButtonText}>Set Location</Text>
-                                </TouchableOpacity>
-                                
-                                <TouchableOpacity style={[styles.setButton, { borderRadius: 50, marginTop: 60, width: '40%' }]}
+                                </TouchableOpacity> */}
+
+                                <Text style={[styles.setButtonText, { color: '#000000' }]}>You may search healthcare by enter their name or select the location</Text>
+
+                                <TouchableOpacity style={[styles.setButton, { borderRadius: 50, marginTop: 20, width: '40%' }]}
                                     onPress={() => this.setState({ firstTime: false })}>
                                     <Text style={styles.setButtonText}>Search</Text>
                                 </TouchableOpacity>
@@ -537,7 +543,9 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 16,
         fontWeight: '600',
-        lineHeight: 22
+        lineHeight: 22,
+        textAlign:'center',
+        marginHorizontal:15
     }
 
 })

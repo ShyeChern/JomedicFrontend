@@ -443,7 +443,7 @@ export default class AppointmentDetail extends Component {
                         onPress={() => { this.handleStart() }}
                         disabled={!this.state.isAppointmentActivated}
                     >
-                        <Text style={{ color: '#FFFFFF', textAlign: 'center' }}>Consultation</Text>
+                        <Text style={{ color: '#FFFFFF', textAlign: 'center' }}>Enter Consultation</Text>
                     </TouchableOpacity>
                 </View>
 

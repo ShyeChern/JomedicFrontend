@@ -213,7 +213,7 @@ export default class EditProfile extends Component {
             if (json.status === 'success' || json.status === "SUCCESS") {
                 // Return to Account Settings
                 console.log(json.status)
-                this.props.navigation.goBack()
+                this.props.navigation.navigate("Account", {isProfileUpdated: true})
             } else {
                 console.log('Update User Profile Error');
                 console.log(json.status);

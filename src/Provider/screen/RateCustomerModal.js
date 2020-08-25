@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
 import { Text, StyleSheet, View, TouchableOpacity, TextInput, Alert } from 'react-native'
 import { AirbnbRating } from 'react-native-elements';
-import Loader from '../screen/Loader'
+import { AndroidBackHandler } from "react-navigation-backhandler";
 
+import Loader from '../screen/Loader'
 import { URL_Provider, URL_AuditTrail } from '../util/provider'
 import { getTodayDate } from '../util/getDate'
 import { handleNoInternet } from '../util/CheckConn'
@@ -20,6 +21,7 @@ export default class RateCustomerModal extends Component {
             tenant_id: '',
             tenant_type: '',
             isAppointment: false,
+            isBlock: true,
 
             // Variables for this screen
             txn_date: '',       // PK (use tstamp)
@@ -33,6 +35,14 @@ export default class RateCustomerModal extends Component {
     componentDidMount() {
         this.initializeData()
     }
+
+    onBackButtonPressAndroid = () => {
+        if(this.state.isBlock){
+            console.log("Hardware back button blocked in Rate Customer")
+            return true
+        }
+        return false;
+    };
 
     initializeData = () => {
         // Get the params data
@@ -143,12 +153,7 @@ export default class RateCustomerModal extends Component {
         var tagString = this.compileFeedbackSelected();
 
         var tenantStatusUpdate = false;
-
-        if (this.state.isAppointment) {
-            tenantStatusUpdate = this.updateTenantNotAvailable()
-        } else {
-            tenantStatusUpdate = this.updateTenantAvailable()
-        }
+        tenantStatusUpdate = this.updateTenantAvailable()
 
         // Save the feedback into jlk_feedback
         if (this.saveRateCustomer(tagString) && tenantStatusUpdate) {
@@ -241,72 +246,75 @@ export default class RateCustomerModal extends Component {
     render() {
         if (this.state.isLoading) {
             return (
-                <Loader isLoading={this.state.isLoading} />
+                    <Loader isLoading={this.state.isLoading} />
             )
         }
 
         return (
-            <View style={[styles.modalBackground, { height: 300 }]}>
+            <AndroidBackHandler onBackPress={this.onBackButtonPressAndroid}>
+                <View style={[styles.modalBackground, { height: 300 }]}>
 
-                <View style={{ flex: 1 }}>
-                    <Text style={styles.modalTitle}>How was your chat with the customer?</Text>
-                    <AirbnbRating
-                        defaultRating={0}
-                        showRating={false}
-                        size={30}
-                        onFinishRating={(rating) => this.setState({ rating })}
-                    />
+                    <View style={{ flex: 1 }}>
+                        <Text style={styles.modalTitle}>How was your chat with the customer?</Text>
+                        <AirbnbRating
+                            defaultRating={0}
+                            showRating={false}
+                            size={30}
+                            onFinishRating={(rating) => this.setState({ rating })}
+                        />
 
-                    <View style={[styles.feedbackModalView]}>
-                        {
-                            Object.keys(this.state.feedbackSelected).map((key, index) => {
-                                return (
-                                    <TouchableOpacity key={index} style={[styles.feedbackModalBtn,
-                                    { backgroundColor: this.state.feedbackSelected[key] ? '#FFD44E' : '#FFFFFF' }]}
-                                        onPress={() => {
-                                            let feedback = this.state.feedbackSelected;
-                                            feedback[key] = !this.state.feedbackSelected[key]
-                                            this.setState({
-                                                feedbackSelected: feedback
-                                            })
-                                        }}
-                                    >
-                                        <Text style={[styles.feedBackModalText]}>{key}</Text>
-                                    </TouchableOpacity>
-                                )
-                            })
-                        }
+                        <View style={[styles.feedbackModalView]}>
+                            {
+                                Object.keys(this.state.feedbackSelected).map((key, index) => {
+                                    return (
+                                        <TouchableOpacity key={index} style={[styles.feedbackModalBtn,
+                                        { backgroundColor: this.state.feedbackSelected[key] ? '#FFD44E' : '#FFFFFF' }]}
+                                            onPress={() => {
+                                                let feedback = this.state.feedbackSelected;
+                                                feedback[key] = !this.state.feedbackSelected[key]
+                                                this.setState({
+                                                    feedbackSelected: feedback
+                                                })
+                                            }}
+                                        >
+                                            <Text style={[styles.feedBackModalText]}>{key}</Text>
+                                        </TouchableOpacity>
+                                    )
+                                })
+                            }
+
+                        </View>
+
+                        <TextInput style={{ borderBottomWidth: 1, margin: 10, fontWeight: '600', fontSize: 12, lineHeight: 16 }}
+                            maxLength={100}
+                            value={this.state.comments}
+                            onChangeText={(comments) => {
+                                this.setState({
+                                    comments: comments,
+                                    commentRemainingLength: 100 - comments.length
+                                });
+                            }}
+                            placeholder={'Comment'}
+                        />
+
+                        <Text style={{ textAlign: 'right', marginHorizontal: 10, fontWeight: '600', fontSize: 9, lineHeight: 12 }}>
+                            {this.state.commentRemainingLength}
+                        </Text>
 
                     </View>
 
-                    <TextInput style={{ borderBottomWidth: 1, margin: 10, fontWeight: '600', fontSize: 12, lineHeight: 16 }}
-                        maxLength={100}
-                        value={this.state.comments}
-                        onChangeText={(comments) => {
-                            this.setState({
-                                comments: comments,
-                                commentRemainingLength: 100 - comments.length
-                            });
-                        }}
-                        placeholder={'Comment'}
-                    />
 
-                    <Text style={{ textAlign: 'right', marginHorizontal: 10, fontWeight: '600', fontSize: 9, lineHeight: 12 }}>
-                        {this.state.commentRemainingLength}
-                    </Text>
-
+                    <View style={{ flexDirection: 'row' }}>
+                        <TouchableOpacity
+                            style={styles.modalBtn}
+                            onPress={this.rateCustomer}
+                        >
+                            <Text style={[styles.modalText, { color: '#FFFFFF' }]}>Rate</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
+            </AndroidBackHandler>
 
-
-                <View style={{ flexDirection: 'row' }}>
-                    <TouchableOpacity
-                        style={styles.modalBtn}
-                        onPress={this.rateCustomer}
-                    >
-                        <Text style={[styles.modalText, { color: '#FFFFFF' }]}>Rate</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
         )
     }
 }

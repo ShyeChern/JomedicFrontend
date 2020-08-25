@@ -95,3 +95,18 @@ export const getDatesForCurrentMonth = (date) => {
 
     return days;
 }
+
+export const getDatesFor60DayFromGivenDate = (date) => {
+    var today = moment(date)
+    var afterNDay = moment(date).add(60,'d')
+
+    var days = []
+    var day = today
+
+    while (day <= afterNDay){
+        days.push(moment(day).format("YYYY-MM-DD"));
+        day = day.clone().add(1,'d');
+    }
+
+    return days;
+}

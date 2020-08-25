@@ -172,7 +172,7 @@ export default class History extends Component {
                 <DateTimePicker
                     value={this.state.minDate}
                     mode={'date'}
-                    minimumDate={this.state.minHistoryDate}
+                    minimumDate={this.state.historyListHolder.length === 0 ? null : this.state.minHistoryDate}
                     maximumDate={this.state.maxDate}
                     display='default'
                     onChange={(event, date) => {
@@ -205,7 +205,7 @@ export default class History extends Component {
     }
 
     filterDate = () => {
-        
+
         const newData = this.state.historyListHolder.filter(item => {
             return isWithinInterval(parse(item.section, 'MMM yyyy', new Date()), { start: startOfMonth(this.state.minDate), end: endOfMonth(this.state.maxDate) });
         });
