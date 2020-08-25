@@ -294,12 +294,14 @@ export default class onlineBanking extends Component {
                             </CollapseHeader>
                             <CollapseBody>
                                 <View style={{ padding: 10, }}>
+                                <Text style = {{height: 20, marginRight: 150,marginLeft: 50}}> Pin Reload</Text>
 
                                     <TextInput
                                         value={this.state.pinNumber}
                                         onChangeText={(pinNumber) => this.setState({ pinNumber })}
                                         placeholder={' Enter Reload Pin'}
-                                        style={styles.input}
+                                        style={styles.InputCVV}
+                                      
                                     />
                                 </View>
                                 <View style={{ padding: 9 }}>
@@ -357,6 +359,7 @@ const styles = StyleSheet.create({
         marginBottom: 30,
         marginTop: 30,
         fontSize: 18,
+        
 
     },
 
