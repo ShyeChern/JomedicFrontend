@@ -49,6 +49,7 @@ export default class PatientChatList extends Component {
             this.setState({ tenant_id: response });
         });
 
+        BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
 
         this.loadChatListData()
     }

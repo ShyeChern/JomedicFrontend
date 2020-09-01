@@ -191,6 +191,7 @@ export default class WeightHeightBmi extends Component {
                 return
             }
 
+            this.calculateBMI(height2dp, weight2dp);
             await this.saveWeightHeight(weight2dp, height2dp);
 
         } catch (error) {
