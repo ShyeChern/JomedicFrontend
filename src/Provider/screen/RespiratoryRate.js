@@ -63,6 +63,7 @@ export default class RespiratoryRate extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Load Respiratory Rate Error');
                 console.log(json.status);
+                Alert.alert("Load Respiratory Rate Error", "Fail to load respiratory rate, please try again.\n" + json.status)
             }
             else {
                 var data = json.status[0]
@@ -79,7 +80,7 @@ export default class RespiratoryRate extends Component {
 
         } catch (error) {
             console.log("Load Respiratory Rate Error: " + error)
-            handleNoInternet()
+            Alert.alert("Load Respiratory Rate Error", "Fail to load respiratory rate, please try again.\n" + error)
             this.setState({
                 isLoading: false
             })
@@ -122,6 +123,7 @@ export default class RespiratoryRate extends Component {
                 Alert.alert("Respiratory Rate Saved.")
             } else {
                 console.log("Save Respiratory Rate Error: " + json.status)
+                Alert.alert("Save Respiratory Rate Error", "Fail to save respiratory rate, please try again.\n" + json.status)
             };
 
             this.setState({
@@ -130,7 +132,7 @@ export default class RespiratoryRate extends Component {
 
         } catch (error) {
             console.log("Save Respiratory Rate Error: " + error)
-            handleNoInternet()
+            Alert.alert("Save Respiratory Rate Error", "Fail to save respiratory rate, please try again.\n" + error)
             this.setState({
                 isLoading: false
             })
@@ -146,22 +148,27 @@ export default class RespiratoryRate extends Component {
     handleSave = async () => {
         // Ingore the operation if it is empty value
         if (this.state.rate === '') {
-            console.log("Empty String")
+            Alert.alert("Invalid Respiratory Rate", "Please enter an respiratory rate reading.")
             return;
         }
 
-        // Validate the input is float
+        // Check is it numeric input
+        if (isNaN(this.state.rate)) {
+            Alert.alert("Invalid Respiratory Rate", "Respiratory rate only accepts number input with no decimal points.")
+            return
+        }
+
+        // Validate the input is integer
         try {
             var rate = parseFloat(this.state.rate)
 
+            if(Math.ceil(rate) !== Math.floor(rate)){
+                Alert.alert("Invalid Respiratory Rate", "Respiratory rate only accepts number input with no decimal points.")
+                return    
+            }
+
             // Parse respiratory rate to 0 decimal places
             var rateInt = this.round(rate, 0)
-
-            // Check is it numeric input
-            if (isNaN(rateInt)) {
-                Alert.alert("Invalid Respiratory Rate", "Respiratory rate only accepts number input with no decimal points.")
-                return
-            }
 
             // Check is temperature within boundaries 0~999.99
             if (rateInt < 0 || rateInt >= 1000) {

@@ -128,8 +128,9 @@ export default class QueueModal extends Component {
 
                 return true;
             } else {
-                console.log('Reject Order Error');
-                console.log(json.status);
+                console.log('Reject Order Error: ', json.status);
+                Alert.alert("Reject Order Error", "Fail to reject order, please try again.\n" + json.status)
+
                 this.setState({
                     isLoading: false
                 });
@@ -140,10 +141,12 @@ export default class QueueModal extends Component {
 
         } catch (error) {
             console.log("Reject Order Error: " + error)
+            Alert.alert("Reject Order Error", "Fail to reject order, please try again.\n" + error)
+
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
             return false;
         }
     }
@@ -180,8 +183,9 @@ export default class QueueModal extends Component {
                 return true;
             }
             else {
-                console.log('Accept Order Error');
-                console.log(json.status);
+                console.log('Accept Order Error', json.status);
+                Alert.alert("Accept Order Error", "Fail to accept order, please try again.\n" + json.status)
+
                 this.setState({
                     isLoading: false
                 });
@@ -196,7 +200,8 @@ export default class QueueModal extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
+            Alert.alert("Accept Order Error", "Fail to accept order, please try again.\n" + error)
 
             return false;
         }
@@ -234,18 +239,22 @@ export default class QueueModal extends Component {
                 })
                 return true;
             } else {
-                console.log("Accept Order Error: " + error)
+                var error = json.status;
+                console.log("Tenant Status Update (Busy) Error: " + error)
+                Alert.alert("Tenant Status Update (Busy) Error", "Fail to update tenant status, please try again.\n" + error)
                 this.setState({
                     isLoading: false
                 });
                 return false
             };
         } catch (error) {
-            console.log("Accept Order Error: " + error)
+            console.log("Tenant Status Update (Busy) Error: " + error)
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
+            Alert.alert("Tenant Status Update (Busy) Error", "Fail to update tenant status, please try again.\n" + error)
+
             return false
         }
     }

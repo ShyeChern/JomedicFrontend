@@ -63,6 +63,8 @@ export default class OxygenSaturation extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Load Oxygen Saturation Error');
                 console.log(json.status);
+                Alert.alert("Load Oxygen Saturation Error", "Fail to load oxygen saturation, please try again.\n" + json.status)
+
             }
             else {
                 var data = json.status[0]
@@ -79,7 +81,7 @@ export default class OxygenSaturation extends Component {
 
         } catch (error) {
             console.log("Load Oxygen Saturation Error: " + error)
-            handleNoInternet()
+            Alert.alert("Load Oxygen Saturation Error", "Fail to load oxygen saturation, please try again.\n" + error)
             this.setState({
                 isLoading: false
             })
@@ -121,6 +123,7 @@ export default class OxygenSaturation extends Component {
                 Alert.alert("Oxygen Saturation Saved.")
             } else {
                 console.log("Save Oxygen Saturation Error: " + json.status)
+                Alert.alert("Save Oxygen Saturation Error", "Fail to save oxygen saturation, please try again.\n" + json.status)
             };
 
             this.setState({
@@ -129,7 +132,7 @@ export default class OxygenSaturation extends Component {
 
         } catch (error) {
             console.log("Save Oxygen Saturation Error: " + error)
-            handleNoInternet()
+            Alert.alert("Save Oxygen Saturation Error", "Fail to save oxygen saturation, please try again.\n" + error)
             this.setState({
                 isLoading: false
             })
@@ -143,14 +146,20 @@ export default class OxygenSaturation extends Component {
     }
 
     handleSave = async () => {
-        // Parse spo2 to 1 decimal places
-        var spo2_in_1dp = this.round(this.state.spo2_reading, 1)
+        // Ingore the operation if it is empty value
+        if (this.state.spo2_reading === '') {
+            Alert.alert("Invalid Oxygen Saturation", "Please enter an oxygen saturation reading.")
+            return;
+        }
 
         // Check is it numeric input
-        if (isNaN(spo2_in_1dp)) {
+        if (isNaN(this.state.spo2_reading)) {
             Alert.alert("Invalid Oxygen Saturation", "Oxygen Saturation only accepts number input with 1 decimal point.")
             return
         }
+
+        // Parse spo2 to 1 decimal places
+        var spo2_in_1dp = this.round(this.state.spo2_reading, 1)
 
         // Check is temperature within boundaries 0~99.9
         if (spo2_in_1dp < 0 || spo2_in_1dp >= 100) {

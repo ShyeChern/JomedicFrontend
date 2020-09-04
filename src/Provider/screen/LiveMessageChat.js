@@ -155,6 +155,7 @@ export default class PatientLiveChat extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Get Message Queue Error');
                 console.log(json.status);
+                Alert.alert("Get Message Queue Error", "Fail to get message queue, please try again.\n" + json.status)
             }
             else {
                 var data = json.status[0]
@@ -172,7 +173,7 @@ export default class PatientLiveChat extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            Alert.alert("Get Message Queue Error", "Fail to get message queue, please try again.\n" + error)
         }
 
     }
@@ -206,6 +207,8 @@ export default class PatientLiveChat extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Get Chat History Error');
                 console.log(json.status);
+                Alert.alert("Get Chat Message Error", "Fail to get chat message, please try again.\n" + json.status)
+
             }
             else {
                 var data = json.status
@@ -224,7 +227,8 @@ export default class PatientLiveChat extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
+            Alert.alert("Get Chat Message Error", "Fail to get chat message, please try again.\n" + error)
         }
 
     }
@@ -278,8 +282,9 @@ export default class PatientLiveChat extends Component {
             const json = await response.json();
 
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
-                console.log('Get Message Queue Error');
+                console.log('Get Service Price Error');
                 console.log(json.status);
+                Alert.alert("Get Service Price Error", "Fail to get service price, please try again.\n" + json.status)
                 this.setState({
                     isLoading: false
                 });
@@ -300,7 +305,8 @@ export default class PatientLiveChat extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
+            Alert.alert("Get Service Price Error", "Fail to get service price, please try again.\n" + error)
             return 0;
         }
     }
@@ -339,6 +345,7 @@ export default class PatientLiveChat extends Component {
                 this.setState({
                     isLoading: false
                 });
+                Alert.alert("End Order Error (Update Message Queue)", "Fail to get end order, please try again.\n" + json.status)
 
                 return false;
             };
@@ -349,7 +356,8 @@ export default class PatientLiveChat extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
+            Alert.alert("End Order Error (Update Message Queue)", "Fail to get end order, please try again.\n" + error)
             return false;
         }
     }
@@ -393,6 +401,7 @@ export default class PatientLiveChat extends Component {
                 this.setState({
                     isLoading: false
                 });
+                Alert.alert("End Order Error (Save Order Master)", "Fail to get end order, please try again.\n" + json.status)
 
                 return false;
             };
@@ -403,7 +412,9 @@ export default class PatientLiveChat extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
+            Alert.alert("End Order Error (Save Order Master)", "Fail to get end order, please try again.\n" + error)
+
             return false;
         }
     }
@@ -446,8 +457,10 @@ export default class PatientLiveChat extends Component {
 
                 return true;
             } else {
-                console.log('Reject Order Error (Message Queue)');
+                console.log('End Order Error (Save Order Detail)');
                 console.log(json.status);
+                Alert.alert("End Order Error (Save Order Detail)", "Fail to get end order, please try again.\n" + json.status)
+
                 this.setState({
                     isLoading: false
                 });
@@ -457,7 +470,9 @@ export default class PatientLiveChat extends Component {
 
 
         } catch (error) {
-            console.log("Reject Order Error (Message Queue): " + error)
+            console.log("End Order Error (Save Order Detail): " + error)
+            Alert.alert("End Order Error (Save Order Detail)", "Fail to get end order, please try again.\n" + error)
+
             this.setState({
                 isLoading: false
             });
@@ -498,8 +513,10 @@ export default class PatientLiveChat extends Component {
 
                 return true;
             } else {
-                console.log('Receive Payment Error (Message Queue)');
+                console.log('Receive Payment Error');
                 console.log(json.status);
+                Alert.alert("Receive Payment Error", "Fail to receive payment, please try again.\n" + json.status)
+
                 this.setState({
                     isLoading: false
                 });
@@ -509,11 +526,12 @@ export default class PatientLiveChat extends Component {
 
 
         } catch (error) {
-            console.log("Receive Payment Error (Message Queue): " + error)
+            console.log("Receive Payment Error: " + error)
+            Alert.alert("Receive Payment Error", "Fail to receive payment, please try again.\n" + error)
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
             return false;
         }
 
@@ -731,6 +749,8 @@ export default class PatientLiveChat extends Component {
             } else {
                 console.log('Insert Chat History Error');
                 console.log(json.status);
+                Alert.alert("Send Chat Message Error", "Fail to send chat message, please try again.\n" + json.status)
+
             }
 
             this.setState({
@@ -742,7 +762,9 @@ export default class PatientLiveChat extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
+            Alert.alert("Send Chat Message Error", "Fail to send chat message, please try again.\n" + error)
+
         }
 
     }
@@ -790,6 +812,7 @@ export default class PatientLiveChat extends Component {
                 this.setState({
                     isLoading: false
                 });
+                Alert.alert("Send Prescription Error", "Fail to send prescription, please try again.\n" + json.status)
 
                 return false;
             };
@@ -799,63 +822,11 @@ export default class PatientLiveChat extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
+            Alert.alert("Send Prescription Error", "Fail to send prescription, please try again.\n" + error)
             return false;
         }
 
-    }
-
-    // Load Medication Master from database
-    loadMedicationMaster = async () => {
-        let datas = {
-            txn_cd: "MEDORDER056",
-            tstamp: getTodayDate(),
-            data: {
-                order_no: this.state.order_no,
-                pmi_no: this.state.id_number,
-            }
-        }
-
-        try {
-            this.setState({ isLoading: true })
-
-            const response = await fetch(URL_Provider, {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(datas)
-            });
-
-            const json = await response.json();
-
-            if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
-                console.log('Load Medications Error');
-                console.log(json.status);
-            }
-            else {
-                var data = json.status[0]
-                if (data) {
-                    this.setState({
-                        medicationMaster: data,
-                    })
-
-                    this.loadMedications()
-                }
-            };
-
-            this.setState({
-                isLoading: false
-            });
-
-        } catch (error) {
-            console.log("Load Medications Error: " + error)
-            this.setState({
-                isLoading: false
-            });
-            handleNoInternet()
-        }
     }
 
     Message = (props) => {

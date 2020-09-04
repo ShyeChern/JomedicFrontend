@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, TextInput, TouchableOpacity } from 'react-native'
+import { Text, StyleSheet, View, TextInput, Alert, TouchableOpacity } from 'react-native'
 
 import { getTodayDate } from '../util/getDate'
 import {
@@ -53,8 +53,8 @@ export default class ServiceCharge extends Component {
             const json = await response.json();
 
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
-                console.log('Get Video Chat Price Error');
-                console.log(json.status);
+                console.log('Get Video Chat Price Error: ', json.status);
+                Alert.alert('Get Video Consultation Price Error', 'Fail to get video consultation price, please try again.\n' + json.status);
             }
             else {
                 var data = json.status[0]
@@ -72,7 +72,8 @@ export default class ServiceCharge extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            Alert.alert('Get Video Consultation Price Error', 'Fail to get video consultation price, please try again.\n' + error);
+            // handleNoInternet()
         }
     }
 
@@ -102,6 +103,7 @@ export default class ServiceCharge extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Get Live Chat Price Error');
                 console.log(json.status);
+                Alert.alert('Get Chat Consultation Price Error', 'Fail to get chat consultation price, please try again.\n' + json.status);
             }
             else {
                 var data = json.status[0]
@@ -120,7 +122,8 @@ export default class ServiceCharge extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            Alert.alert('Get Chat Consultation Price Error', 'Fail to get chat consultation price, please try again.\n' + error);
+            // handleNoInternet()
         }
     }
 

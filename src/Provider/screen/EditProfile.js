@@ -217,7 +217,7 @@ export default class EditProfile extends Component {
             } else {
                 console.log('Update User Profile Error');
                 console.log(json.status);
-
+                Alert.alert("Update User Profile Error", "Fail to update user profile, please try again.\n" + json.status)
             };
 
             this.setState({
@@ -229,7 +229,8 @@ export default class EditProfile extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
+            Alert.alert("Update User Profile Error", "Fail to update user profile, please try again.\n" + error)
         }
     }
 

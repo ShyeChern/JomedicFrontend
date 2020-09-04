@@ -78,6 +78,7 @@ export default class Cholesterol extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Load Cholesterol Error');
                 console.log(json.status);
+                Alert.alert("Load Cholesterol Error", "Fail to load cholesterol, please try again.\n" + json.status)
             }
             else {
                 var data = json.status[0]
@@ -109,7 +110,7 @@ export default class Cholesterol extends Component {
 
         } catch (error) {
             console.log("Load Cholesterol Error: " + error)
-            handleNoInternet()
+            Alert.alert("Load Cholesterol Error", "Fail to load cholesterol, please try again.\n" + error)
             this.setState({
                 isLoading: false
             })
@@ -167,6 +168,7 @@ export default class Cholesterol extends Component {
                 Alert.alert("Cholesterol Saved.")
             } else {
                 console.log("Save Cholesterol Error: " + json.status)
+                Alert.alert("Save Cholesterol Error", "Fail to save cholesterol, please try again.\n" + json.status)
             };
 
             this.setState({
@@ -175,7 +177,7 @@ export default class Cholesterol extends Component {
 
         } catch (error) {
             console.log("Save Cholesterol Error: " + error)
-            handleNoInternet()
+            Alert.alert("Save Cholesterol Error", "Fail to save cholesterol, please try again.\n" + error)
             this.setState({
                 isLoading: false
             })
@@ -198,84 +200,98 @@ export default class Cholesterol extends Component {
 
         // Ingore the operation if it is empty value
         if (total_cholesterol === '' || LDL_cholesterol === '' || HDL_cholesterol === '' || triglycerides === '' || non_HDL_C === '' || TG_to_HDL === '') {
-            console.log("Something is a Empty String")
+            if (total_cholesterol === '') {
+                Alert.alert("Invalid Total Cholesterol", "Please enter a total cholesterol reading.")
+            } else if (LDL_cholesterol === '') {
+                Alert.alert("Invalid LDL Cholesterol", "Please enter a LDL cholesterol reading.")
+            } else if (HDL_cholesterol === '') {
+                Alert.alert("Invalid HDL Cholesterol", "Please enter a HDL cholesterol reading.")
+            } else if (triglycerides === '') {
+                Alert.alert("Invalid Triglycerides", "Please enter a triglycerides reading.")
+            } else if (non_HDL_C === '') {
+                Alert.alert("Invalid non-HDL-C", "Please enter a non-HDL-C reading.")
+            } else {
+                Alert.alert("Invalid TG to HDL Ratio", "Please enter a TG to HDL Ratio reading.")
+            }
+
             return;
         }
 
         // Validate the input
         // Check Total Cholesterol
-        var totalCholesterol1dp = this.round(total_cholesterol, 1);
         // Is numeric input?
-        if (isNaN(totalCholesterol1dp)) {
+        if (isNaN(total_cholesterol)) {
             Alert.alert("Invalid Total Cholesterol", "Total Cholesterol only accepts number input with 1 decimal point.")
             return
         }
         // Is within boundary?
+        var totalCholesterol1dp = this.round(total_cholesterol, 1);
         if (totalCholesterol1dp < 0 || totalCholesterol1dp >= 100) {
             Alert.alert("Invalid Total Cholesterol", "Total Cholesterol has a minimum value of 0 and a maximum value of 99.9.")
             return
         }
 
         // Check LDL Cholesterol
-        var LDL1dp = this.round(LDL_cholesterol, 1);
         // Is numeric input?
-        if (isNaN(LDL1dp)) {
+        if (isNaN(LDL_cholesterol)) {
             Alert.alert("Invalid LDL Cholesterol", "LDL Cholesterol only accepts number input with 1 decimal point.")
             return
         }
+        
         // Is within boundary?
+        var LDL1dp = this.round(LDL_cholesterol, 1);
         if (LDL1dp < 0 || LDL1dp >= 100) {
             Alert.alert("Invalid LDL Cholesterol", "LDL Cholesterol has a minimum value of 0 and a maximum value of 99.9.")
             return
         }
 
         // Check HDL Cholesterol
-        var HDL1dp = this.round(HDL_cholesterol, 1);
         // Is numeric input?
-        if (isNaN(HDL1dp)) {
+        if (isNaN(HDL_cholesterol)) {
             Alert.alert("Invalid HDL Cholesterol", "HDL Cholesterol only accepts number input with 1 decimal point.")
             return
         }
         // Is within boundary?
+        var HDL1dp = this.round(HDL_cholesterol, 1);
         if (HDL1dp < 0 || HDL1dp >= 100) {
             Alert.alert("Invalid HDL Cholesterol", "HDL Cholesterol has a minimum value of 0 and a maximum value of 99.9.")
             return
         }
 
         // Check Triglycerides
-        var triglycerides1dp = this.round(triglycerides, 1);
         // Is numeric input?
-        if (isNaN(triglycerides1dp)) {
+        if (isNaN(triglycerides)) {
             Alert.alert("Invalid Triglycerides", "Triglycerides only accepts number input with 1 decimal point.")
             return
         }
         // Is within boundary?
+        var triglycerides1dp = this.round(triglycerides, 1);
         if (triglycerides1dp < 0 || triglycerides1dp >= 100) {
             Alert.alert("Invalid Triglycerides", "Triglycerides has a minimum value of 0 and a maximum value of 99.9.")
             return
         }
 
         // Check non HDL C
-        var non_HDL_C_1dp = this.round(non_HDL_C, 1);
         // Is numeric input?
-        if (isNaN(non_HDL_C_1dp)) {
+        if (isNaN(non_HDL_C)) {
             Alert.alert("Invalid non-HDL-C", "non-HDL-C only accepts number input with 1 decimal point.")
             return
         }
         // Is within boundary?
+        var non_HDL_C_1dp = this.round(non_HDL_C, 1);
         if (non_HDL_C_1dp < 0 || non_HDL_C_1dp >= 100) {
             Alert.alert("Invalid non-HDL-C", "non-HDL-C has a minimum value of 0 and a maximum value of 99.9.")
             return
         }
 
         // Check TG to HDL
-        var TG_HDL_1dp = this.round(TG_to_HDL, 1);
         // Is numeric input?
-        if (isNaN(TG_HDL_1dp)) {
+        if (isNaN(TG_to_HDL)) {
             Alert.alert("Invalid TG to HDL Ratio", "TG to HDL Ratio only accepts number input with 1 decimal point.")
             return
         }
         // Is within boundary?
+        var TG_HDL_1dp = this.round(TG_to_HDL, 1);
         if (TG_HDL_1dp < 0 || TG_HDL_1dp >= 100) {
             Alert.alert("Invalid TG to HDL Ratio", "TG to HDL Ratio has a minimum value of 0 and a maximum value of 99.9.")
             return

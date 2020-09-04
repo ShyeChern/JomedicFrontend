@@ -14,10 +14,8 @@ import AppointmentScreen from '../screen/Appointment3';
 import AppointmentDetailScreen from '../screen/AppointmentDetail'
 import PersonScreen from '../screen/Person'
 import PatientChatHistorysScreen from '../screen/ChatHistory'
-import PatientChatInfoScreen from '../screen/ChatInfoDetail'
 import PatientLiveChatScreen from '../screen/LiveMessageChat'
 import CallHistoryScreen from '../screen/CallHistory'
-import CallInfoScreen from '../screen/CallInfoDetail'
 import PatientProfileScreen from '../screen/PatientProfile'
 import AccountScreen from '../screen/AccountSettings'
 import EditProfileScreen from '../screen/EditProfile'
@@ -25,7 +23,6 @@ import ClinicScheduleScreen from '../screen/ClinicSchedule2'
 import ServiceChargeScreen from '../screen/ServiceCharge'
 import CustomerReviewScreen from '../screen/CustomerReview'
 import QueueModal from '../screen/QueueModal'
-import ConsultationNoteModal from '../screen/ConsultationNoteModal'
 import RateCustomerModal from '../screen/RateCustomerModal'
 import VideoCallScreen from '../screen/VideoCall'
 import MapScreen from '../screen/Map'
@@ -111,14 +108,6 @@ export const ModalStackNavigator = ({ navigation, route }) => {
                     headerShown: true
                 }} />
             <ModalStack.Screen name="QueueModal" component={QueueModal}
-                options={{
-                    title: '',
-                    headerLeft: null,
-                    headerTransparent: true,
-                    cardStyle: { backgroundColor: 'transparent' }
-                }}
-            />
-            <ModalStack.Screen name="ConsultationNoteModal" component={ConsultationNoteModal}
                 options={{
                     title: '',
                     headerLeft: null,
@@ -370,20 +359,6 @@ const ChatHistoryStackNavigator = ({ navigation, route }) => {
                     picture: route.params.picture,
                 }}
             />
-            <ChatHistoryStack.Screen name="ChatInfo" component={PatientChatInfoScreen}
-                options={{
-                    title: '',
-                    headerStyle: {
-                        backgroundColor: 'white',
-                    },
-                    headerTintColor: 'black',
-                    headerShown: true,
-                    // headerShown: shouldHeaderBeShown(route),
-                    headerTransparent: true,
-
-                    // title: '',
-                }}
-            />
         </ChatHistoryStack.Navigator>
     );
 
@@ -399,7 +374,7 @@ const CallHistoryStackNavigator = ({ navigation, route }) => {
                 },
                 headerTintColor: 'black',
             }} >
-            <CallHistoryStack.Screen name="ChatHistory" component={CallHistoryScreen}
+            <CallHistoryStack.Screen name="CallHistory" component={CallHistoryScreen}
                 options={{
                     title: '',
                     headerShown: false,
@@ -409,19 +384,6 @@ const CallHistoryStackNavigator = ({ navigation, route }) => {
                     tenant_id: route.params.tenant_id,
                     name: route.params.name,
                     picture: route.params.picture,
-                }}
-            />
-            <CallHistoryStack.Screen name="CallInfo" component={CallInfoScreen}
-                options={{
-                    title: '',
-                    headerStyle: {
-                        backgroundColor: 'white',
-                    },
-                    headerTintColor: 'black',
-                    headerShown: true,
-                    headerTransparent: true,
-
-                    // title: '',
                 }}
             />
         </CallHistoryStack.Navigator>

@@ -77,6 +77,7 @@ export default class BodyTemperature extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Load Body Temperature Error');
                 console.log(json.status);
+                Alert.alert('Load Body Temperature Error', 'Fail to load body temperature, please try again.\n' + json.status);
             }
             else {
                 var data = json.status[0]
@@ -93,7 +94,7 @@ export default class BodyTemperature extends Component {
 
         } catch (error) {
             console.log("Load Body Temperature Error: " + error)
-            handleNoInternet()
+            Alert.alert('Load Body Temperature Error', 'Fail to load body temperature, please try again.\n' + error);
             this.setState({
                 isLoading: false
             })
@@ -136,6 +137,8 @@ export default class BodyTemperature extends Component {
                 Alert.alert("Body Temperature Saved.")
             } else {
                 console.log("Save Body Temperature Error: " + json.status)
+                Alert.alert('Save Body Temperature Error', 'Fail to save body temperature, please try again.\n' + json.status);
+
             };
 
             this.setState({
@@ -144,7 +147,7 @@ export default class BodyTemperature extends Component {
 
         } catch (error) {
             console.log("Save Body Temperature Error: " + error)
-            handleNoInternet()
+            Alert.alert('Save Body Temperature Error', 'Fail to save body temperature, please try again.\n' + error);
             this.setState({
                 isLoading: false
             })
@@ -160,7 +163,7 @@ export default class BodyTemperature extends Component {
     handleSave = async () => {
         // Ingore the operation if it is empty value
         if (this.state.temperature_reading === '') {
-            console.log("Empty String")
+            Alert.alert("Invalid Body Temperature", "Please enter a body temperature reading.")
             return;
         }
 
@@ -172,7 +175,7 @@ export default class BodyTemperature extends Component {
             var temperature2dp = this.round(temperature, 2)
 
             // Check is it numeric input
-            if (isNaN(temperature2dp)) {
+            if (isNaN(this.state.temperature_reading)) {
                 Alert.alert("Invalid Body Temperature", "Body temperature only accepts number input with 2 decimal points.")
                 return
             }

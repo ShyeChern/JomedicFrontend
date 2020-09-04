@@ -1,5 +1,5 @@
 import React, { Component, useState } from 'react'
-import { Text, StyleSheet, View, FlatList, Switch, Image } from 'react-native'
+import { Text, StyleSheet, View, FlatList, Switch, Image, Alert } from 'react-native'
 import { ListItem, Avatar } from 'react-native-elements'
 import BackgroundTimer from 'react-native-background-timer'
 
@@ -165,8 +165,8 @@ export default class Queue extends Component {
             const json = await response.json();
 
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
-                console.log('Get Queue Data Error');
-                console.log(json.status);
+                console.log('Get Queue Data Error: ', json.status);
+                Alert.alert('Get Queue Data Error', 'Fail to get queue data, please try again.\n' + json.status);
                 return json.status
             }
             else {
@@ -203,7 +203,8 @@ export default class Queue extends Component {
             this.setState({
                 isLoading: false,
             })
-            handleNoInternet()
+            Alert.alert('Get Queue Data Error', 'Fail to get queue data, please try again.\n' + error);
+            // handleNoInternet()
         }
 
     }
@@ -242,18 +243,20 @@ export default class Queue extends Component {
                 return true;
             } else {
                 var error = json.status
-                console.log("Tenant Status Update (A) Error: " + error)
+                console.log("Tenant Status Update (Available) Error: " + error)
+                Alert.alert("Tenant Status Update (Available) Error", "Fail to update tenant status, please try again.\n" + error)
                 this.setState({
                     isLoading: false
                 });
                 return false
             };
         } catch (error) {
-            console.log("Tenant Status Update (A) Error: " + error)
+            console.log("Tenant Status Update (Available) Error: " + error)
+            Alert.alert("Tenant Status Update (Available) Error", "Fail to update tenant status, please try again.\n" + error)
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
             return false
         }
 
@@ -295,6 +298,8 @@ export default class Queue extends Component {
             } else {
                 var error = json.status
                 console.log("Tenant Status Update (N/A) Error: " + error)
+                Alert.alert("Tenant Status Update (Not Available) Error", "Fail to update tenant status, please try again.\n" + error)
+
                 this.setState({
                     isLoading: false
                 });
@@ -302,10 +307,12 @@ export default class Queue extends Component {
             };
         } catch (error) {
             console.log("Tenant Status Update (N/A) Error: " + error)
+            Alert.alert("Tenant Status Update (Not Available) Error", "Fail to update tenant status, please try again.\n" + error)
+
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
             return false
         }
     }

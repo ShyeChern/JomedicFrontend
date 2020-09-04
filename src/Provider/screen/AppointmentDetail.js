@@ -129,7 +129,6 @@ export default class AppointmentDetail extends Component {
     }
 
     updateMessageStatusActive = async () => {
-
         // Get the accepted order no and update it
         let datas = {
             txn_cd: 'MEDORDER013',
@@ -162,17 +161,19 @@ export default class AppointmentDetail extends Component {
             else {
                 console.log('Accept Order Error');
                 console.log(json.status);
+                console.log('Accept Order Error', 'Fail to accept order, please try again.\n' + json.status);
+
                 this.setState({
                     isLoading: false
                 });
 
                 return false;
-
             };
 
 
         } catch (error) {
-            console.log("Accept Order Error: " + error)
+            console.log("Accept Order Error: ", error)
+            console.log('Accept Order Error', 'Fail to accept order, please try again.\n' + error);
             this.setState({
                 isLoading: false
             });
@@ -210,7 +211,8 @@ export default class AppointmentDetail extends Component {
                 })
                 return true;
             } else {
-                console.log("Accept Appointment Error: " + error)
+                console.log("Accept Appointment Error: " + json.status)
+                console.log('Accept Appointment Error', 'Fail to accept appointment, please try again.\n' + json.status);
                 this.setState({
                     isLoading: false
                 });
@@ -218,6 +220,8 @@ export default class AppointmentDetail extends Component {
             };
         } catch (error) {
             console.log("Accept Appointment Error: " + error)
+            console.log('Accept Appointment Error', 'Fail to accept appointment, please try again.\n' + error);
+
             this.setState({
                 isLoading: false
             });
@@ -255,8 +259,9 @@ export default class AppointmentDetail extends Component {
                 this.props.navigation.goBack();
             }
             else {
-                console.log('Cancel Appointment Error');
-                console.log(json.status);
+                console.log('Cancel Appointment Error: ', json.status);
+                Alert.alert('Cancel Appointment Error', 'Fail to cancel appointment, please try again.\n' + json.status);
+
                 this.setState({
                     isLoading: false
                 });
@@ -265,11 +270,11 @@ export default class AppointmentDetail extends Component {
 
 
         } catch (error) {
-            console.log("Cancel Appointment Error: " + error)
+            console.log("Cancel Appointment Error: ", error)
+            Alert.alert('Cancel Appointment Error', 'Fail to cancel appointment, please try again.\n' + error);
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
         }
 
     }

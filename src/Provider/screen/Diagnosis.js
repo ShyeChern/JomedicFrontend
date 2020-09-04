@@ -156,6 +156,8 @@ export default class Diagnosis extends Component {
 
             } else {
                 console.log("Save Diagnosis Error: " + json.status)
+                Alert.alert("Save Diagnosis Error", "Fail to save diagnosis, please try again.\n" + json.status)
+
             };
 
             this.setState({
@@ -164,7 +166,7 @@ export default class Diagnosis extends Component {
 
         } catch (error) {
             console.log("Save Diagnosis Error: " + error)
-            handleNoInternet()
+            Alert.alert("Save Diagnosis Error", "Fail to save diagnosis, please try again.\n" + error)
             this.setState({
                 isLoading: false
             })
@@ -204,6 +206,8 @@ export default class Diagnosis extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Search Diagnosis Error');
                 console.log(json.status);
+                Alert.alert("Search Diagnosis Error", "Fail to search diagnosis, please try again.\n" + json.status)
+
             }
             else {
                 var data = json.status
@@ -221,7 +225,7 @@ export default class Diagnosis extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            Alert.alert("Search Diagnosis Error", "Fail to search diagnosis, please try again.\n" + error)
         }
     }
 

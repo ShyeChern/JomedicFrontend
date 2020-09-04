@@ -155,11 +155,18 @@ export default class WeightHeightBmi extends Component {
 
     // Event handler for Save button
     handleSave = async () => {
+
         // Ingore the operation if it is empty value
-        if (this.state.weight_reading === '' || this.state.height_reading === '') {
-            console.log("Empty String")
+        if (this.state.weight_reading === '') {
+            Alert.alert("Invalid Weight", "Please enter a weight reading.")
             return;
         }
+        if (this.state.height_reading === '') {
+            Alert.alert("Invalid Height", "Please enter a height reading.")
+            return;
+        }
+
+        this.calculateBMI(this.state.height_reading, this.state.weight_reading);
 
         // Validate the input is float
         try {
@@ -169,7 +176,7 @@ export default class WeightHeightBmi extends Component {
 
             // Weight Checking
             // Check weight is numeric input
-            if (isNaN(weight2dp)) {
+            if (isNaN(this.state.weight_reading)) {
                 Alert.alert("Invalid Weight", "Weight only accepts number input with 2 decimal points.")
                 return
             }
@@ -181,7 +188,7 @@ export default class WeightHeightBmi extends Component {
 
             // Height Checking
             // Check height is numeric input
-            if (isNaN(height2dp)) {
+            if (isNaN(this.state.height_reading)) {
                 Alert.alert("Invalid Height", "Height only accepts number input with 2 decimal points.")
                 return
             }
@@ -191,7 +198,6 @@ export default class WeightHeightBmi extends Component {
                 return
             }
 
-            this.calculateBMI(height2dp, weight2dp);
             await this.saveWeightHeight(weight2dp, height2dp);
 
         } catch (error) {
@@ -202,34 +208,39 @@ export default class WeightHeightBmi extends Component {
     // Function to calculate the BMI value
     calculateBMI = (heightStr, weightStr) => {
         try {
-            // Convert into float
-            var height = parseFloat(heightStr);
-            var weight = parseFloat(weightStr);
-
-            var bmi = "";
-            var weightStatus = "";
-
-            if (height < 0 || weight < 0 || height >= 10000 || weight >= 10000 ) {
+            if (isNaN(heightStr) || isNaN(weightStr)) {
                 bmi = "Invalid Weight or Height";
                 weightStatus = "Invalid Weight or Height";
             } else {
-                var heightInMeter = height / 100;
+                // Convert into float
+                var height = parseFloat(heightStr);
+                var weight = parseFloat(weightStr);
 
-                bmi = this.round(weight / (heightInMeter * heightInMeter), 1);
-                if (isNaN(bmi)) {
+                var bmi = "";
+                var weightStatus = "";
+
+                if (height < 0 || weight < 0 || height >= 10000 || weight >= 10000) {
                     bmi = "Invalid Weight or Height";
-                }
-
-                if (bmi >= 0 && bmi < 18.5) {
-                    weightStatus = "Underweight";
-                } else if (bmi >= 18.5 && bmi < 25) {
-                    weightStatus = "Normal";
-                } else if (bmi >= 25 && bmi < 30) {
-                    weightStatus = "Overweight";
-                } else if (bmi >= 30) {
-                    weightStatus = "Obesity";
-                } else {
                     weightStatus = "Invalid Weight or Height";
+                } else {
+                    var heightInMeter = height / 100;
+
+                    bmi = this.round(weight / (heightInMeter * heightInMeter), 1);
+                    if (isNaN(bmi)) {
+                        bmi = "Invalid Weight or Height";
+                    }
+
+                    if (bmi >= 0 && bmi < 18.5) {
+                        weightStatus = "Underweight";
+                    } else if (bmi >= 18.5 && bmi < 25) {
+                        weightStatus = "Normal";
+                    } else if (bmi >= 25 && bmi < 30) {
+                        weightStatus = "Overweight";
+                    } else if (bmi >= 30) {
+                        weightStatus = "Obesity";
+                    } else {
+                        weightStatus = "Invalid Weight or Height";
+                    }
                 }
             }
 

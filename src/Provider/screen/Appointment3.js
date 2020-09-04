@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native'
 import moment from 'moment';
 import { Agenda } from 'react-native-calendars';
 
@@ -32,7 +32,7 @@ export default class AgendaScreen extends Component {
         await this.initializeData();
 
         this.loadAppointments();
-        
+
         // Add hook to refresh profile data when screen is Focus, and if reload is true
         this.props.navigation.addListener('focus',
             event => {
@@ -162,6 +162,7 @@ export default class AgendaScreen extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Get Appointment Error');
                 console.log(json.status);
+                Alert.alert('Get Appointment Error', 'Fail to get appointments, please try again.\n' + json.status);
             }
             else {
                 let data = json.status;
@@ -180,10 +181,10 @@ export default class AgendaScreen extends Component {
         } catch (error) {
             console.log('Get Appointment Error');
             console.log(error)
+            Alert.alert('Get Appointment Error', 'Fail to get appointments, please try again.\n' + error);
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
         }
 
         return appointments

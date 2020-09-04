@@ -129,7 +129,10 @@ export default class Status extends Component {
                 })
                 return true;
             } else {
+                var error = json.status;
                 console.log("Tenant Status Update Available Error: " + error)
+                Alert.alert('Tenant Status Update Available Error', 'Fail to update tenant status to available, please try again.\n' + error);
+
                 this.setState({
                     isLoading: false
                 });
@@ -137,10 +140,11 @@ export default class Status extends Component {
             };
         } catch (error) {
             console.log("Tenant Status Update Available Error: " + error)
+            Alert.alert('Tenant Status Update Available Error', 'Fail to update tenant status to available, please try again.\n' + error);
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
             return false
         }
 
@@ -175,7 +179,10 @@ export default class Status extends Component {
                 })
                 return true;
             } else {
+                var error = json.status
                 console.log("Tenant Status Update Not Available Error: " + error)
+                Alert.alert('Tenant Status Update Not Available Error', 'Fail to update tenant status to not available, please try again.\n' + error);
+
                 this.setState({
                     isLoading: false
                 });
@@ -183,10 +190,11 @@ export default class Status extends Component {
             };
         } catch (error) {
             console.log("Tenant Status Update Not Available Error: " + error)
+            Alert.alert('Tenant Status Not Available Error', 'Fail to update tenant status to not available, please try again.\n' + error);
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
             return false
         }
 
@@ -221,7 +229,10 @@ export default class Status extends Component {
                 })
                 return true;
             } else {
+                var error = json.status
                 console.log("Tenant Status Update Busy Error: " + error)
+                Alert.alert('Tenant Status Update Busy Error', 'Fail to update tenant status to busy, please try again.\n' + error);
+
                 this.setState({
                     isLoading: false
                 });
@@ -229,10 +240,12 @@ export default class Status extends Component {
             };
         } catch (error) {
             console.log("Tenant Status Update Busy Error: " + error)
+            Alert.alert('Tenant Status Update Busy Error', 'Fail to update tenant status to busy, please try again.\n' + error);
+
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
             return false
         }
     }
@@ -266,7 +279,10 @@ export default class Status extends Component {
                 })
                 return true;
             } else {
+                var error = json.status;
                 console.log("Tenant Status Update Offline Error: " + error)
+                Alert.alert('Tenant Status Update Offline Error', 'Fail to update tenant status to offline, please try again.\n' + error);
+
                 this.setState({
                     isLoading: false
                 });
@@ -274,10 +290,12 @@ export default class Status extends Component {
             };
         } catch (error) {
             console.log("Tenant Status Update Offline Error: " + error)
+            Alert.alert('Tenant Status Update Offline Error', 'Fail to update tenant status to offline, please try again.\n' + error);
+
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
             return false
         }
 

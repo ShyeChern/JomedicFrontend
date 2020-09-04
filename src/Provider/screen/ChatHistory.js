@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, FlatList, Button } from 'react-native'
+import { Text, StyleSheet, View, FlatList, Button, Alert } from 'react-native'
 import { ListItem } from 'react-native-elements'
 import moment from 'moment'
 
@@ -95,6 +95,7 @@ export default class ChatHistory extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Get Chat History Error');
                 console.log(json.status);
+                Alert.alert('Get Chat History Error','Fail to get chat history, please try again.' + json.status)
             }
             else {
                 var data = json.status
@@ -110,10 +111,11 @@ export default class ChatHistory extends Component {
 
         } catch (error) {
             console.log("Get Chat History Error: " + error)
+            Alert.alert('Get Chat History Error','Fail to get chat history, please try again.' + error)
+
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
         }
     }
 

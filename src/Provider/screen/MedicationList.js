@@ -80,8 +80,8 @@ export default class ComplaintList extends Component {
             const json = await response.json();
 
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
-                console.log('Load Medications Error');
-                console.log(json.status);
+                console.log('Load Medication Master Error: ', json.status);
+                Alert.alert('Load Medication Master Error', 'Fail to load medication master, please try again.\n' + json.status);
             }
             else {
                 var data = json.status[0]
@@ -99,11 +99,13 @@ export default class ComplaintList extends Component {
             });
 
         } catch (error) {
-            console.log("Load Medications Error: " + error)
+            console.log("Load Medication Master Error: " + error)
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
+            Alert.alert('Load Medication Master Error', 'Fail to load medication master, please try again.\n' + error);
+
         }
 
     }
@@ -133,8 +135,8 @@ export default class ComplaintList extends Component {
             const json = await response.json();
 
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
-                console.log('Load Medications Error');
-                console.log(json.status);
+                console.log('Load Medications Error: ',json.status);
+                Alert.alert('Load Medications Error', 'Fail to load medications, please try again.\n' + json.status);
             }
             else {
                 var data = json.status
@@ -152,7 +154,8 @@ export default class ComplaintList extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            Alert.alert('Load Medications Error', 'Fail to load medications, please try again.\n' + error);
+            // handleNoInternet()
         }
     }
 
@@ -224,6 +227,8 @@ export default class ComplaintList extends Component {
 
             } else {
                 console.log("Remove Medication Error: " + json.status)
+                Alert.alert('Remove Medication Error', 'Fail to remove medication, please try again.\n' + json.status);
+
             };
 
             this.setState({
@@ -232,7 +237,8 @@ export default class ComplaintList extends Component {
 
         } catch (error) {
             console.log("Remove Medication Error: " + error)
-            handleNoInternet()
+            Alert.alert('Remove Medication Error', 'Fail to remove medication, please try again.\n' + error);
+            // handleNoInternet()
             this.setState({
                 isLoading: false
             })

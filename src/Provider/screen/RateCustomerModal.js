@@ -87,61 +87,62 @@ export default class RateCustomerModal extends Component {
                 return true;
             } else {
                 var error = json.status
-                console.log("End Order Error: " + error)
+                console.log("Update Tenant Status Error: " + error)
+                Alert.alert("Update Tenant Status Error", "Fail to update tenant status, please try again.\n" + error)
 
                 return false
             };
 
         } catch (error) {
-            console.log("End Order Error: " + error)
-
-            handleNoInternet()
+            console.log("Update Tenant Status Error: " + error)
+            Alert.alert("Update Tenant Status Error", "Fail to update tenant status, please try again.\n" + error)
+            // handleNoInternet()
             return false
         }
     }
 
-    updateTenantNotAvailable = async () => {
-        // Get the tenant id
-        let datas = {
-            txn_cd: 'MEDORDER025',
-            tstamp: getTodayDate(),
-            data: {
-                tenant_id: this.props.route.params.tenant_id,
-            }
-        }
+    // updateTenantNotAvailable = async () => {
+    //     // Get the tenant id
+    //     let datas = {
+    //         txn_cd: 'MEDORDER025',
+    //         tstamp: getTodayDate(),
+    //         data: {
+    //             tenant_id: this.props.route.params.tenant_id,
+    //         }
+    //     }
 
-        try {
-            const response = await fetch(URL_Provider, {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(datas)
-            });
+    //     try {
+    //         const response = await fetch(URL_Provider, {
+    //             method: 'POST',
+    //             headers: {
+    //                 Accept: 'application/json',
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify(datas)
+    //         });
 
-            const json = await response.json();
+    //         const json = await response.json();
 
-            if (json.status == 'success' || json.status == "SUCCESS") {
-                console.log("Tenant Status Updated.")
-                this.setState({
-                    isLoading: false
-                })
-                return true;
-            } else {
-                var error = json.status
-                console.log("End Order Error: " + error)
+    //         if (json.status == 'success' || json.status == "SUCCESS") {
+    //             console.log("Tenant Status Updated.")
+    //             this.setState({
+    //                 isLoading: false
+    //             })
+    //             return true;
+    //         } else {
+    //             var error = json.status
+    //             console.log("End Order Error: " + error)
 
-                return false
-            };
+    //             return false
+    //         };
 
-        } catch (error) {
-            console.log("End Order Error: " + error)
+    //     } catch (error) {
+    //         console.log("End Order Error: " + error)
 
-            handleNoInternet()
-            return false
-        }
-    }
+    //         handleNoInternet()
+    //         return false
+    //     }
+    // }
 
 
     rateCustomer = () => {
@@ -166,7 +167,7 @@ export default class RateCustomerModal extends Component {
             }
 
         } else {
-            Alert.alert("Rate Customer Fail", "Error: Fail to rate customer, please try again.")
+            Alert.alert("Rate Customer Fail", "Fail to rate customer, please try again.\n")
         }
 
         this.setState({
@@ -234,11 +235,15 @@ export default class RateCustomerModal extends Component {
 
             } else {
                 console.log("Insert Feedback Error: " + json.status)
+                Alert.alert("Insert Feedback Error", "Fail to insert feedback, please try again.\n" + json.status)
+
                 return false
             };
         } catch (error) {
             console.log("Insert Feedback Error: " + error)
-            handleNoInternet()
+            Alert.alert("Insert Feedback Error", "Fail to insert feedback, please try again.\n" + error)
+
+            // handleNoInternet()
             return false
         }
     }

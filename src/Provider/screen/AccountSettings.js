@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, TouchableOpacity, Image, ScrollView } from 'react-native'
+import { Text, StyleSheet, View, TouchableOpacity, Image, ScrollView, Alert } from 'react-native'
 import { Avatar } from 'react-native-elements'
 
 import { getTenantId, getTenantType, getUserId, logout } from '../util/Auth'
@@ -92,6 +92,7 @@ export default class AccountSettings extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Get User Profile Error');
                 console.log(json.status);
+                Alert.alert("Get User Profile Error", "Fail to get user profile, please try again.\n" + json.status)
             }
             else {
                 let data = json.status[0]
@@ -108,12 +109,14 @@ export default class AccountSettings extends Component {
             });
 
         } catch (error) {
+            console.log('Get User Profile Error');
             console.log(error)
             this.setState({
                 isLoading: false,
                 isProfileUpdated: false
             });
-            handleNoInternet()
+            // handleNoInternet()
+            Alert.alert("Get User Profile Error", "Fail to get user profile, please try again.\n" + error)
         }
     }
 
@@ -148,11 +151,12 @@ export default class AccountSettings extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Get Tenant Status Error');
                 console.log(json.status);
+                Alert.alert("Get Tenant Status Error", "Fail to get tenant status, please try again.\n" + json.status)
+
             }
             else {
                 let data = json.status[0]
                 status = data.status
-
                 console.log("Get Tenant Status succcess")
             }
 
@@ -163,15 +167,13 @@ export default class AccountSettings extends Component {
             })
         }
         catch (error) {
-            console.log("Get Tenant Status Error")
+            console.log("Get Tenant Status Error: ", error)
+            Alert.alert("Get Tenant Status Error", "Fail to get tenant status, please try again.\n" + error)
+
             this.setState({
                 isLoading: false,
                 isTenantStatusUpdated: false
             })
-            Alert.alert(
-                'Failed',
-                'Sorry, unable to get tenant status. Please check your internet connection.',
-            );
             return false
         }
 
@@ -216,6 +218,7 @@ export default class AccountSettings extends Component {
             } else {
                 console.log('Logout Error');
                 console.log(json.status);
+                Alert.alert("Logout Error", "Fail to logout, please try again.\n" + json.status)
             };
 
             this.setState({
@@ -227,7 +230,8 @@ export default class AccountSettings extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            Alert.alert("Logout Error", "Fail to logout, please try again.\n" + error)
+            // handleNoInternet()
         }
     }
 
@@ -258,8 +262,8 @@ export default class AccountSettings extends Component {
                                 })}>
                                 <Text style={styles.editProfileText}>Edit Profile</Text>
                             </TouchableOpacity>
-                            <View style={{flexDirection: 'row'}}>
-                                <Text style={[styles.statusText, {alignSelf: 'center', textAlignVertical: 'center'}]}>Status: </Text>
+                            <View style={{ flexDirection: 'row' }}>
+                                <Text style={[styles.statusText, { alignSelf: 'center', textAlignVertical: 'center' }]}>Status: </Text>
                                 <TouchableOpacity style={styles.statusContainer}
                                     onPress={() => this.props.navigation.navigate("Status", {
                                         status: this.state.status

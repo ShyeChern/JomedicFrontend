@@ -81,6 +81,8 @@ export default class ComplaintList extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Load Complaints Error');
                 console.log(json.status);
+                Alert.alert("Load Complaints Error", "Fail to load complaints, please try again.\n" + json.status)
+
             }
             else {
                 var data = json.status
@@ -95,10 +97,11 @@ export default class ComplaintList extends Component {
 
         } catch (error) {
             console.log("Load Complaints Error: " + error)
+            
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            Alert.alert("Load Complaints Error", "Fail to load complaints, please try again.\n" + error)
         }
 
     }
@@ -170,6 +173,7 @@ export default class ComplaintList extends Component {
 
             } else {
                 console.log("Remove Complaint Error: " + json.status)
+                Alert.alert("Remove Complaint Error", "Fail to remove complaint, please try again.\n" + json.status)
             };
 
             this.setState({
@@ -178,7 +182,8 @@ export default class ComplaintList extends Component {
 
         } catch (error) {
             console.log("Remove Complaint Error: " + error)
-            handleNoInternet()
+            Alert.alert("Remove Complaint Error", "Fail to remove complaint, please try again.\n" + error)
+
             this.setState({
                 isLoading: false
             })

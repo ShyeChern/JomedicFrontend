@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, FlatList, ScrollView, TouchableOpacity } from 'react-native'
+import { Text, StyleSheet, View, FlatList, Alert, TouchableOpacity } from 'react-native'
 import { ListItem, Avatar, AirbnbRating, Rating } from 'react-native-elements'
 import moment from 'moment'
 
@@ -99,6 +99,7 @@ export default class CustomerReview extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Get Customer Reviews Error');
                 console.log(json.status);
+                Alert.alert('Get Customer Reviews Error', 'Fail to get customer reviews, please try again.\n' + json.status);
             }
             else {
                 var data = json.status
@@ -133,7 +134,7 @@ export default class CustomerReview extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            Alert.alert('Get Customer Reviews Error', 'Fail to get customer reviews, please try again.\n' + error);
         }
     }
 

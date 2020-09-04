@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, FlatList, RefreshControl, BackHandler } from 'react-native'
+import { Text, StyleSheet, View, FlatList, RefreshControl, BackHandler, Alert } from 'react-native'
 import { ListItem, Avatar } from 'react-native-elements'
 import { handleNoInternet } from '../util/CheckConn'
 import { getTodayDate } from '../util/getDate'
@@ -91,6 +91,8 @@ export default class PatientChatList extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Get Chats Data Error');
                 console.log(json.status);
+                Alert.alert('Get Chats Data Error', 'Fail to get chats data, please try again.\n' + json.status);
+
                 return json.status
             }
             else {
@@ -111,7 +113,7 @@ export default class PatientChatList extends Component {
             this.setState({
                 onRefresh: false
             })
-            handleNoInternet()
+            Alert.alert('Get Chats Data Error', 'Fail to get chats data, please try again.\n' + error);
         }
     }
 

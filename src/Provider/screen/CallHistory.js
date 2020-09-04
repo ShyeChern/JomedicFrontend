@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, FlatList, TouchableOpacity } from 'react-native'
+import { Text, StyleSheet, View, FlatList, TouchableOpacity, Alert } from 'react-native'
 import { ListItem, Avatar, Divider } from 'react-native-elements'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import moment from 'moment'
@@ -82,6 +82,7 @@ export default class CallHistory extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Get Call History Error');
                 console.log(json.status);
+                Alert.alert("Get Call History Error", 'Fail to get call history, please try again.\n' + json.status)
             }
             else {
                 var data = json.status
@@ -96,10 +97,10 @@ export default class CallHistory extends Component {
 
         } catch (error) {
             console.log("Get Call History Error: " + error)
+            Alert.alert("Get Call History Error", 'Fail to get call history, please try again.\n' + error)
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
         }
     }
 

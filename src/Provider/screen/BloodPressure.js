@@ -88,6 +88,7 @@ export default class BloodPressure extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Load Blood Pressure Error');
                 console.log(json.status);
+                Alert.alert("Load Blood Pressure Error", "Fail to load blood pressure, please try again.\n" + json.status)
             }
             else {
                 var data = json.status[0]
@@ -112,6 +113,7 @@ export default class BloodPressure extends Component {
 
         } catch (error) {
             console.log("Load Blood Pressure Error: " + error)
+            Alert.alert("Load Blood Pressure Error", "Fail to load blood pressure, please try again.\n" + error)
             handleNoInternet()
             this.setState({
                 isLoading: false
@@ -161,6 +163,7 @@ export default class BloodPressure extends Component {
                 Alert.alert("Blood Pressure Saved.")
             } else {
                 console.log("Save Blood Pressure Error: " + json.status)
+                Alert.alert("Save Blood Pressure Error", "Fail to save blood pressure, please try again.\n" + json.status)
             };
 
             this.setState({
@@ -169,7 +172,7 @@ export default class BloodPressure extends Component {
 
         } catch (error) {
             console.log("Save Blood Pressure Error: " + error)
-            handleNoInternet()
+            Alert.alert("Save Blood Pressure Error", "Fail to save blood pressure, please try again.\n" + error)
             this.setState({
                 isLoading: false
             })
@@ -209,6 +212,10 @@ export default class BloodPressure extends Component {
         if (stringInput === "") {
             return 0
         } else {
+            if (isNaN(stringInput)) {
+                return -1;
+            }
+
             var value = this.round(stringInput, 0)
             if (isNaN(value)) {
                 return -1;

@@ -46,7 +46,7 @@ const EMPTY_SCHEDULE_UI = {
     sessions: []
 }
 
-const MAX_PAGE = 5
+const MAX_PAGE = 10
 
 // First color for odd row, another for even rows
 const rowColors = ['#E5E5E5', '#FFFFFF']
@@ -204,6 +204,7 @@ export default class ClinicSchedule2 extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Get Clinic Schedule Error');
                 console.log(json.status);
+                Alert.alert("Get Clinic Schedule Error", "Fail to get clinic schedule, please try again.\n" + json.status)
                 this.setState({
                     isLoading: false
                 });
@@ -222,7 +223,7 @@ export default class ClinicSchedule2 extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            Alert.alert("Get Clinic Schedule Error", "Fail to get clinic schedule, please try again.\n" + error)
             return [];
         }
     }
@@ -282,6 +283,8 @@ export default class ClinicSchedule2 extends Component {
             } else {
                 console.log('Save Clinic Schedule Error');
                 console.log(json.status);
+                Alert.alert("Save Clinic Schedule Error", "Fail to save clinic schedule, please try again.\n" + json.status)
+
             }
 
             this.setState({
@@ -293,7 +296,7 @@ export default class ClinicSchedule2 extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet();
+            Alert.alert("Save Clinic Schedule Error", "Fail to save clinic schedule, please try again.\n" + error)
         }
     }
 
@@ -567,7 +570,7 @@ export default class ClinicSchedule2 extends Component {
         var params = this.props.route.params
 
         if (params.page >= MAX_PAGE) {
-            Alert.alert("Last Page", "This is the last page. You can only preset clinic schedule for 5 weeks.")
+            Alert.alert("Last Page", "This is the last page. You can only preset clinic schedule for " + MAX_PAGE +" weeks.")
             return
         } else {
             this.props.navigation.push("ClinicSchedule", {

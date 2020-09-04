@@ -112,8 +112,8 @@ export default class Medication extends Component {
             const json = await response.json();
 
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
-                console.log('Search Providers Error');
-                console.log(json.status);
+                console.log('Search Providers Error: ', json.status);
+                Alert.alert('Search Providers Error', 'Fail to search provider, please try again./n' + json.status);
             }
             else {
                 var data = json.status
@@ -131,7 +131,8 @@ export default class Medication extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
+            Alert.alert('Search Providers Error', 'Fail to search provider, please try again./n' + error);
         }
     }
 
@@ -159,8 +160,9 @@ export default class Medication extends Component {
             const json = await response.json();
 
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
-                console.log('Search Providers Error');
-                console.log(json.status);
+                console.log('Search Providers Error: ', json.status);
+                Alert.alert('Get Provider Name Error', 'Fail to get provider name, please try again./n' + json.status);
+
             }
             else {
                 var data = json.status[0]
@@ -175,11 +177,13 @@ export default class Medication extends Component {
             });
 
         } catch (error) {
-            console.log("Search Providers Error: " + error)
+            console.log("Search Providers Error (Get PRovider Name): " + error)
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
+            Alert.alert('Get Provider Name Error', 'Fail to get provider name, please try again./n' + error);
+
         }
 
     }
@@ -213,6 +217,7 @@ export default class Medication extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Search Medications Error');
                 console.log(json.status);
+                Alert.alert('Search Medications Error', 'Fail to search medications, please try again./n' + json.status);
             }
             else {
                 var data = json.status
@@ -230,7 +235,8 @@ export default class Medication extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
+            Alert.alert('Search Medications Error', 'Fail to get search medications, please try again./n' + error);
         }
     }
 
@@ -263,6 +269,8 @@ export default class Medication extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Get Medication Data Error');
                 console.log(json.status);
+                Alert.alert('Get Medication Data Error', 'Fail to get medication data, please try again./n' + json.status);
+
             }
             else {
                 var data = json.status[0]
@@ -293,7 +301,8 @@ export default class Medication extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
+            Alert.alert('Get Medication Data Error', 'Fail to get medication data, please try again./n' + error);
         }
     }
 
@@ -340,6 +349,8 @@ export default class Medication extends Component {
                 this.saveMedication(moment(this.state.medicationMaster.TXN_DATE).format("YYYY-MM-DD HH:mm:ss"))
             } else {
                 console.log("Save Medication Master Error: " + json.status)
+                Alert.alert('Save Medication Master Error', 'Fail to save medication master, please try again./n' + json.status);
+
                 this.setState({
                     isLoading: false
                 })
@@ -347,7 +358,8 @@ export default class Medication extends Component {
 
         } catch (error) {
             console.log("Save Medication Master Error: " + error)
-            handleNoInternet()
+            Alert.alert('Save Medication Master Error', 'Fail to save medication master, please try again./n' + error);
+            // handleNoInternet()
             this.setState({
                 isLoading: false
             })
@@ -398,6 +410,8 @@ export default class Medication extends Component {
                 this.props.navigation.navigate("MedicationList");
             } else {
                 console.log("Save Medication Error: " + json.status)
+                Alert.alert('Save Medication Error', 'Fail to save medication, please try again./n' + json.status);
+
             };
 
             this.setState({
@@ -406,6 +420,8 @@ export default class Medication extends Component {
 
         } catch (error) {
             console.log("Save Medication Error: " + error)
+            Alert.alert('Save Medication Error', 'Fail to save medication, please try again./n' + error);
+
             handleNoInternet()
             this.setState({
                 isLoading: false

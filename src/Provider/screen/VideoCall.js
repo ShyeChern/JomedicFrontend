@@ -142,7 +142,9 @@ export default class VideoCall extends Component {
                 })
                 return true;
             } else {
+                var error = json.status
                 console.log("End Order Error: " + error)
+                Alert.alert("Update Tenant Status Error", 'Fail to update tenant status, please try again.\n' + error)
                 this.setState({
                     isLoading: false
                 });
@@ -153,7 +155,8 @@ export default class VideoCall extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            Alert.alert("Update Tenant Status Error", 'Fail to update tenant status, please try again.\n' + error)
+            // handleNoInternet()
             return false
         }
     }
@@ -187,8 +190,9 @@ export default class VideoCall extends Component {
 
                 return true;
             } else {
-                console.log('Reject Order Error');
-                console.log(json.status);
+                console.log('End Order Error: ', json.status);
+                Alert.alert("End Order Error", 'Fail to end order, please try again.\n' + json.status)
+
                 this.setState({
                     isLoading: false
                 });
@@ -198,11 +202,12 @@ export default class VideoCall extends Component {
 
 
         } catch (error) {
-            console.log("Reject Order Error: " + error)
+            console.log("End Order Error: " + error)
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
+            Alert.alert("End Order Error", 'Fail to end order, please try again.\n' + error)
             return false;
         }
     }
@@ -238,8 +243,9 @@ export default class VideoCall extends Component {
 
                 return true;
             } else {
-                console.log('Reject Order Error');
-                console.log(json.status);
+                console.log('End Appointment Error: ', json.status);
+                Alert.alert("End Appointment Error", 'Fail to end appointment, please try again.\n' + json.status)
+
                 this.setState({
                     isLoading: false
                 });
@@ -249,7 +255,8 @@ export default class VideoCall extends Component {
 
 
         } catch (error) {
-            console.log("Reject Order Error: " + error)
+            console.log("End Appointment Error: " + error)
+            Alert.alert("End Appointment Error", 'Fail to end appointment, please try again.\n' + error)
             this.setState({
                 isLoading: false
             });
@@ -284,8 +291,8 @@ export default class VideoCall extends Component {
             const json = await response.json();
 
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
-                console.log('Get Order Master Error');
-                console.log(json.status);
+                console.log('Get Order Master Error: ', json.status);
+                Alert.alert("Get Order Master Error", 'Fail to get order master, please try again.\n' + json.status)
             }
             else {
                 var data = json.status[0]
@@ -304,10 +311,12 @@ export default class VideoCall extends Component {
 
         } catch (error) {
             console.log("Get Order Master Error: " + error)
+            Alert.alert("Get Order Master Error", 'Fail to get order master, please try again.\n' + error)
+
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
         }
 
     }
@@ -337,8 +346,8 @@ export default class VideoCall extends Component {
             const json = await response.json();
 
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
-                console.log('Get Order Detail Error');
-                console.log(json.status);
+                console.log('Get Order Detail Error: ', json.status);
+                Alert.alert("Get Order Detail Error", 'Fail to get order detail, please try again.\n' + json.status)
             }
             else {
                 var data = json.status[0]
@@ -358,10 +367,12 @@ export default class VideoCall extends Component {
 
         } catch (error) {
             console.log("Get Order Detail Error: " + error)
+
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
+            Alert.alert("Get Order Detail Error", 'Fail to get order detail, please try again.\n' + error)
         }
 
     }
@@ -391,8 +402,8 @@ export default class VideoCall extends Component {
             const json = await response.json();
 
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
-                console.log('Get Message Queue Error');
-                console.log(json.status);
+                console.log('Get Message Queue Error: ', json.status);
+                Alert.alert("Get Message Queue Error", 'Fail to get message queue, please try again.\n' + json.data)
             }
             else {
                 var data = json.status[0]
@@ -410,7 +421,8 @@ export default class VideoCall extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
+            Alert.alert("Get Message Queue Error", 'Fail to get message queue, please try again.\n' + error)
         }
 
     }
@@ -547,6 +559,8 @@ export default class VideoCall extends Component {
             } else {
                 console.log('Send Prescription Error: ');
                 console.log(json.status);
+                Alert.alert("Send Prescription Error", 'Fail to send prescription, please try again.\n' + json.status)
+
                 this.setState({
                     isLoading: false
                 });
@@ -556,10 +570,12 @@ export default class VideoCall extends Component {
 
         } catch (error) {
             console.log("Send Prescription Error: " + error)
+            Alert.alert("Send Prescription Error", 'Fail to send prescription, please try again.\n' + error)
+
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
             return false;
         }
 
@@ -589,8 +605,9 @@ export default class VideoCall extends Component {
             const json = await response.json();
 
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
-                console.log('Get Message Queue Error');
-                console.log(json.status);
+                console.log('Get Service Price Error: ', json.status);
+                Alert.alert("Get Service Price Error", 'Fail to get service price, please try again.\n' + json.status)
+
                 this.setState({
                     isLoading: false
                 });
@@ -607,11 +624,12 @@ export default class VideoCall extends Component {
 
 
         } catch (error) {
-            console.log("Get Message Queue: " + error)
+            console.log("Send Prescription Error: " + error)
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            Alert.alert("Get Service Price Error", 'Fail to get service price, please try again.\n' + error)
+            // handleNoInternet()
             return 0;
         }
     }
@@ -648,8 +666,8 @@ export default class VideoCall extends Component {
 
                 return true;
             } else {
-                console.log('Receive Payment Error (Message Queue)');
-                console.log(json.status);
+                console.log('Receive Payment Error: ', json.status);
+                Alert.alert("Receive Payment Error", 'Fail to get receive payment, please try again.\n' + json.status)
                 this.setState({
                     isLoading: false
                 });
@@ -659,11 +677,12 @@ export default class VideoCall extends Component {
 
 
         } catch (error) {
-            console.log("Receive Payment Error (Message Queue): " + error)
+            console.log("Receive Payment Error: ", error)
+            Alert.alert("Receive Payment Error", 'Fail to get receive payment, please try again.\n' + error)
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            // handleNoInternet()
             return false;
         }
 

@@ -107,6 +107,7 @@ export default class Complaint extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Search Symptoms Error');
                 console.log(json.status);
+                Alert.alert("Search Symptoms Error", "Fail to search symptoms, please try again.\n" + json.status)
             }
             else {
                 var data = json.status
@@ -124,7 +125,7 @@ export default class Complaint extends Component {
             this.setState({
                 isLoading: false
             });
-            handleNoInternet()
+            Alert.alert("Search Symptoms Error", "Fail to search symptoms, please try again.\n" + error)
         }
     }
 
@@ -201,6 +202,8 @@ export default class Complaint extends Component {
 
             } else {
                 console.log("Save Complaint Error: " + json.status)
+                Alert.alert("Save Complaint Error", "Fail to save complaint, please try again.\n" + json.status)
+
             };
 
             this.setState({
@@ -209,7 +212,7 @@ export default class Complaint extends Component {
 
         } catch (error) {
             console.log("Save Complaint Error: " + error)
-            handleNoInternet()
+            Alert.alert("Save Complaint Error", "Fail to save complaint, please try again.\n" + error)
             this.setState({
                 isLoading: false
             })

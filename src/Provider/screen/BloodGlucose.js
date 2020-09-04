@@ -63,6 +63,7 @@ export default class BloodGlucose extends Component {
             if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
                 console.log('Load Blood Glucose Error');
                 console.log(json.status);
+                Alert.alert("Load Blood Glucose Error", "Fail to load blood glucose, please try again.\n" + json.status)
             }
             else {
                 var data = json.status[0]
@@ -79,6 +80,7 @@ export default class BloodGlucose extends Component {
 
         } catch (error) {
             console.log("Load Blood Glucose Error: " + error)
+            Alert.alert("Load Blood Glucose Error", "Fail to load blood glucose, please try again.\n" + error)
             handleNoInternet()
             this.setState({
                 isLoading: false
@@ -122,6 +124,7 @@ export default class BloodGlucose extends Component {
                 Alert.alert("Blood Glucose Saved.")
             } else {
                 console.log("Save Blood Glucose Error: " + json.status)
+                Alert.alert("Save Blood Glucose Error", "Fail to save blood glucose, please try again.\n" + json.status)
             };
 
             this.setState({
@@ -130,6 +133,7 @@ export default class BloodGlucose extends Component {
 
         } catch (error) {
             console.log("Save Blood Glucose Error: " + error)
+            Alert.alert("Save Blood Glucose Error", "Fail to save blood glucose, please try again.\n" + error)
             handleNoInternet()
             this.setState({
                 isLoading: false
@@ -146,22 +150,19 @@ export default class BloodGlucose extends Component {
     handleSave = async () => {
         // Ingore the operation if it is empty value
         if (this.state.blood_glucose_level === '') {
-            console.log("Empty String")
+            Alert.alert("Invalid Blood Glucose", "Please enter a blood glucose reading.")
             return;
         }
 
         // Validate the input is float
         try {
-            var blood_glucose_level = parseFloat(this.state.blood_glucose_level)
-
-            // Parse Blood Glucose to 1 decimal places
-            var blood_glucose_level_1dp = this.round(blood_glucose_level, 1)
-
             // Check is it numeric input
-            if (isNaN(blood_glucose_level_1dp)) {
+            if (isNaN(this.state.blood_glucose_level)) {
                 Alert.alert("Invalid Blood Glucose", "Blood Glucose only accepts number input with 1 decimal point.")
                 return
             }
+
+            var blood_glucose_level_1dp = this.round(parseFloat(this.state.blood_glucose_level), 1)
 
             // Check is temperature within boundaries 0~999.99
             if (blood_glucose_level_1dp < 0 || blood_glucose_level_1dp >= 100) {
