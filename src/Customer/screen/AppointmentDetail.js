@@ -24,8 +24,9 @@ export default class AppointmentDetail extends Component {
     }
 
     componentDidMount() {
-        let date = this.state.date.substring(0, this.state.date.length - 6) + ' ' + this.state.startTime;
-        let appointmentDateTime = parse(date, "MMM dd HH:mm", new Date());
+
+        let date = this.state.date + ' ' + this.state.startTime;
+        let appointmentDateTime = parse(date, "yyyy-MM-dd HH:mm", new Date());
         if (isAfter(new Date(), appointmentDateTime)) {
             this.setState({
                 timeReach: true
@@ -35,10 +36,8 @@ export default class AppointmentDetail extends Component {
     }
 
     cancelAppointment = () => {
-        let date = this.state.date;
-        date = date.substring(0, date.length - 6);
 
-        let startDate = parse(date, "MMM dd", new Date());
+        let startDate = parse(this.state.date, "yyyy-MM-dd", new Date());
         let duration = intervalToDuration({ start: startDate, end: new Date() });
         if (duration.days === 0) {
             alert('You can only cancel the appointment for more than 24 hours');
