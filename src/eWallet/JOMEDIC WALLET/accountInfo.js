@@ -1,6 +1,6 @@
 
 import React, { Component } from 'react';
-import {StyleSheet,Text,View, TouchableOpacity,} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, } from 'react-native';
 import { getTodayDate } from '../util/getDate';
 import { URL } from '../util/provider';
 
@@ -24,7 +24,7 @@ export default class AccountInfo extends Component {
       txn_cd: 'MEDEWALL04',
       tstamp: new Date(),
       data: {
-        userID: 'syazreenshuayli@gmail.com'
+        userID: this.props.route.params.userId
       }
     }
 
@@ -42,7 +42,7 @@ export default class AccountInfo extends Component {
         this.setState({
           userID: responseJson.status.user_id,
           eWalletAccNo: responseJson.status.ewallet_acc_no,
-          bankAccNovalue: responseJson.status.bank_acc_no,
+          bankAccNovalue: responseJson.status.bank_acc_no === 'undefined' ? '-' : responseJson.status.bank_acc_no,
           creditCardNovalue: responseJson.status.credit_card_no,
           status: responseJson.status.status,
         })
@@ -59,8 +59,8 @@ export default class AccountInfo extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <View style = {{ paddingTop: 10, paddingBottom:30}}>
-          <Text style = {{ textAlign:"center", fontSize:25}}> Account </Text>
+        <View style={{ paddingTop: 10, paddingBottom: 30 }}>
+          <Text style={{ textAlign: "center", fontSize: 25 }}> Account </Text>
         </View>
         <View style={styles.detail}>
           <View style={styles.detailRow}>
@@ -82,7 +82,7 @@ export default class AccountInfo extends Component {
 
 
         </View>
-        
+
 
 
 

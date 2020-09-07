@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, FlatList, List, TouchableOpacity, TextInput } from 'react-native';
+import { Text, StyleSheet, View, FlatList, List, TouchableOpacity, TextInput, Alert } from 'react-native';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
 import { Collapse, CollapseHeader, CollapseBody } from "accordion-collapse-react-native";
 import { getTodayDate } from '../util/getDate';
@@ -88,7 +88,7 @@ export default class onlineBanking extends Component {
                     }).then((response) => response.json())
                         .then((responseJson) => {
                             if (responseJson.status == "SUCCESS") {
-                                this.props.navigation.goBack();
+                                this.props.navigation.navigate('Balance');
                                 alert('Top Up Successfully');
                             }
 
@@ -109,64 +109,77 @@ export default class onlineBanking extends Component {
     onlineBanking = () => {
         console.log(this.state.amount, this.state.bankValue);
         if (this.state.amount && this.state.bankValue) {
+            Alert.alert(
+                'Confirmation',
+                'Confirm to pay RM ' + this.state.amount + ' ?',
+                [
+                    { text: 'Cancel' },
+                    {
+                        text: 'Okay', onPress: () => {
+                            let data = {
+                                txn_cd: 'MEDEWALL04',
+                                tstamp: getTodayDate(),
+                                data: {
+                                    userID: this.props.route.params.userId
+                                }
+                            }
 
-            let data = {
-                txn_cd: 'MEDEWALL04',
-                tstamp: getTodayDate(),
-                data: {
-                    userID: this.props.route.params.userId
-                }
-            }
+                            fetch(URL + '/EWALL', {
+                                method: 'POST',
+                                headers: {
+                                    Accept: 'application/json',
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(data)
 
-            fetch(URL + '/EWALL', {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
+                            }).then((response) => response.json())
+                                .then((responseJson) => {
+                                    data = {
+                                        txn_cd: 'MEDEWALL03',
+                                        tstamp: getTodayDate(),
+                                        data: {
+                                            userID: this.props.route.params.userId,
+                                            ewalletAccNo: responseJson.status.ewallet_acc_no,
+                                            banAccNo: responseJson.status.bank_acc_no,
+                                            creditCardNo: responseJson.status.credit_card_no,
+                                            availableAmt: responseJson.status.available_amt + parseInt(this.state.amount),
+                                            freezeAmt: responseJson.status.freeze_amt,
+                                            floatAmt: responseJson.status.float_amt,
+                                            currencyCd: responseJson.status.currency_cd,
+                                            status: responseJson.status.status,
+                                        }
+                                    }
 
-            }).then((response) => response.json())
-                .then((responseJson) => {
-                    data = {
-                        txn_cd: 'MEDEWALL03',
-                        tstamp: getTodayDate(),
-                        data: {
-                            userID: this.props.route.params.userId,
-                            ewalletAccNo: responseJson.status.ewallet_acc_no,
-                            banAccNo: responseJson.status.bank_acc_no,
-                            creditCardNo: responseJson.status.credit_card_no,
-                            availableAmt: responseJson.status.available_amt + parseInt(this.state.amount),
-                            freezeAmt: responseJson.status.freeze_amt,
-                            floatAmt: responseJson.status.float_amt,
-                            currencyCd: responseJson.status.currency_cd,
-                            status: responseJson.status.status,
+
+                                    fetch(URL + '/EWALL', {
+                                        method: 'POST',
+                                        headers: {
+                                            Accept: 'application/json',
+                                            'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify(data)
+
+                                    }).then((response) => response.json())
+                                        .then((responseJson) => {
+                                            if (responseJson.status == "SUCCESS") {
+                                                this.props.navigation.navigate('Balance');
+                                                alert('Top Up Successfully');
+                                            }
+
+                                        }).catch((error) => {
+                                            alert(error)
+                                        });
+
+                                }).catch((error) => {
+                                    alert(error)
+                                });
                         }
                     }
 
+                ],
+                { cancelable: false }
+            )
 
-                    fetch(URL + '/EWALL', {
-                        method: 'POST',
-                        headers: {
-                            Accept: 'application/json',
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(data)
-
-                    }).then((response) => response.json())
-                        .then((responseJson) => {
-                            if (responseJson.status == "SUCCESS") {
-                                this.props.navigation.goBack();
-                                alert('Top Up Successfully');
-                            }
-
-                        }).catch((error) => {
-                            alert(error)
-                        });
-
-                }).catch((error) => {
-                    alert(error)
-                });
         }
         else {
             alert('Please choose your bank provider and enter the top up amount');
@@ -363,14 +376,14 @@ export default class onlineBanking extends Component {
                             </CollapseHeader>
                             <CollapseBody>
                                 <View style={{ padding: 10, }}>
-                                <Text style = {{height: 20, marginRight: 150,marginLeft: 50}}> Pin Reload</Text>
+                                    <Text style={{ height: 20, marginRight: 150, marginLeft: 50 }}> Pin Reload</Text>
 
                                     <TextInput
                                         value={this.state.pinNumber}
                                         onChangeText={(pinNumber) => this.setState({ pinNumber })}
                                         placeholder={' Enter Reload Pin'}
                                         style={styles.InputCVV}
-                                      
+
                                     />
                                 </View>
                                 <View style={{ padding: 9 }}>
@@ -428,7 +441,7 @@ const styles = StyleSheet.create({
         marginBottom: 30,
         marginTop: 30,
         fontSize: 18,
-        
+
 
     },
 
