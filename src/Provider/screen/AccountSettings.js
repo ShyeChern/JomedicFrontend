@@ -8,6 +8,7 @@ import { getTodayDate } from '../util/getDate'
 import { handleNoInternet } from '../util/CheckConn'
 import Loader from './Loader'
 import defaultAvatar from '../img/defaultAvatar.png'
+import RNFetchBlob from 'rn-fetch-blob';
 
 export default class AccountSettings extends Component {
     constructor(props) {
@@ -62,6 +63,64 @@ export default class AccountSettings extends Component {
         });
     }
 
+    // loadProfileData = async () => {
+    //     this.setState({ isLoading: true })
+
+    //     let user_id = this.state.user_id;
+
+    //     // Get User Profile and its data
+    //     let datas = {
+    //         txn_cd: 'MEDORDER020',
+    //         tstamp: getTodayDate(),
+    //         data: {
+    //             user_id: user_id,
+    //         }
+    //     }
+
+    //     try {
+
+    //         const response = await fetch(URL_Provider, {
+    //             method: 'POST',
+    //             headers: {
+    //                 Accept: 'application/json',
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify(datas)
+    //         });
+
+    //         const json = await response.json();
+
+    //         if (json.status === 'fail' || json.status === 'duplicate' || json.status === 'emptyValue' || json.status === 'incompleteDataReceived' || json.status === 'ERROR901') {
+    //             console.log('Get User Profile Error');
+    //             console.log(json.status);
+    //             Alert.alert("Get User Profile Error", "Fail to get user profile, please try again.\n" + json.status)
+    //         }
+    //         else {
+    //             let data = json.status[0]
+    //             this.setState({
+    //                 name: data.name,
+    //                 avatar: { uri: data.picture },
+    //                 profileData: data,
+    //             })
+    //         };
+
+    //         this.setState({
+    //             isLoading: false,
+    //             isProfileUpdated: false
+    //         });
+
+    //     } catch (error) {
+    //         console.log('Get User Profile Error');
+    //         console.log(error)
+    //         this.setState({
+    //             isLoading: false,
+    //             isProfileUpdated: false
+    //         });
+    //         // handleNoInternet()
+    //         Alert.alert("Get User Profile Error", "Fail to get user profile, please try again.\n" + error)
+    //     }
+    // }
+
     loadProfileData = async () => {
         this.setState({ isLoading: true })
 
@@ -69,7 +128,7 @@ export default class AccountSettings extends Component {
 
         // Get User Profile and its data
         let datas = {
-            txn_cd: 'MEDORDER020',
+            txn_cd: 'MEDORDER020-2',
             tstamp: getTodayDate(),
             data: {
                 user_id: user_id,
@@ -96,10 +155,18 @@ export default class AccountSettings extends Component {
             }
             else {
                 let data = json.status[0]
+                if (data.picture !== null) {
+                    let unitArray = new Uint8Array(data.picture.data);
+
+                    const stringChar = unitArray.reduce((data, byte) => {
+                        return data + String.fromCharCode(byte);
+                    }, '');
+
+                    this.setState({ avatar: {uri: 'data:image/jpg;base64,' + RNFetchBlob.base64.encode(stringChar) }});
+                }
+
                 this.setState({
                     name: data.name,
-                    avatar: { uri: data.picture },
-                    profileData: data,
                 })
             };
 

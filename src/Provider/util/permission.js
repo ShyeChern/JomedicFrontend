@@ -83,3 +83,29 @@ export async function requestLocationPermission() {
 		return false
 	}
 }
+
+export async function requestImagePickerPermission() {
+	try {
+		if (Platform.OS === 'ios') {
+			// Do nothing at the moment
+			return true;
+		} else {
+			var responses = await requestMultiple([PERMISSIONS.ANDROID.CAMERA, PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE])
+
+			var androidCamera = responses[PERMISSIONS.ANDROID.CAMERA]
+			var androidExternalStorage = responses[PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE]
+
+			if (androidCamera === 'granted' && androidExternalStorage == 'granted') {
+				return true;
+			} else if (
+				androidCamera === "blocked" || androidCamera === "unavailable" ||
+				androidExternalStorage === "blocked" || androidExternalStorage === "unavailable") {
+				return false;
+			}
+		}
+	} catch (err) {
+		console.log("Fail to get camera and external storage permission: ")
+		console.log(err);
+		return false
+	}
+}
