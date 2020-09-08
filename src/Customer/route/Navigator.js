@@ -33,6 +33,9 @@ import Faq from '../screen/Faq';
 import ContactUs from '../screen/ContactUs';
 import UserManual from '../screen/UserManual';
 import AppointmentDetail from '../screen/AppointmentDetail';
+import Review from '../screen/Review';
+import PreviousChat from '../screen/PreviousChat';
+import PreviousChatDetail from '../screen/PreviousChatDetail';
 
 
 import { ModalStackNavigator } from '../../Provider/lib/router';
@@ -310,6 +313,20 @@ function MainNavigator({ navigation }) {
                 title: 'User Manual',
                 headerTintColor: '#FFFFFF',
                 headerTransparent: false,
+            }} />
+            <Stack.Screen name='Review' component={Review} options={{
+                title: 'Review',
+                headerTintColor: '#FFFFFF',
+                headerTransparent: false,
+            }} />
+            <Stack.Screen name='PreviousChat' component={PreviousChat} options={{
+                title: 'Previous Chat',
+                headerTintColor: '#FFFFFF',
+                headerTransparent: false,
+            }} />
+            <Stack.Screen name='PreviousChatDetail' component={PreviousChatDetail} options={{
+                title: '',
+                headerTintColor: '#FFFFFF',
             }} />
         </Stack.Navigator>
     );

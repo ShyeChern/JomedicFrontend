@@ -21,15 +21,29 @@ const SETTING = [
                 Name: 'User Manual',
                 Navigate: 'UserManual'
             },
+            
+        ],
+    },
+    {
+        section: 'Service',
+        data: [
+            {
+                Name: 'Service History',
+                Navigate: 'History'
+            },
+            {
+                Name: 'Previous Chat',
+                Navigate: 'PreviousChat'
+            },
+            {
+                Name: 'Review',
+                Navigate: 'Review'
+            },
         ],
     },
     {
         section: 'Security & Login',
         data: [
-            {
-                Name: 'Order History',
-                Navigate: 'History'
-            },
             {
                 Name: 'Change Password',
                 Navigate: 'ChangePassword'
@@ -216,10 +230,10 @@ export default class Profile extends Component {
                                     <Text style={{ fontSize: 12, lineHeight: 16, color: '#0019F5' }}>Edit Profile</Text>
                                 </TouchableOpacity>
                             </View>
-                            <View style={{ justifyContent: 'center', flexDirection: 'row', alignItems: 'center' }}>
+                            {/* <View style={{ justifyContent: 'center', flexDirection: 'row', alignItems: 'center' }}>
                                 <MaterialCommunityIcons name={'star'} size={30} color='#000000' />
                                 <Text style={[styles.labelText, { marginLeft: 10 }]}>{this.state.rating === null ? '0' : (this.state.rating).toFixed(2)}</Text>
-                            </View>
+                            </View> */}
                         </View>
                     </View>
                     <View style={{ flex: 4, marginBottom: 20 }}>
