@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Text, StyleSheet, View, FlatList, SafeAreaView, TouchableOpacity, RefreshControl, Image } from 'react-native';
 import { getCustomerId } from "../util/Auth";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import RNFetchBlob from 'rn-fetch-blob';
 import { URL } from '../util/FetchURL';
 
@@ -14,7 +14,7 @@ PreviousChatData = ({ orderNo, doctorName, specialty, doctorImage, date, that })
                     DoctorSpecialist: specialty,
                     OrderNo: orderNo,
                     DoctorImage: doctorImage,
-                    OrderDate:date
+                    OrderDate: date
                 })}
             >
                 <View style={{ flex: 1, justifyContent: 'center' }}>
@@ -26,12 +26,12 @@ PreviousChatData = ({ orderNo, doctorName, specialty, doctorImage, date, that })
                     />
                 </View>
 
-                <View style={{ flex: 3, justifyContent: 'space-around' }}>
+                <View style={{ flex: 3, justifyContent: 'space-around', marginLeft: 5 }}>
                     <Text style={{ fontSize: 14, lineHeight: 20, fontWeight: 'bold' }}>{orderNo}</Text>
                     <Text style={{ fontSize: 14, lineHeight: 20, fontWeight: '600' }}>{doctorName}</Text>
                     <Text style={{ fontSize: 10, lineHeight: 20, fontWeight: '600' }}>{specialty}</Text>
                 </View>
-                <View style={{ flex: 1, justifyContent: 'space-around' }}>
+                <View style={{ justifyContent: 'space-around', alignItems: 'flex-end', marginRight: 5 }}>
                     <Text style={{ fontSize: 14, lineHeight: 16, fontWeight: '600' }}>{date}</Text>
                 </View>
             </TouchableOpacity>
@@ -85,12 +85,12 @@ export default class PreviousChat extends Component {
 
                             element.picture = RNFetchBlob.base64.encode(stringChar);
                         }
-
+                        
                         let previousChatObject = {
                             orderNo: element.order_no,
                             doctorName: element.name,
                             specialty: element.specialty_cd,
-                            date: format(new Date(element.txn_date), "d/MM/yyyy "),
+                            date: format(parseISO(element.txn_date), "d/MM/yyyy ").toString(),
                             doctorImage: element.picture,
                         };
 

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Text, StyleSheet, View, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
 import { ListItem, Avatar, AirbnbRating } from 'react-native-elements';
 import { getCustomerId } from "../util/Auth";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import RNFetchBlob from 'rn-fetch-blob';
 import { URL } from '../util/FetchURL';
 
@@ -78,7 +78,7 @@ export default class Review extends Component {
                         let feedbackObject = {
                             name: element.name,
                             rating: element.rating,
-                            date: format(new Date(element.txn_date), "d/MM/yyyy "),
+                            date: format(parseISO(element.txn_date), "d/MM/yyyy "),
                             comment: comment,
                             tags: tags,
                             avatar: element.picture,
