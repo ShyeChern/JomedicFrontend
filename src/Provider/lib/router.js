@@ -569,8 +569,9 @@ const AccountStackNavigator = ({ navigation, route }) => {
             />
             <AccountStack.Screen name="E-Wallet" component={EWalletScreen}
                 options={{
-                    headerTintColor: '#000000',
                     headerShown: true,
+                    headerTransparent: true,
+                    headerTitle: "",
                 }}
             />
             <AccountStack.Screen name="FAQ" component={FAQScreen}

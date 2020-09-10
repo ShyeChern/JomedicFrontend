@@ -51,7 +51,8 @@ export default class PatientChatList extends Component {
 
         BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
 
-        this.loadChatListData()
+        this.loadChatListData();
+        this.validateEWallet();
     }
 
     componentWillUnmount() {
@@ -115,6 +116,49 @@ export default class PatientChatList extends Component {
             })
             Alert.alert('Get Chats Data Error', 'Fail to get chats data, please try again.\n' + error);
         }
+    }
+
+
+    validateEWallet = async () => {
+        let user_id = this.state.tenant_id
+
+        let datas = {
+            txn_cd: "MEDORDER075",
+            tstamp: getTodayDate(),
+            data: {
+                user_id: user_id,
+            }
+        }
+
+        try {
+            const response = await fetch(URL_Provider, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datas)
+            });
+
+            const json = await response.json();
+
+            if (json.status === 'SUCCESS' || json.status === 'success') {
+                console.log("Validation success, e-Wallet account exist.")
+            } else {
+                console.log('Validate E-Wallet Account Error: ', json.status);
+                Alert.alert('Validate E-Wallet Account Error', 'Fail to validate e-Wallet account, please try again.\n' + json.status);
+                return;
+            }
+
+        }
+        catch (error) {
+            console.log('Validate E-Wallet Account Error: ', error);
+            this.setState({
+                onRefresh: false
+            })
+            Alert.alert('Validate E-Wallet Account Error', 'Fail to validate e-Wallet account, please try again.\n' + error);
+        }
+
     }
 
     refreshChatList = (refresh) => {
