@@ -12,6 +12,8 @@ import { handleNoInternet } from '../util/CheckConn'
 import { requestImagePickerPermission } from '../util/permission'
 import Loader from './Loader'
 import defaultAvatar from '../img/defaultAvatar.png'
+import { DISTRICT } from '"../../../Customer/util/District';
+
 // import ImagePicker from 'react-native-image-crop-picker';
 import ImagePicker from 'react-native-image-picker';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -41,7 +43,7 @@ export default class EditProfile extends Component {
             address3: '',
             postcode: '',
             city: '',
-            state: '',
+            state: 'Johor',
 
             // Radio Button Initalization, 0: Male, 1: Female
             radioBtnsData: ['Male', 'Female', 'Others'],
@@ -130,11 +132,11 @@ export default class EditProfile extends Component {
                     }
 
                     // Gender Condition Checking
-                    if(data.gender_cd.toUpperCase() === "MALE" ){
+                    if (data.gender_cd.toUpperCase() === "MALE") {
                         this.setState({
                             checked: 0
                         })
-                    } else if (data.gender_cd.toUpperCase() === "FEMALE" ) {
+                    } else if (data.gender_cd.toUpperCase() === "FEMALE") {
                         this.setState({
                             checked: 1
                         })
@@ -367,7 +369,7 @@ export default class EditProfile extends Component {
             if (json.status === 'success' || json.status === "SUCCESS") {
                 // Return to Account Settings
                 console.log(json.status)
-                this.props.navigation.navigate("Account", {isProfileUpdated: true})
+                this.props.navigation.navigate("Account", { isProfileUpdated: true })
             } else {
                 console.log('Update User Profile Error');
                 console.log(json.status);
@@ -572,24 +574,13 @@ export default class EditProfile extends Component {
                         maxLength={40}
                         onChangeText={(address) => this.setState({ address3: address })} />
 
-                    <Text style={styles.labelText}>Postcode</Text>
-                    <TextInput style={styles.inputStyle}
-                        value={this.state.postcode}
-                        maxLength={5}
-                        onChangeText={(postcode) => this.setState({ postcode: postcode })} />
-
-                    <Text style={styles.labelText}>City</Text>
-                    <TextInput style={styles.inputStyle}
-                        value={this.state.city}
-                        maxLength={30}
-                        onChangeText={(city) => this.setState({ city: city })} />
-
                     <Text style={styles.labelText}>State</Text>
                     <View style={styles.pickerContainer}>
                         <Picker
                             style={styles.pickerStyle}
-                            mode="dropdown"
-                            selectedValue={this.state.state || "Johor"}
+                            // mode="dropdown"
+                            label="Select State"
+                            selectedValue={this.state.state}
                             onValueChange={(itemValue, itemIndex) => {
                                 this.setState({ state: itemValue })
                             }
@@ -607,11 +598,44 @@ export default class EditProfile extends Component {
                             <Picker.Item label="Sarawak" value={"Sarawak"} />
                             <Picker.Item label="Selangor" value={"Selangor"} />
                             <Picker.Item label="Terengganu" value={"Terengganu"} />
-                            <Picker.Item label="Wilayah Persekutuan Kuala Lumpur" value={"W.P Kuala Lumpur"} />
-                            <Picker.Item label="Wilayah Persekutuan Labuan" value={"W.P Labuan"} />
-                            <Picker.Item label="Wilayah Persekutuan Putrajaya" value={"W.P Putrajaya"} />
+                            <Picker.Item label="Wilayah Persekutuan Kuala Lumpur" value={"Wilayah Persekutuan Kuala Lumpur"} />
+                            <Picker.Item label="Wilayah Persekutuan Labuan" value={"Wilayah Persekutuan Labuan"} />
+                            <Picker.Item label="Wilayah Persekutuan Putrajaya" value={"Wilayah Persekutuan Putrajaya"} />
                         </Picker>
                     </View>
+
+                    <Text style={styles.labelText}>City</Text>
+                    <View style={styles.pickerContainer}>
+                        <Picker
+                            style={styles.pickerStyle}
+                            // mode="dropdown"
+                            label="Select City"
+                            selectedValue={this.state.city}
+                            onValueChange={(itemValue, itemIndex) => {
+                                this.setState({ city: itemValue })
+                            }
+                            }>
+                            { 
+                                DISTRICT[this.state.state.replace(/\s+/g, '')].filter(function (value) {
+                                    if (value === "All") {
+                                        return false; // skip
+                                    }
+                                    return true;
+                                }).map((district, index) => {
+                                    return (
+                                        <Picker.Item label={district} value={district} />
+                                    )
+                                })
+                            }
+                            <Picker.Item label='Others' value='Others' />
+                        </Picker>
+                    </View>
+
+                    <Text style={styles.labelText}>Postcode</Text>
+                    <TextInput style={styles.inputStyle}
+                        value={this.state.postcode}
+                        maxLength={5}
+                        onChangeText={(postcode) => this.setState({ postcode: postcode })} />
 
                     <TouchableOpacity style={styles.buttonSave}
                         onPress={() => this.handleSave()}>
