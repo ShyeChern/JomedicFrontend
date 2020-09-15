@@ -78,7 +78,7 @@ export default class Review extends Component {
                         let feedbackObject = {
                             name: element.name,
                             rating: element.rating,
-                            // date: format(parseISO(element.txn_date), "d/MM/yyyy "),
+                            date: format(parseISO(element.txn_date), "d/MM/yyyy "),
                             comment: comment,
                             tags: tags,
                             avatar: element.picture,
